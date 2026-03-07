@@ -3,6 +3,7 @@ import {
   COMPENDIUM_IMPORT_VERSION,
   COMPENDIUM_SEED,
   findCompendiumEntry,
+  listCompendiumSpells,
   searchCompendiumSeed,
   spellRecordFromCompendium,
 } from "../shared/data/compendiumSeed";
@@ -29,7 +30,21 @@ describe("compendium seed", () => {
       id: "fire-bolt",
       name: "Fire Bolt",
       level: 0,
+      classes: ["Sorcerer", "Wizard"],
       attackType: "spellAttack",
     });
+  });
+
+  it("filters spells by class list for the builder workflow", () => {
+    const warlockSpells = listCompendiumSpells(undefined, "Warlock").map((entry) => entry.slug);
+    const rangerSpells = listCompendiumSpells(undefined, "Ranger").map((entry) => entry.slug);
+
+    expect(warlockSpells).toContain("eldritch-blast");
+    expect(warlockSpells).toContain("hex");
+    expect(warlockSpells).not.toContain("guiding-bolt");
+
+    expect(rangerSpells).toContain("hunters-mark");
+    expect(rangerSpells).toContain("cure-wounds");
+    expect(rangerSpells).not.toContain("magic-missile");
   });
 });

@@ -66,7 +66,7 @@ describe("calculateDerivedState", () => {
         armorId: null,
         shieldEquipped: false,
         spellIds: ["magic-missile", "fire-bolt"],
-        preparedSpellIds: ["magic-missile"],
+        preparedSpellIds: ["magic-missile", "fire-bolt"],
       }),
     );
 
@@ -78,6 +78,7 @@ describe("calculateDerivedState", () => {
     expect(derived.spellcasting.spellSlotsMax).toEqual([4, 3, 2]);
     expect(derived.spellcasting.pactSlotsMax).toBe(0);
     expect(derived.spellcasting.pactSlotLevel).toBeNull();
+    expect(derived.spellcasting.preparedSpells.map((spell) => spell.id)).toEqual(["magic-missile"]);
   });
 
   it("computes half caster spell progression for paladins", () => {

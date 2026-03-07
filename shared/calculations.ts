@@ -193,6 +193,7 @@ function buildSpellSummaries(record: CharacterRecord, effects: Effect[]): SpellR
       level: 0,
       school: "Unknown",
       summary: "Custom spell entry.",
+      classes: [],
     };
   });
 }
@@ -286,7 +287,7 @@ export function calculateDerivedState(record: CharacterRecord, homebrewEntries: 
       spellAttackBonus: spellAbilityModifier === null ? null : spellAbilityModifier + profBonus,
       spellSaveDC: spellAbilityModifier === null ? null : 8 + profBonus + spellAbilityModifier,
       knownSpells,
-      preparedSpells: knownSpells.filter((spell) => record.preparedSpellIds.includes(spell.id)),
+      preparedSpells: knownSpells.filter((spell) => spell.level > 0 && record.preparedSpellIds.includes(spell.id)),
     },
     weaponEntries,
     classFeatures: [...classTemplate.featureSummary, record.notes.classFeatures].filter(Boolean),

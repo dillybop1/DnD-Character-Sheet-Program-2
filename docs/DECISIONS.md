@@ -69,3 +69,10 @@
 - Context: Updated 2024 class support needs more than one spell-slot progression family, but the saved character shape should stay stable for future books and migrations.
 - Decision: Model spellcasting progression by class `casterType` (`none`, `full`, `half`, `pact`) and derive a uniform spell summary that can represent both standard slots and pact slots.
 - Consequences: Paladin, Ranger, and Warlock progression now fit the same calculation pipeline without changing stored character records, but multiclass spell-slot blending and class-specific exceptions remain out of scope for v1.
+
+## DEC-011
+
+- Date: `2026-03-06`
+- Context: A global unfiltered spell picker and single-effect homebrew editor were too loose for real character building once more classes were added.
+- Decision: Restrict manual spell selection to class-filtered compendium lists and let one homebrew entry compose multiple supported effects in the editor.
+- Consequences: The builder is more accurate and less noisy for players, but off-list spell access now flows through explicit homebrew grants instead of an unrestricted spell checkbox list.

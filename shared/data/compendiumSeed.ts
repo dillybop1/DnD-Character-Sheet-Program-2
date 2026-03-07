@@ -255,16 +255,34 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     type: "spell",
     name: "Fire Bolt",
     summary: "A ranged attack cantrip that deals fire damage and scales with character level.",
-    tags: ["cantrip", "evocation", "attack", "wizard", "arcane", "fire"],
+    tags: ["cantrip", "evocation", "attack", "wizard", "sorcerer", "arcane", "fire"],
     payload: {
       level: 0,
       school: "Evocation",
-      classes: ["Wizard"],
+      classes: ["Sorcerer", "Wizard"],
       castingTime: "Action",
       range: "120 feet",
       duration: "Instantaneous",
       attackType: "spellAttack",
       cantripDamage: "1d10 fire",
+    },
+  },
+  {
+    slug: "vicious-mockery",
+    type: "spell",
+    name: "Vicious Mockery",
+    summary: "A cutting insult that deals psychic damage and hinders the target's next attack.",
+    tags: ["cantrip", "enchantment", "bard", "psychic", "save"],
+    payload: {
+      level: 0,
+      school: "Enchantment",
+      classes: ["Bard"],
+      castingTime: "Action",
+      range: "60 feet",
+      duration: "Instantaneous",
+      attackType: "save",
+      saveAbility: "Wisdom",
+      cantripDamage: "1d6 psychic",
     },
   },
   {
@@ -286,15 +304,30 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     },
   },
   {
+    slug: "druidcraft",
+    type: "spell",
+    name: "Druidcraft",
+    summary: "A primal utility cantrip for small natural omens and minor sensory effects.",
+    tags: ["cantrip", "transmutation", "druid", "primal", "utility"],
+    payload: {
+      level: 0,
+      school: "Transmutation",
+      classes: ["Druid"],
+      castingTime: "Action",
+      range: "30 feet",
+      duration: "Instantaneous",
+    },
+  },
+  {
     slug: "guidance",
     type: "spell",
     name: "Guidance",
     summary: "A support cantrip that boosts a future check with a small divine bonus.",
-    tags: ["cantrip", "support", "cleric", "divine", "check bonus"],
+    tags: ["cantrip", "support", "cleric", "druid", "divine", "primal", "check bonus"],
     payload: {
       level: 0,
       school: "Divination",
-      classes: ["Cleric"],
+      classes: ["Cleric", "Druid"],
       castingTime: "Action",
       range: "Touch",
       duration: "Concentration, up to 1 minute",
@@ -306,14 +339,31 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     type: "spell",
     name: "Mage Hand",
     summary: "A utility cantrip that creates a spectral hand for simple remote manipulation.",
-    tags: ["cantrip", "utility", "wizard", "arcane", "spectral hand"],
+    tags: ["cantrip", "utility", "bard", "warlock", "wizard", "arcane", "spectral hand"],
     payload: {
       level: 0,
       school: "Conjuration",
-      classes: ["Wizard"],
+      classes: ["Bard", "Warlock", "Wizard"],
       castingTime: "Action",
       range: "30 feet",
       duration: "1 minute",
+    },
+  },
+  {
+    slug: "eldritch-blast",
+    type: "spell",
+    name: "Eldritch Blast",
+    summary: "A force cantrip that fires a ranged beam and scales into multiple blasts with level.",
+    tags: ["cantrip", "evocation", "warlock", "force", "spell attack"],
+    payload: {
+      level: 0,
+      school: "Evocation",
+      classes: ["Warlock"],
+      castingTime: "Action",
+      range: "120 feet",
+      duration: "Instantaneous",
+      attackType: "spellAttack",
+      cantripDamage: "1d10 force",
     },
   },
   {
@@ -321,11 +371,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     type: "spell",
     name: "Light",
     summary: "A utility cantrip that causes an object to emit bright light for an extended period.",
-    tags: ["cantrip", "utility", "cleric", "wizard", "illumination"],
+    tags: ["cantrip", "utility", "bard", "cleric", "sorcerer", "wizard", "illumination"],
     payload: {
       level: 0,
       school: "Evocation",
-      classes: ["Cleric", "Wizard"],
+      classes: ["Bard", "Cleric", "Sorcerer", "Wizard"],
       castingTime: "Action",
       range: "Touch",
       duration: "1 hour",
@@ -336,11 +386,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     type: "spell",
     name: "Magic Missile",
     summary: "A dependable arcane spell that creates force darts which do not rely on an attack roll.",
-    tags: ["level 1", "evocation", "wizard", "force", "reliable damage"],
+    tags: ["level 1", "evocation", "sorcerer", "wizard", "force", "reliable damage"],
     payload: {
       level: 1,
       school: "Evocation",
-      classes: ["Wizard"],
+      classes: ["Sorcerer", "Wizard"],
       castingTime: "Action",
       range: "120 feet",
       duration: "Instantaneous",
@@ -352,11 +402,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     type: "spell",
     name: "Mage Armor",
     summary: "A defensive spell that sets a stronger baseline AC for an unarmored target.",
-    tags: ["level 1", "abjuration", "wizard", "armor class", "defense"],
+    tags: ["level 1", "abjuration", "sorcerer", "wizard", "armor class", "defense"],
     payload: {
       level: 1,
       school: "Abjuration",
-      classes: ["Wizard"],
+      classes: ["Sorcerer", "Wizard"],
       castingTime: "Action",
       range: "Touch",
       duration: "8 hours",
@@ -368,11 +418,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     type: "spell",
     name: "Cure Wounds",
     summary: "A staple restorative spell that heals a creature through divine or primal magic.",
-    tags: ["level 1", "healing", "cleric", "support", "abjuration"],
+    tags: ["level 1", "healing", "bard", "cleric", "druid", "paladin", "ranger", "support", "abjuration"],
     payload: {
       level: 1,
       school: "Abjuration",
-      classes: ["Cleric"],
+      classes: ["Bard", "Cleric", "Druid", "Paladin", "Ranger"],
       castingTime: "Action",
       range: "Touch",
       duration: "Instantaneous",
@@ -384,11 +434,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     type: "spell",
     name: "Healing Word",
     summary: "A fast healing spell that restores a smaller amount of hit points at range.",
-    tags: ["level 1", "healing", "cleric", "bonus action", "support"],
+    tags: ["level 1", "healing", "bard", "cleric", "druid", "bonus action", "support"],
     payload: {
       level: 1,
       school: "Abjuration",
-      classes: ["Cleric"],
+      classes: ["Bard", "Cleric", "Druid"],
       castingTime: "Bonus Action",
       range: "60 feet",
       duration: "Instantaneous",
@@ -417,11 +467,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     type: "spell",
     name: "Bless",
     summary: "A concentration spell that increases allies' attack rolls and saving throws.",
-    tags: ["level 1", "buff", "cleric", "concentration", "support"],
+    tags: ["level 1", "buff", "cleric", "paladin", "concentration", "support"],
     payload: {
       level: 1,
       school: "Enchantment",
-      classes: ["Cleric"],
+      classes: ["Cleric", "Paladin"],
       castingTime: "Action",
       range: "30 feet",
       duration: "Concentration, up to 1 minute",
@@ -433,11 +483,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     type: "spell",
     name: "Detect Magic",
     summary: "A ritual-friendly utility spell for sensing the presence of magic nearby.",
-    tags: ["level 1", "divination", "cleric", "wizard", "ritual", "utility"],
+    tags: ["level 1", "divination", "bard", "cleric", "druid", "paladin", "ranger", "sorcerer", "warlock", "wizard", "ritual", "utility"],
     payload: {
       level: 1,
       school: "Divination",
-      classes: ["Cleric", "Wizard"],
+      classes: ["Bard", "Cleric", "Druid", "Paladin", "Ranger", "Sorcerer", "Warlock", "Wizard"],
       castingTime: "Action",
       range: "Self",
       duration: "Concentration, up to 10 minutes",
@@ -450,14 +500,63 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     type: "spell",
     name: "Sleep",
     summary: "An arcane control spell that can knock weaker creatures unconscious.",
-    tags: ["level 1", "enchantment", "wizard", "control", "incapacitate"],
+    tags: ["level 1", "enchantment", "bard", "sorcerer", "wizard", "control", "incapacitate"],
     payload: {
       level: 1,
       school: "Enchantment",
-      classes: ["Wizard"],
+      classes: ["Bard", "Sorcerer", "Wizard"],
       castingTime: "Action",
       range: "90 feet",
       duration: "1 minute",
+    },
+  },
+  {
+    slug: "hex",
+    type: "spell",
+    name: "Hex",
+    summary: "A curse that adds extra damage to attacks and hampers one chosen ability.",
+    tags: ["level 1", "enchantment", "warlock", "curse", "concentration"],
+    payload: {
+      level: 1,
+      school: "Enchantment",
+      classes: ["Warlock"],
+      castingTime: "Bonus Action",
+      range: "90 feet",
+      duration: "Concentration, up to 1 hour",
+      concentration: true,
+    },
+  },
+  {
+    slug: "hunters-mark",
+    type: "spell",
+    name: "Hunter's Mark",
+    summary: "A tracking-focused mark that boosts weapon pressure against one chosen target.",
+    tags: ["level 1", "divination", "ranger", "weapon damage", "concentration"],
+    payload: {
+      level: 1,
+      school: "Divination",
+      classes: ["Ranger"],
+      castingTime: "Bonus Action",
+      range: "90 feet",
+      duration: "Concentration, up to 1 hour",
+      concentration: true,
+    },
+  },
+  {
+    slug: "shield-of-faith",
+    type: "spell",
+    name: "Shield of Faith",
+    summary: "A protective ward that boosts a creature's Armor Class while concentration holds.",
+    tags: ["level 1", "abjuration", "cleric", "paladin", "armor class", "concentration"],
+    payload: {
+      level: 1,
+      school: "Abjuration",
+      classes: ["Cleric", "Paladin"],
+      castingTime: "Bonus Action",
+      range: "60 feet",
+      duration: "Concentration, up to 10 minutes",
+      concentration: true,
+      effect: "+2 bonus to Armor Class",
     },
   },
   {
@@ -465,11 +564,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     type: "spell",
     name: "Misty Step",
     summary: "A short-range teleport that provides rapid repositioning as a bonus action.",
-    tags: ["level 2", "conjuration", "wizard", "mobility", "teleport"],
+    tags: ["level 2", "conjuration", "sorcerer", "warlock", "wizard", "mobility", "teleport"],
     payload: {
       level: 2,
       school: "Conjuration",
-      classes: ["Wizard"],
+      classes: ["Sorcerer", "Warlock", "Wizard"],
       castingTime: "Bonus Action",
       range: "Self",
       duration: "Instantaneous",
@@ -805,7 +904,25 @@ function readNumber(payload: Record<string, unknown>, key: string) {
   return typeof value === "number" ? value : undefined;
 }
 
-export const COMPENDIUM_IMPORT_VERSION = "2026-03-06-open-starter-v3";
+function readStringArray(payload: Record<string, unknown>, key: string) {
+  const value = payload[key];
+
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((entry): entry is string => typeof entry === "string");
+}
+
+function spellMatchesClassName(entry: CompendiumEntry, className?: string) {
+  if (!className) {
+    return true;
+  }
+
+  return readStringArray(entry.payload, "classes").includes(className);
+}
+
+export const COMPENDIUM_IMPORT_VERSION = "2026-03-06-open-starter-v4";
 
 export const COMPENDIUM_SEED: CompendiumEntry[] = COMPENDIUM_DRAFTS.map(toCompendiumEntry).sort(compareEntries);
 
@@ -816,8 +933,11 @@ export function listCompendiumEntries(type?: CompendiumType, enabledSourceIds = 
   return type ? sourceFilteredEntries.filter((entry) => entry.type === type) : sourceFilteredEntries;
 }
 
-export function listCompendiumSpells(enabledSourceIds = DEFAULT_ENABLED_SOURCE_IDS) {
-  return listCompendiumEntries("spell", enabledSourceIds);
+export function listCompendiumSpells(
+  enabledSourceIds = DEFAULT_ENABLED_SOURCE_IDS,
+  className?: string,
+) {
+  return listCompendiumEntries("spell", enabledSourceIds).filter((entry) => spellMatchesClassName(entry, className));
 }
 
 export function findCompendiumEntry(slug: string) {
@@ -861,6 +981,12 @@ export function spellRecordFromCompendium(slug: string): SpellRecord | null {
     level: readNumber(entry.payload, "level") ?? 0,
     school: readString(entry.payload, "school") ?? "Unknown",
     summary: entry.summary,
+    classes: readStringArray(entry.payload, "classes"),
+    castingTime: readString(entry.payload, "castingTime"),
+    range: readString(entry.payload, "range"),
+    duration: readString(entry.payload, "duration"),
+    concentration: Boolean(entry.payload.concentration),
+    ritual: Boolean(entry.payload.ritual),
     attackType,
     cantripDamage: readString(entry.payload, "cantripDamage"),
   };

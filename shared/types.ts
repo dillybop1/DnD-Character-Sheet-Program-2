@@ -131,6 +131,12 @@ export interface SpellRecord {
   level: number;
   school: string;
   summary: string;
+  classes: string[];
+  castingTime?: string;
+  range?: string;
+  duration?: string;
+  concentration?: boolean;
+  ritual?: boolean;
   attackType?: "spellAttack" | "save";
   cantripDamage?: string;
 }

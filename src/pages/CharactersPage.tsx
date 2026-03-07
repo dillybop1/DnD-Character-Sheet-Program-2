@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { calculateDerivedState } from "../../shared/calculations";
 import {
+  getClassTemplate,
   listArmorTemplates,
   listBackgroundTemplates,
   listClassTemplates,
   listSpeciesTemplates,
   listWeaponTemplates,
 } from "../../shared/data/reference";
-import { listCompendiumSpells } from "../../shared/data/compendiumSeed";
+import { listCompendiumSpells, spellRecordFromCompendium } from "../../shared/data/compendiumSeed";
 import { ABILITY_NAMES, SKILL_NAMES } from "../../shared/types";
 import type {
   AbilityName,
@@ -25,6 +26,63 @@ import { SheetPreview } from "../components/SheetPreview";
 import { getArmorReferenceSlug, RULE_REFERENCE_SLUGS } from "../lib/compendiumLinks";
 import { dndApi } from "../lib/api";
 import { buildPreviewCharacter, builderInputFromCharacter, createDefaultBuilderInput, humanizeLabel } from "../lib/editor";
+
+function readSpellLevel(entry: CompendiumEntry) {
+  return typeof entry.payload.level === "number" ? entry.payload.level : 0;
+}
+
+function areSameStringArrays(left: string[], right: string[]) {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function sanitizeSpellSelections(
+  spellIds: string[],
+  preparedSpellIds: string[],
+  availableSpells: CompendiumEntry[],
+) {
+  const availableIds = new Set(availableSpells.map((entry) => entry.slug));
+  const leveledIds = new Set(availableSpells.filter((entry) => readSpellLevel(entry) > 0).map((entry) => entry.slug));
+  const nextSpellIds = spellIds.filter((spellId) => availableIds.has(spellId));
+  const nextPreparedSpellIds = preparedSpellIds.filter(
+    (spellId) => nextSpellIds.includes(spellId) && leveledIds.has(spellId),
+  );
+
+  return {
+    spellIds: nextSpellIds,
+    preparedSpellIds: nextPreparedSpellIds,
+    changed: !areSameStringArrays(spellIds, nextSpellIds) || !areSameStringArrays(preparedSpellIds, nextPreparedSpellIds),
+  };
+}
+
+function collectGrantedSpellIds(homebrewEntries: HomebrewEntry[]) {
+  return Array.from(
+    new Set(
+      homebrewEntries.flatMap((entry) =>
+        entry.effects
+          .filter((effect) => effect.type === "grant_spell" && typeof effect.target === "string")
+          .map((effect) => effect.target as string),
+      ),
+    ),
+  );
+}
+
+function formatSpellSlotSummary(
+  spellcasting: ReturnType<typeof calculateDerivedState>["spellcasting"],
+) {
+  if (spellcasting.slotMode === "pact") {
+    if (spellcasting.pactSlotsMax === 0 || spellcasting.pactSlotLevel === null) {
+      return "Pact slots pending";
+    }
+
+    return `${spellcasting.pactSlotsMax} pact slots at level ${spellcasting.pactSlotLevel}`;
+  }
+
+  if (spellcasting.spellSlotsMax.length === 0) {
+    return "No class slots";
+  }
+
+  return spellcasting.spellSlotsMax.map((value, index) => `L${index + 1}:${value}`).join(" ");
+}
 
 export function CharactersPage() {
   const navigate = useNavigate();
@@ -77,12 +135,48 @@ export function CharactersPage() {
   const activeHomebrew = homebrewEntries.filter((entry) => draft.homebrewIds.includes(entry.id));
   const previewCharacter = buildPreviewCharacter(draft, selectedCharacter, activeHomebrew);
   const derived = calculateDerivedState(previewCharacter, activeHomebrew);
+  const selectedClass = getClassTemplate(draft.classId);
   const availableClasses = listClassTemplates(draft.enabledSourceIds);
   const availableSpecies = listSpeciesTemplates(draft.enabledSourceIds);
   const availableBackgrounds = listBackgroundTemplates(draft.enabledSourceIds);
   const availableArmor = listArmorTemplates(draft.enabledSourceIds);
   const availableWeapons = listWeaponTemplates(draft.enabledSourceIds);
-  const spellOptions = listCompendiumSpells(draft.enabledSourceIds);
+  const classSpellOptions =
+    selectedClass.spellcastingAbility === null ? [] : listCompendiumSpells(draft.enabledSourceIds, selectedClass.name);
+  const selectedSpellEntries = draft.spellIds
+    .map((spellId) => classSpellOptions.find((entry) => entry.slug === spellId))
+    .filter((entry): entry is CompendiumEntry => Boolean(entry));
+  const selectedCantripEntries = selectedSpellEntries.filter((entry) => readSpellLevel(entry) === 0);
+  const selectedLeveledEntries = selectedSpellEntries.filter((entry) => readSpellLevel(entry) > 0);
+  const grantedSpellEntries = collectGrantedSpellIds(activeHomebrew)
+    .map((spellId) => spellRecordFromCompendium(spellId))
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+  const spellbookMessage =
+    selectedClass.spellcastingAbility === null
+      ? grantedSpellEntries.length > 0
+        ? "This class has no native spell list, but homebrew-granted spells still appear on the sheet."
+        : "This class does not use a class spell list."
+      : classSpellOptions.length === 0
+        ? `No starter compendium spells are seeded for ${selectedClass.name} yet.`
+        : `Select cantrips and leveled spells from the seeded ${selectedClass.name.toLowerCase()} list.`;
+
+  useEffect(() => {
+    setDraft((current) => {
+      const currentClass = getClassTemplate(current.classId);
+      const currentSpellOptions =
+        currentClass.spellcastingAbility === null
+          ? []
+          : listCompendiumSpells(current.enabledSourceIds, currentClass.name);
+      const sanitized = sanitizeSpellSelections(current.spellIds, current.preparedSpellIds, currentSpellOptions);
+      return sanitized.changed
+        ? {
+            ...current,
+            spellIds: sanitized.spellIds,
+            preparedSpellIds: sanitized.preparedSpellIds,
+          }
+        : current;
+    });
+  }, [draft.classId, draft.enabledSourceIds, draft.spellIds, draft.preparedSpellIds]);
 
   function updateDraft<K extends keyof BuilderInput>(key: K, value: BuilderInput[K]) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -108,7 +202,7 @@ export function CharactersPage() {
     }));
   }
 
-  function toggleArrayEntry(key: "weaponIds" | "spellIds" | "preparedSpellIds" | "homebrewIds", value: string) {
+  function toggleArrayEntry(key: "weaponIds" | "homebrewIds", value: string) {
     setDraft((current) => {
       const entries = current[key];
       const nextEntries = entries.includes(value)
@@ -118,6 +212,37 @@ export function CharactersPage() {
       return {
         ...current,
         [key]: nextEntries,
+      };
+    });
+  }
+
+  function toggleSpell(spellId: string) {
+    setDraft((current) => {
+      const nextSpellIds = current.spellIds.includes(spellId)
+        ? current.spellIds.filter((entry) => entry !== spellId)
+        : [...current.spellIds, spellId];
+
+      return {
+        ...current,
+        spellIds: nextSpellIds,
+        preparedSpellIds: current.preparedSpellIds.filter((entry) => nextSpellIds.includes(entry)),
+      };
+    });
+  }
+
+  function togglePreparedSpell(spellId: string) {
+    setDraft((current) => {
+      if (!current.spellIds.includes(spellId)) {
+        return current;
+      }
+
+      const nextPreparedSpellIds = current.preparedSpellIds.includes(spellId)
+        ? current.preparedSpellIds.filter((entry) => entry !== spellId)
+        : [...current.preparedSpellIds, spellId];
+
+      return {
+        ...current,
+        preparedSpellIds: nextPreparedSpellIds,
       };
     });
   }
@@ -479,7 +604,24 @@ export function CharactersPage() {
               </div>
               <div>
                 <h3 className="subheading">Spells</h3>
-                {spellOptions.map((spell) => (
+                <div className="detail-card">
+                  <div className="detail-card__header">
+                    <strong>{selectedClass.name} Spellbook</strong>
+                    <span>{formatSpellSlotSummary(derived.spellcasting)}</span>
+                  </div>
+                  <p className="muted-copy">{spellbookMessage}</p>
+                  {grantedSpellEntries.length > 0 ? (
+                    <p className="muted-copy">
+                      Granted by homebrew: {grantedSpellEntries.map((spell) => spell.name).join(", ")}
+                    </p>
+                  ) : null}
+                  <div className="filter-row">
+                    <span className="chip">{selectedCantripEntries.length} cantrips chosen</span>
+                    <span className="chip">{selectedLeveledEntries.length} leveled spells chosen</span>
+                    <span className="chip">{derived.spellcasting.preparedSpells.length} ready</span>
+                  </div>
+                </div>
+                {classSpellOptions.filter((spell) => readSpellLevel(spell) === 0).map((spell) => (
                   <div
                     key={spell.slug}
                     className="choice-row"
@@ -487,7 +629,29 @@ export function CharactersPage() {
                     <label className="checkbox-field">
                       <input
                         checked={draft.spellIds.includes(spell.slug)}
-                        onChange={() => toggleArrayEntry("spellIds", spell.slug)}
+                        onChange={() => toggleSpell(spell.slug)}
+                        type="checkbox"
+                      />
+                      <span>{spell.name}</span>
+                    </label>
+                    <button
+                      className="inline-link-button"
+                      onClick={() => openReferenceSafe(spell.slug)}
+                      type="button"
+                    >
+                      Ref
+                    </button>
+                  </div>
+                ))}
+                {classSpellOptions.filter((spell) => readSpellLevel(spell) > 0).map((spell) => (
+                  <div
+                    key={spell.slug}
+                    className="choice-row"
+                  >
+                    <label className="checkbox-field">
+                      <input
+                        checked={draft.spellIds.includes(spell.slug)}
+                        onChange={() => toggleSpell(spell.slug)}
                         type="checkbox"
                       />
                       <span>{spell.name}</span>
@@ -503,24 +667,27 @@ export function CharactersPage() {
                 ))}
               </div>
               <div>
-                <h3 className="subheading">Prepared Spells</h3>
-                {draft.spellIds.length === 0 ? <p className="muted-copy">Select spells first.</p> : null}
-                {draft.spellIds.map((spellId) => (
+                <h3 className="subheading">Prepared / Ready Spells</h3>
+                <div className="detail-card">
+                  <p className="muted-copy">Cantrips are always available. Mark leveled spells you want surfaced as ready.</p>
+                </div>
+                {selectedLeveledEntries.length === 0 ? <p className="muted-copy">Select at least one leveled spell first.</p> : null}
+                {selectedLeveledEntries.map((spell) => (
                   <div
-                    key={spellId}
+                    key={spell.slug}
                     className="choice-row"
                   >
                     <label className="checkbox-field">
                       <input
-                        checked={draft.preparedSpellIds.includes(spellId)}
-                        onChange={() => toggleArrayEntry("preparedSpellIds", spellId)}
+                        checked={draft.preparedSpellIds.includes(spell.slug)}
+                        onChange={() => togglePreparedSpell(spell.slug)}
                         type="checkbox"
                       />
-                      <span>{humanizeLabel(spellId.replaceAll("-", " "))}</span>
+                      <span>{spell.name}</span>
                     </label>
                     <button
                       className="inline-link-button"
-                      onClick={() => openReferenceSafe(spellId)}
+                      onClick={() => openReferenceSafe(spell.slug)}
                       type="button"
                     >
                       Ref
