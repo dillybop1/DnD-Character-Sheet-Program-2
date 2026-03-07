@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import { buildCharacterFromInput } from "../../shared/factories";
 import { builderInputSchema, characterRecordSchema, homebrewEntrySchema } from "../../shared/validation";
 import type {
@@ -92,27 +92,32 @@ export async function searchCompendium(context: DatabaseContext, input: SearchIn
   const normalizedQuery = input.query.trim();
 
   if (!normalizedQuery) {
-    const rows = await context.db
-      .select()
-      .from(compendiumEntries)
-      .orderBy(compendiumEntries.name)
-      .limit(50);
+    const rows = input.type
+      ? await context.db
+          .select()
+          .from(compendiumEntries)
+          .where(eq(compendiumEntries.type, input.type))
+          .orderBy(asc(compendiumEntries.name))
+          .limit(50)
+      : await context.db
+          .select()
+          .from(compendiumEntries)
+          .orderBy(asc(compendiumEntries.name))
+          .limit(50);
 
-    return (input.type ? rows.filter((entry) => entry.type === input.type) : rows).map(
-      (entry): CompendiumEntry => ({
-        id: entry.id,
-        slug: entry.slug,
-        type: entry.type,
-        name: entry.name,
-        ruleset: entry.ruleset,
-        source: entry.source,
-        license: entry.license,
-        attribution: entry.attribution,
-        summary: entry.summary,
-        searchText: entry.searchText,
-        payload: entry.payload,
-      }),
-    );
+    return rows.map((entry): CompendiumEntry => ({
+      id: entry.id,
+      slug: entry.slug,
+      type: entry.type,
+      name: entry.name,
+      ruleset: entry.ruleset,
+      source: entry.source,
+      license: entry.license,
+      attribution: entry.attribution,
+      summary: entry.summary,
+      searchText: entry.searchText,
+      payload: entry.payload,
+    }));
   }
 
   const queryTerms = normalizedQuery

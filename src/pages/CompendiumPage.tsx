@@ -11,6 +11,7 @@ const FILTERS: Array<{ label: string; value?: CompendiumType }> = [
   { label: "Spells", value: "spell" },
   { label: "Weapons", value: "weapon" },
   { label: "Armor", value: "armor" },
+  { label: "Feats", value: "feat" },
   { label: "Rules", value: "rule" },
 ];
 
@@ -19,7 +20,7 @@ export function CompendiumPage() {
   const [filter, setFilter] = useState<CompendiumType | undefined>(undefined);
   const [entries, setEntries] = useState<CompendiumEntry[]>([]);
   const [selectedEntry, setSelectedEntry] = useState<CompendiumEntry | null>(null);
-  const [status, setStatus] = useState("Starter open-content reference library.");
+  const [status, setStatus] = useState("Open-content reference library.");
   const deferredQuery = useDeferredValue(query);
 
   useEffect(() => {

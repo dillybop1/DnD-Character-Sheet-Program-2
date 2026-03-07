@@ -1,4 +1,5 @@
 import { FULL_CASTER_SLOTS, SKILL_TO_ABILITY, getArmorTemplate, getClassTemplate, getSpeciesTemplate, getWeaponTemplate } from "./data/reference";
+import { spellRecordFromCompendium } from "./data/compendiumSeed";
 import type {
   AbilityName,
   AbilityScores,
@@ -118,42 +119,19 @@ function averageHitDieGain(hitDie: number) {
 
 function buildSpellSummaries(record: CharacterRecord): SpellRecord[] {
   return record.spellIds.map((spellId) => {
-    switch (spellId) {
-      case "magic-missile":
-        return {
-          id: spellId,
-          name: "Magic Missile",
-          level: 1,
-          school: "Evocation",
-          summary: "Reliable force darts.",
-        };
-      case "fire-bolt":
-        return {
-          id: spellId,
-          name: "Fire Bolt",
-          level: 0,
-          school: "Evocation",
-          summary: "Ranged damage cantrip.",
-          attackType: "spellAttack",
-          cantripDamage: "1d10 fire",
-        };
-      case "cure-wounds":
-        return {
-          id: spellId,
-          name: "Cure Wounds",
-          level: 1,
-          school: "Abjuration",
-          summary: "Touch healing spell.",
-        };
-      default:
-        return {
-          id: spellId,
-          name: spellId,
-          level: 0,
-          school: "Unknown",
-          summary: "Custom spell entry.",
-        };
+    const compendiumSpell = spellRecordFromCompendium(spellId);
+
+    if (compendiumSpell) {
+      return compendiumSpell;
     }
+
+    return {
+      id: spellId,
+      name: spellId,
+      level: 0,
+      school: "Unknown",
+      summary: "Custom spell entry.",
+    };
   });
 }
 

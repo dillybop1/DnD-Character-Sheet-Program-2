@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { calculateDerivedState } from "../../shared/calculations";
 import { ARMORS, BACKGROUNDS, CLASSES, SPECIES, WEAPONS } from "../../shared/data/reference";
-import { COMPENDIUM_SEED } from "../../shared/data/compendiumSeed";
+import { listCompendiumSpells } from "../../shared/data/compendiumSeed";
 import { ABILITY_NAMES, SKILL_NAMES } from "../../shared/types";
 import type { AbilityName, BuilderInput, CharacterRecord, CharacterSummary, HomebrewEntry, SkillName } from "../../shared/types";
 import { SectionCard } from "../components/SectionCard";
@@ -9,7 +9,7 @@ import { SheetPreview } from "../components/SheetPreview";
 import { dndApi } from "../lib/api";
 import { buildPreviewCharacter, builderInputFromCharacter, createDefaultBuilderInput, humanizeLabel } from "../lib/editor";
 
-const SPELL_OPTIONS = COMPENDIUM_SEED.filter((entry) => entry.type === "spell");
+const SPELL_OPTIONS = listCompendiumSpells();
 
 export function CharactersPage() {
   const [characters, setCharacters] = useState<CharacterSummary[]>([]);

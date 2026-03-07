@@ -1,8 +1,7 @@
 import { join } from "node:path";
-import { count } from "drizzle-orm";
 import Database from "better-sqlite3";
 import { drizzle, type BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
-import { COMPENDIUM_SEED } from "../../shared/data/compendiumSeed";
+import { COMPENDIUM_IMPORT_VERSION, COMPENDIUM_SEED } from "../../shared/data/compendiumSeed";
 import * as schema from "./schema";
 
 const MIGRATIONS = [
@@ -137,14 +136,78 @@ function applyMigrations(sqlite: Database.Database) {
   }
 }
 
-async function seedCompendiumIfEmpty(context: DatabaseContext) {
-  const [{ value }] = await context.db.select({ value: count() }).from(schema.compendiumEntries);
+function syncCompendium(context: DatabaseContext) {
+  const currentVersion = context.sqlite
+    .prepare("SELECT value FROM settings WHERE key = ?")
+    .get("compendium_import_version") as { value: string } | undefined;
 
-  if (value > 0) {
+  if (currentVersion?.value === COMPENDIUM_IMPORT_VERSION) {
     return;
   }
 
-  await context.db.insert(schema.compendiumEntries).values(COMPENDIUM_SEED);
+  const upsertEntry = context.sqlite.prepare(`
+    INSERT INTO compendium_entries (
+      slug,
+      type,
+      name,
+      ruleset,
+      source,
+      license,
+      attribution,
+      summary,
+      search_text,
+      payload
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(slug) DO UPDATE SET
+      type = excluded.type,
+      name = excluded.name,
+      ruleset = excluded.ruleset,
+      source = excluded.source,
+      license = excluded.license,
+      attribution = excluded.attribution,
+      summary = excluded.summary,
+      search_text = excluded.search_text,
+      payload = excluded.payload
+  `);
+
+  const slugPlaceholders = COMPENDIUM_SEED.map(() => "?").join(", ");
+  const deleteMissingEntries = COMPENDIUM_SEED.length > 0
+    ? context.sqlite.prepare(`DELETE FROM compendium_entries WHERE slug NOT IN (${slugPlaceholders})`)
+    : context.sqlite.prepare("DELETE FROM compendium_entries");
+
+  const saveSetting = context.sqlite.prepare(`
+    INSERT INTO settings (key, value)
+    VALUES (?, ?)
+    ON CONFLICT(key) DO UPDATE SET value = excluded.value
+  `);
+
+  const transaction = context.sqlite.transaction(() => {
+    for (const entry of COMPENDIUM_SEED) {
+      upsertEntry.run(
+        entry.slug,
+        entry.type,
+        entry.name,
+        entry.ruleset,
+        entry.source,
+        entry.license,
+        entry.attribution,
+        entry.summary,
+        entry.searchText,
+        JSON.stringify(entry.payload),
+      );
+    }
+
+    if (COMPENDIUM_SEED.length > 0) {
+      deleteMissingEntries.run(...COMPENDIUM_SEED.map((entry) => entry.slug));
+    } else {
+      deleteMissingEntries.run();
+    }
+
+    saveSetting.run("compendium_import_version", COMPENDIUM_IMPORT_VERSION);
+    saveSetting.run("compendium_imported_at", new Date().toISOString());
+  });
+
+  transaction();
 }
 
 let cachedContext: DatabaseContext | null = null;
@@ -161,7 +224,7 @@ export async function getDatabaseContext(userDataPath: string) {
 
   const db = drizzle(sqlite, { schema });
   cachedContext = { sqlite, db, databasePath };
-  await seedCompendiumIfEmpty(cachedContext);
+  syncCompendium(cachedContext);
 
   return cachedContext;
 }

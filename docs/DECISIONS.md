@@ -41,3 +41,10 @@
 - Context: The reference sheet layout is core product information architecture, not just late-stage visual polish.
 - Decision: Pull the structural sheet recreation ahead of deeper compendium work, then defer ornamental polish and print-perfect tuning to a later `M6-02` pass.
 - Consequences: The app's data and layout can now evolve together against the real page structure, but some visual details will intentionally remain unfinished until export constraints stabilize.
+
+## DEC-007
+
+- Date: `2026-03-07`
+- Context: The original compendium was a tiny inline seed with no import versioning, which made growth and repeatable updates awkward.
+- Decision: Move to a versioned shared compendium manifest with normalized entries and sync it idempotently into SQLite on app startup.
+- Consequences: Browser dev and desktop builds now share the same larger dataset and can update local compendium content safely, but manifest version bumps become part of content changes.

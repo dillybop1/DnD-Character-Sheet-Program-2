@@ -11,7 +11,7 @@ Offline-first `Electron + React + TypeScript` desktop app for building, storing,
   - Guided character creation/editing
   - Core derived sheet math
   - A structural sheet preview that follows the reference page's layout hierarchy
-  - Starter compendium search/detail
+  - A larger versioned compendium for classes, species, backgrounds, spells, weapons, armor, feats, and rules
   - Basic homebrew effect storage
   - JSON export and window-based PDF export
 - `npm run dev` now provides a stable browser-backed HMR workflow using a localStorage mock of the preload API when Electron is not present.

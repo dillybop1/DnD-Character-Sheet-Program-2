@@ -32,6 +32,7 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - Persistence: SQLite via `better-sqlite3`
 - ORM: Drizzle
 - Shared domain layer: TypeScript types and calculation engine in `shared/`
+- Compendium ingestion: versioned shared manifest synced idempotently into SQLite
 - IPC surface:
   - `characters.list/create/get/save/delete/exportJson/exportPdf`
   - `builder.createFromWizard`

@@ -1,4 +1,4 @@
-import { COMPENDIUM_SEED } from "../../shared/data/compendiumSeed";
+import { findCompendiumEntry, searchCompendiumSeed } from "../../shared/data/compendiumSeed";
 import { buildCharacterFromInput } from "../../shared/factories";
 import type {
   AppInfo,
@@ -126,23 +126,8 @@ function makeBrowserApi(): DndApi {
       createFromWizard: async (input: BuilderInput) => makeBrowserApi().characters.create(input),
     },
     compendium: {
-      search: async ({ query, type }: SearchInput) => {
-        const normalized = query.trim().toLowerCase();
-        return COMPENDIUM_SEED.filter((entry) => {
-          if (type && entry.type !== type) {
-            return false;
-          }
-
-          if (!normalized) {
-            return true;
-          }
-
-          return [entry.name, entry.summary, entry.searchText].some((value) =>
-            value.toLowerCase().includes(normalized),
-          );
-        });
-      },
-      get: async (slug) => COMPENDIUM_SEED.find((entry) => entry.slug === slug) ?? null,
+      search: async (input: SearchInput) => searchCompendiumSeed(input),
+      get: async (slug) => findCompendiumEntry(slug),
     },
     homebrew: {
       list: async () => listStoredHomebrew(),
