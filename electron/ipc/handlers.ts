@@ -1,7 +1,8 @@
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { app, dialog, ipcMain } from "electron";
 import type { BrowserWindow } from "electron";
 import type { BuilderInput, CharacterRecord, HomebrewEntry, SearchInput } from "../../shared/types";
+import { parseCharacterImport } from "../../shared/validation";
 import type { DatabaseContext } from "../db/client";
 import {
   createCharacter,
@@ -23,6 +24,7 @@ const CHANNELS = [
   "characters:save",
   "characters:create",
   "characters:delete",
+  "characters:import-json",
   "characters:export-json",
   "characters:export-pdf",
   "builder:create-from-wizard",
@@ -70,15 +72,31 @@ async function exportCharacterJson(context: DatabaseContext, id: string) {
   return result.filePath;
 }
 
-async function exportCharacterPdf(getWindow: () => BrowserWindow | null, id: string) {
-  const window = getWindow();
+async function importCharacterJson(context: DatabaseContext) {
+  const result = await dialog.showOpenDialog({
+    properties: ["openFile"],
+    filters: [{ name: "D&D Character Sheet JSON", extensions: ["json", "dndsheet.json"] }, { name: "JSON", extensions: ["json"] }],
+  });
 
-  if (!window) {
+  if (result.canceled || result.filePaths.length === 0) {
+    return null;
+  }
+
+  const raw = await readFile(result.filePaths[0], "utf8");
+  const imported = parseCharacterImport(JSON.parse(raw));
+  return saveCharacter(context, imported);
+}
+
+async function exportCharacterPdf(context: DatabaseContext, getWindow: () => BrowserWindow | null, id: string) {
+  const window = getWindow();
+  const record = await getCharacter(context, id);
+
+  if (!window || !record) {
     return null;
   }
 
   const result = await dialog.showSaveDialog({
-    defaultPath: `${sanitizeFilename(id)}.pdf`,
+    defaultPath: `${sanitizeFilename(record.name)}.pdf`,
     filters: [{ name: "PDF", extensions: ["pdf"] }],
   });
 
@@ -110,8 +128,9 @@ export function registerIpcHandlers(context: DatabaseContext, getWindow: () => B
   ipcMain.handle("characters:save", async (_event, record: CharacterRecord) => saveCharacter(context, record));
   ipcMain.handle("characters:create", async (_event, input: BuilderInput) => createCharacter(context, input));
   ipcMain.handle("characters:delete", async (_event, id: string) => deleteCharacter(context, id));
+  ipcMain.handle("characters:import-json", async () => importCharacterJson(context));
   ipcMain.handle("characters:export-json", async (_event, id: string) => exportCharacterJson(context, id));
-  ipcMain.handle("characters:export-pdf", async (_event, id: string) => exportCharacterPdf(getWindow, id));
+  ipcMain.handle("characters:export-pdf", async (_event, id: string) => exportCharacterPdf(context, getWindow, id));
   ipcMain.handle("builder:create-from-wizard", async (_event, input: BuilderInput) => createCharacter(context, input));
   ipcMain.handle("compendium:search", async (_event, input: SearchInput) => searchCompendium(context, input));
   ipcMain.handle("compendium:get", async (_event, slug: string) => getCompendiumEntry(context, slug));

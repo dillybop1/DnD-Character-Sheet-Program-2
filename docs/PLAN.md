@@ -6,7 +6,8 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 
 - `Electron + React + TypeScript` desktop app
 - Offline-first local persistence with SQLite
-- Guided builder and editable character workspace
+- Roster-first home page with character library plus open/create entry points
+- Dedicated in-app character sheet page plus a creator/editor page with live preview
 - Dynamic calculations for AC, modifiers, saves, skills, HP, spell attack, spell DC, hit dice, and spell slots
 - Structural sheet layout that matches the approved reference page's information hierarchy before final art polish
 - Linked SRD/open compendium with search and detail views
@@ -27,6 +28,12 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 ## Architecture
 
 - Renderer: React + React Router + Vite
+- Single-window route flow in React Router:
+  - `/` roster home
+  - `/characters/new` creator
+  - `/characters/:id` dedicated sheet view
+  - `/characters/:id/edit` creator/editor reuse for existing characters
+  - `/compendium`, `/homebrew`, `/settings`
 - Desktop shell: Electron
 - Main/preload build pipeline: `tsup`
 - Local live development: browser-backed Vite HMR with a mock `dndApi` fallback
@@ -49,7 +56,7 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - `M2`: SQLite schema, migration runner, preload bridge, persistence
 - `M3`: starter compendium ingestion and linked search
 - `M4`: core rules engine and unit tests
-- `M5`: guided builder and character library
+- `M5`: roster-first character workflow, guided builder/editor, and character library
 - `M6`: exact-style sheet structure and dynamic bindings
 - `M7`: spells, inventory, features, homebrew application
 - `M8`: print/PDF export, ornamental polish, QA, packaging verification
@@ -57,7 +64,10 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 ## Acceptance Criteria
 
 - A fresh clone on another machine can identify the current branch, milestone, task, and first command in under five minutes.
+- The app opens to a roster-first home page that lists saved characters and offers open/create actions.
 - One character can be created, saved locally, reopened, edited, and exported.
+- Opening an existing character navigates to a dedicated in-app sheet page, and editing stays in the same Electron window.
+- Creating a new character navigates to a dedicated creator/editor page with a live sheet preview at the bottom.
 - Derived values update immediately when level, ability scores, armor, weapons, or spellcasting fields change.
 - The main sheet mirrors the approved reference page's major section layout while using original art treatment.
 - Sheet entries can deep-link into the compendium.

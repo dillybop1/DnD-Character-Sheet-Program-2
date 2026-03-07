@@ -39,9 +39,12 @@ const SUPPORTED_EFFECTS: SupportedEffectType[] = [
   "ac_bonus",
   "speed_bonus",
   "hp_bonus",
+  "hp_bonus_per_level",
+  "initiative_bonus",
   "grant_save_proficiency",
   "grant_skill_proficiency",
   "grant_expertise",
+  "passive_skill_bonus",
   "grant_spell",
   "set_base_ac_formula",
   "set_spellcasting_ability",
@@ -84,6 +87,24 @@ const EFFECT_META: Record<SupportedEffectType, EffectEditorMeta> = {
     defaultTarget: "",
     defaultValue: 1,
   },
+  hp_bonus_per_level: {
+    label: "Hit Points Per Level",
+    description: "Adds a flat maximum hit point bonus for each character level.",
+    targetMode: "none",
+    valueLabel: "HP / Level",
+    requiresValue: true,
+    defaultTarget: "",
+    defaultValue: 1,
+  },
+  initiative_bonus: {
+    label: "Initiative Bonus",
+    description: "Adds a flat bonus to initiative in the derived sheet.",
+    targetMode: "none",
+    valueLabel: "Bonus",
+    requiresValue: true,
+    defaultTarget: "",
+    defaultValue: 1,
+  },
   grant_save_proficiency: {
     label: "Save Proficiency",
     description: "Marks an additional saving throw as proficient.",
@@ -110,6 +131,15 @@ const EFFECT_META: Record<SupportedEffectType, EffectEditorMeta> = {
     requiresValue: false,
     defaultTarget: "perception",
     defaultValue: 0,
+  },
+  passive_skill_bonus: {
+    label: "Passive Skill Bonus",
+    description: "Adds a flat bonus to one passive skill score after the normal 10 + modifier math.",
+    targetMode: "skill",
+    valueLabel: "Bonus",
+    requiresValue: true,
+    defaultTarget: "perception",
+    defaultValue: 5,
   },
   grant_spell: {
     label: "Grant Spell",
@@ -489,7 +519,7 @@ export function HomebrewPage() {
               <div className="detail-card__header">
                 <div>
                   <strong>{entry.name}</strong>
-                  <span>{entry.type}</span>
+                  <span className="detail-label">{humanizeLabel(entry.type)}</span>
                 </div>
                 <button
                   className="chip"

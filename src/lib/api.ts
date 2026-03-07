@@ -1,5 +1,6 @@
 import { findCompendiumEntry, searchCompendiumSeed } from "../../shared/data/compendiumSeed";
 import { buildCharacterFromInput } from "../../shared/factories";
+import { parseCharacterImport, parseCharacterRecord } from "../../shared/validation";
 import type {
   AppInfo,
   BuilderInput,
@@ -37,9 +38,15 @@ function writeStore<T>(key: string, value: T) {
 }
 
 function listStoredCharacters() {
-  return readStore<CharacterRecord[]>(CHARACTERS_KEY, []).sort((left, right) =>
-    right.updatedAt.localeCompare(left.updatedAt),
-  );
+  return readStore<unknown[]>(CHARACTERS_KEY, [])
+    .flatMap((entry) => {
+      try {
+        return [parseCharacterRecord(entry) as CharacterRecord];
+      } catch {
+        return [];
+      }
+    })
+    .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
 }
 
 function listStoredHomebrew() {
@@ -67,6 +74,70 @@ function saveStoredHomebrew(records: HomebrewEntry[]) {
   writeStore(HOMEBREW_KEY, records);
 }
 
+async function pickJsonImportText() {
+  if ("showOpenFilePicker" in window && typeof window.showOpenFilePicker === "function") {
+    const [handle] = await window.showOpenFilePicker({
+      multiple: false,
+      excludeAcceptAllOption: false,
+      types: [
+        {
+          description: "JSON",
+          accept: {
+            "application/json": [".json"],
+          },
+        },
+      ],
+    });
+
+    const file = await handle.getFile();
+    return file.text();
+  }
+
+  return new Promise<string | null>((resolve) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json,application/json";
+    input.style.position = "fixed";
+    input.style.left = "-9999px";
+    document.body.appendChild(input);
+
+    const cleanup = () => {
+      input.remove();
+      window.removeEventListener("focus", handleFocus);
+    };
+
+    const finish = (value: string | null) => {
+      cleanup();
+      resolve(value);
+    };
+
+    const handleFocus = () => {
+      window.setTimeout(() => {
+        if (!input.files || input.files.length === 0) {
+          finish(null);
+        }
+      }, 0);
+    };
+
+    input.addEventListener(
+      "change",
+      async () => {
+        const file = input.files?.[0];
+        if (!file) {
+          finish(null);
+          return;
+        }
+
+        finish(await file.text());
+      },
+      { once: true },
+    );
+
+    window.addEventListener("focus", handleFocus, { once: true });
+    input.click();
+  });
+}
+
 function makeBrowserApi(): DndApi {
   return {
     app: {
@@ -81,7 +152,7 @@ function makeBrowserApi(): DndApi {
       save: async (record) => {
         const now = new Date().toISOString();
         const records = listStoredCharacters().filter((entry) => entry.id !== record.id);
-        const nextRecord: CharacterRecord = { ...record, updatedAt: now };
+        const nextRecord = parseCharacterRecord({ ...record, updatedAt: now }) as CharacterRecord;
         saveStoredCharacters([nextRecord, ...records]);
         return nextRecord;
       },
@@ -94,6 +165,15 @@ function makeBrowserApi(): DndApi {
       },
       delete: async (id) => {
         saveStoredCharacters(listStoredCharacters().filter((record) => record.id !== id));
+      },
+      importJson: async () => {
+        const raw = await pickJsonImportText();
+        if (!raw) {
+          return null;
+        }
+
+        const imported = parseCharacterImport(JSON.parse(raw));
+        return makeBrowserApi().characters.save(imported);
       },
       exportJson: async (id) => {
         const record = listStoredCharacters().find((entry) => entry.id === id);

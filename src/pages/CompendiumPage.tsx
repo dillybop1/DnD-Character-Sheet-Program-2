@@ -4,10 +4,12 @@ import type { CompendiumEntry, CompendiumType } from "../../shared/types";
 import { CompendiumEntryDetail } from "../components/CompendiumEntryDetail";
 import { SectionCard } from "../components/SectionCard";
 import { dndApi } from "../lib/api";
+import { humanizeLabel } from "../lib/editor";
 
 const FILTERS: Array<{ label: string; value?: CompendiumType }> = [
   { label: "All" },
   { label: "Classes", value: "class" },
+  { label: "Subclasses", value: "subclass" },
   { label: "Species", value: "species" },
   { label: "Backgrounds", value: "background" },
   { label: "Spells", value: "spell" },
@@ -79,7 +81,7 @@ export function CompendiumPage() {
         <div className="stack-md">
           <input
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search spells, weapons, gear, rules, and more..."
+            placeholder="Search classes, subclasses, spells, gear, rules, and more..."
             value={query}
           />
           <div className="filter-row">
@@ -106,9 +108,10 @@ export function CompendiumPage() {
                 type="button"
               >
                 <strong>{entry.name}</strong>
-                <span>
-                  {entry.type} · {entry.source}
-                </span>
+                <div className="library-item__meta">
+                  <span className="library-item__pill">{humanizeLabel(entry.type)}</span>
+                  <span>{entry.source}</span>
+                </div>
               </button>
             ))}
           </div>

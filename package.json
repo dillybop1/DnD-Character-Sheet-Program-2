@@ -2,11 +2,18 @@
   "name": "dnd-character-sheet",
   "private": true,
   "version": "0.1.0",
+  "description": "Offline-first Electron desktop app for building and exporting dynamic D&D character sheets.",
+  "author": "Dylan Umphress",
   "type": "module",
   "main": "dist-electron/main.cjs",
+  "engines": {
+    "node": ">=22 <24"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && tsup && electron-builder",
+    "build:win-local": "tsc -b && vite build && tsup && electron-builder --win nsis --x64 -c.win.signAndEditExecutable=false",
+    "pack:win-local": "tsc -b && vite build && tsup && electron-builder --win dir --x64 -c.win.signAndEditExecutable=false",
     "pack": "tsc -b && vite build && tsup && electron-builder --dir",
     "preview": "vite preview",
     "typecheck": "tsc -b",
@@ -56,16 +63,31 @@
       "dist-electron/**/*",
       "package.json"
     ],
+    "extraResources": [
+      {
+        "from": "build/icon.png",
+        "to": "icon.png"
+      },
+      {
+        "from": "build/icon.ico",
+        "to": "icon.ico"
+      }
+    ],
     "mac": {
       "category": "public.app-category.games",
+      "icon": "icon.png",
       "target": [
         "dmg"
       ]
     },
     "win": {
+      "icon": "icon.ico",
       "target": [
         "nsis"
       ]
+    },
+    "linux": {
+      "icon": "icon.png"
     },
     "extraMetadata": {
       "main": "dist-electron/main.cjs"

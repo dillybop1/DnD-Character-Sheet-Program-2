@@ -1,5 +1,6 @@
 import type { CompendiumEntry, CompendiumType, SearchInput, SpellRecord } from "../types";
 import { CORE_OPEN_SOURCE_ID, DEFAULT_ENABLED_SOURCE_IDS, isSourceEnabled } from "./contentSources";
+import { FEATS, SUBCLASSES, getBackgroundTemplate, getClassTemplate, getFeatChoiceLabel, getFeatSupportLabel, getGearTemplate } from "./reference";
 
 interface CompendiumDraft {
   slug: string;
@@ -16,6 +17,53 @@ const OPEN_CONTENT_META = {
   license: "CC-BY-4.0 / Open Content",
   attribution: "Wizards of the Coast open rules content",
 } as const;
+
+const SUBCLASS_DRAFTS: CompendiumDraft[] = SUBCLASSES.map((subclass) => {
+  const classTemplate = getClassTemplate(subclass.classId);
+
+  return {
+    slug: subclass.id,
+    type: "subclass",
+    name: subclass.name,
+    summary: subclass.summary,
+    tags: ["subclass", classTemplate.name.toLowerCase(), ...subclass.featureSummary.map((feature) => feature.toLowerCase())],
+    payload: {
+      class: classTemplate.name,
+      keyFeatures: subclass.featureSummary,
+    },
+  };
+});
+
+const FEAT_DRAFTS: CompendiumDraft[] = FEATS.map((feat) => ({
+  slug: feat.id,
+  type: "feat",
+  name: feat.name,
+  summary: feat.summary,
+  tags: ["feat", getFeatSupportLabel(feat.supportLevel).toLowerCase(), ...feat.benefits.map((benefit) => benefit.toLowerCase())],
+  payload: {
+    prerequisites: "None",
+    support: getFeatSupportLabel(feat.supportLevel),
+    benefits: feat.benefits,
+    automation: feat.automationStatus ?? "Reference only",
+    choiceSummary:
+      feat.choiceGroups && feat.choiceGroups.length > 0
+        ? feat.choiceGroups
+            .map(
+              (group) =>
+                `${group.label}: choose ${group.maxChoices === group.minChoices ? group.maxChoices : `up to ${group.maxChoices}`}`,
+            )
+            .join("; ")
+        : undefined,
+    choiceOptions: feat.choiceGroups?.flatMap((group) => group.options.map((option) => getFeatChoiceLabel(feat.id, option))),
+  },
+}));
+
+function backgroundStartingGearLabels(backgroundId: string) {
+  return getBackgroundTemplate(backgroundId).startingInventory.map((entry) => {
+    const label = getGearTemplate(entry.templateId)?.name ?? entry.templateId;
+    return entry.quantity && entry.quantity > 1 ? `${label} x${entry.quantity}` : label;
+  });
+}
 
 const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
   {
@@ -178,6 +226,7 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
       keyFeatures: ["Pact Magic", "Eldritch Invocations", "Magical Cunning"],
     },
   },
+  ...SUBCLASS_DRAFTS,
   {
     slug: "human",
     type: "species",
@@ -221,9 +270,10 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     summary: "A religious or scholarly origin shaped by service, ritual, and temple life.",
     tags: ["temple", "religion", "service", "wisdom", "study"],
     payload: {
-      theme: "Religious scholar",
+      theme: getBackgroundTemplate("acolyte").theme,
       suggestedSkills: ["Insight", "Religion"],
-      featureSummary: ["Temple Service", "Two skill proficiencies", "Starting gear"],
+      featureSummary: getBackgroundTemplate("acolyte").featureSummary,
+      startingGear: backgroundStartingGearLabels("acolyte"),
     },
   },
   {
@@ -233,9 +283,10 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     summary: "A research-driven background suited to lorekeepers, scribes, and learned travelers.",
     tags: ["research", "lore", "study", "intelligence", "books"],
     payload: {
-      theme: "Lore scholar",
+      theme: getBackgroundTemplate("sage").theme,
       suggestedSkills: ["Arcana", "History"],
-      featureSummary: ["Research focus", "Two skill proficiencies", "Starting gear"],
+      featureSummary: getBackgroundTemplate("sage").featureSummary,
+      startingGear: backgroundStartingGearLabels("sage"),
     },
   },
   {
@@ -245,9 +296,10 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     summary: "A martial upbringing centered on drills, chain of command, and battlefield discipline.",
     tags: ["battle", "military", "discipline", "strength", "war"],
     payload: {
-      theme: "Battle-tested veteran",
+      theme: getBackgroundTemplate("soldier").theme,
       suggestedSkills: ["Athletics", "Intimidation"],
-      featureSummary: ["Battle training", "Two skill proficiencies", "Starting gear"],
+      featureSummary: getBackgroundTemplate("soldier").featureSummary,
+      startingGear: backgroundStartingGearLabels("soldier"),
     },
   },
   {
@@ -1129,39 +1181,7 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
       relatedEntries: ["proficiency-bonus", "armor-class", "initiative"],
     },
   },
-  {
-    slug: "alert",
-    type: "feat",
-    name: "Alert",
-    summary: "A feat for characters who want sharper reactions and a stronger initiative floor.",
-    tags: ["feat", "initiative", "awareness", "combat"],
-    payload: {
-      prerequisites: "None",
-      benefits: ["Improved initiative", "Harder to surprise in play-focused builds"],
-    },
-  },
-  {
-    slug: "tough",
-    type: "feat",
-    name: "Tough",
-    summary: "A feat focused on additional durability and staying power.",
-    tags: ["feat", "hit points", "survivability", "durable"],
-    payload: {
-      prerequisites: "None",
-      benefits: ["Additional maximum hit points", "Reliable survivability boost"],
-    },
-  },
-  {
-    slug: "magic-initiate",
-    type: "feat",
-    name: "Magic Initiate",
-    summary: "A feat that grants basic spellcasting access outside a character's normal class path.",
-    tags: ["feat", "spellcasting", "cantrips", "utility"],
-    payload: {
-      prerequisites: "None",
-      benefits: ["Learn cantrips", "Gain a low-level spell option"],
-    },
-  },
+  ...FEAT_DRAFTS,
 ];
 
 function flattenPayloadValue(value: unknown): string[] {
@@ -1237,7 +1257,7 @@ function spellMatchesClassName(entry: CompendiumEntry, className?: string) {
   return readStringArray(entry.payload, "classes").includes(className);
 }
 
-export const COMPENDIUM_IMPORT_VERSION = "2026-03-06-open-starter-v5";
+export const COMPENDIUM_IMPORT_VERSION = "2026-03-07-open-starter-v13";
 
 export const COMPENDIUM_SEED: CompendiumEntry[] = COMPENDIUM_DRAFTS.map(toCompendiumEntry).sort(compareEntries);
 

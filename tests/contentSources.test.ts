@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_ENABLED_SOURCE_IDS, listContentSources, resolveEnabledSourceIds } from "../shared/data/contentSources";
-import { listArmorTemplates, listBackgroundTemplates, listClassTemplates, listSpeciesTemplates, listWeaponTemplates } from "../shared/data/reference";
+import { listArmorTemplates, listBackgroundTemplates, listClassTemplates, listSpeciesTemplates, listSubclassTemplates, listWeaponTemplates } from "../shared/data/reference";
 import { createDefaultBuilderInput } from "../src/lib/editor";
 
 describe("content source architecture", () => {
@@ -8,6 +8,12 @@ describe("content source architecture", () => {
     const draft = createDefaultBuilderInput();
 
     expect(draft.enabledSourceIds).toEqual(DEFAULT_ENABLED_SOURCE_IDS);
+    expect(draft.subclass).toBe("");
+    expect(draft.featIds).toEqual([]);
+    expect(draft.featSelections).toEqual({});
+    expect(draft.bonusSpellClassId).toBe("");
+    expect(draft.bonusSpellIds).toEqual([]);
+    expect(draft.notes.backgroundFeatures).toBe("");
   });
 
   it("filters available content through installed sources", () => {
@@ -17,6 +23,7 @@ describe("content source architecture", () => {
     expect(listContentSources().some((source) => source.id === "exploring-eberron")).toBe(true);
     expect(listClassTemplates(onlyInstalledSources).length).toBeGreaterThan(0);
     expect(listSpeciesTemplates(onlyInstalledSources).length).toBeGreaterThan(0);
+    expect(listSubclassTemplates("fighter", onlyInstalledSources).length).toBeGreaterThan(0);
     expect(listBackgroundTemplates(onlyInstalledSources).length).toBeGreaterThan(0);
     expect(listArmorTemplates(onlyInstalledSources).length).toBeGreaterThan(0);
     expect(listWeaponTemplates(onlyInstalledSources).length).toBeGreaterThan(0);

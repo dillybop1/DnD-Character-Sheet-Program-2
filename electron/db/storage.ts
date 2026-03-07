@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { resolveEnabledSourceIds } from "../../shared/data/contentSources";
 import { buildCharacterFromInput } from "../../shared/factories";
-import { builderInputSchema, characterRecordSchema, homebrewEntrySchema } from "../../shared/validation";
+import { builderInputSchema, characterRecordSchema, homebrewEntrySchema, parseCharacterRecord } from "../../shared/validation";
 import type {
   BuilderInput,
   CharacterRecord,
@@ -26,12 +26,12 @@ function toCharacterSummary(record: CharacterRecord): CharacterSummary {
 
 export async function listCharacters(context: DatabaseContext) {
   const rows = await context.db.select().from(characters).orderBy(desc(characters.updatedAt));
-  return rows.map((row) => toCharacterSummary(row.record));
+  return rows.map((row) => toCharacterSummary(parseCharacterRecord(row.record) as CharacterRecord));
 }
 
 export async function getCharacter(context: DatabaseContext, id: string) {
   const [row] = await context.db.select().from(characters).where(eq(characters.id, id)).limit(1);
-  return row?.record ?? null;
+  return row ? (parseCharacterRecord(row.record) as CharacterRecord) : null;
 }
 
 export async function listHomebrew(context: DatabaseContext) {

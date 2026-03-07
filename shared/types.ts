@@ -7,6 +7,15 @@ export const ABILITY_NAMES = [
   "charisma",
 ] as const;
 
+export const CREATURE_SIZES = [
+  "Tiny",
+  "Small",
+  "Medium",
+  "Large",
+  "Huge",
+  "Gargantuan",
+] as const;
+
 export const SKILL_NAMES = [
   "acrobatics",
   "animalHandling",
@@ -28,11 +37,17 @@ export const SKILL_NAMES = [
   "survival",
 ] as const;
 
+export const PASSIVE_SKILL_NAMES = ["insight", "investigation", "perception"] as const;
+
 export type AbilityName = (typeof ABILITY_NAMES)[number];
 export type SkillName = (typeof SKILL_NAMES)[number];
+export type PassiveSkillName = (typeof PASSIVE_SKILL_NAMES)[number];
+export type CreatureSize = (typeof CREATURE_SIZES)[number];
 export type ProficiencyLevel = "none" | "proficient" | "expertise";
 export type CasterType = "none" | "full" | "half" | "pact";
 export type InventoryItemKind = "weapon" | "armor" | "gear";
+export type FeatChoiceKind = "skill" | "ability" | "expertise";
+export type FeatSupportLevel = "derived" | "partial" | "reference";
 export type ContentSourceId = string;
 export type ContentSourceKind = "core" | "sourcebook" | "setting" | "campaign";
 export type ContentSourceAvailability = "installed" | "planned";
@@ -53,9 +68,12 @@ export type EffectType =
   | "ac_bonus"
   | "speed_bonus"
   | "hp_bonus"
+  | "hp_bonus_per_level"
+  | "initiative_bonus"
   | "grant_save_proficiency"
   | "grant_skill_proficiency"
   | "grant_expertise"
+  | "passive_skill_bonus"
   | "grant_spell"
   | "set_base_ac_formula"
   | "set_spellcasting_ability"
@@ -76,6 +94,11 @@ export interface AbilityScores {
   intelligence: number;
   wisdom: number;
   charisma: number;
+}
+
+export interface DeathSaveTrack {
+  successes: number;
+  failures: number;
 }
 
 export interface WeaponTemplate {
@@ -120,19 +143,59 @@ export interface ClassTemplate {
   featureSummary: string[];
 }
 
+export interface SubclassTemplate {
+  id: string;
+  classId: string;
+  sourceId: ContentSourceId;
+  name: string;
+  summary: string;
+  featureSummary: string[];
+}
+
 export interface SpeciesTemplate {
   id: string;
   sourceId: ContentSourceId;
   name: string;
+  size: CreatureSize;
   speed: number;
   featureSummary: string[];
+}
+
+export interface BackgroundStartingInventoryEntry {
+  templateType: InventoryItemKind;
+  templateId: string;
+  quantity?: number;
+  equipped?: boolean;
 }
 
 export interface BackgroundTemplate {
   id: string;
   sourceId: ContentSourceId;
   name: string;
+  theme: string;
   featureSummary: string[];
+  suggestedSkills: SkillName[];
+  startingInventory: BackgroundStartingInventoryEntry[];
+}
+
+export interface FeatTemplate {
+  id: string;
+  sourceId: ContentSourceId;
+  name: string;
+  summary: string;
+  benefits: string[];
+  effects: Effect[];
+  supportLevel: FeatSupportLevel;
+  automationStatus?: string;
+  choiceGroups?: Array<{
+    id: string;
+    label: string;
+    description: string;
+    choiceType: FeatChoiceKind;
+    minChoices: number;
+    maxChoices: number;
+    options: string[];
+  }>;
 }
 
 export interface SpellRecord {
@@ -154,6 +217,7 @@ export interface SpellRecord {
 
 export interface NotesBlock {
   classFeatures: string;
+  backgroundFeatures: string;
   speciesTraits: string;
   feats: string;
 }
@@ -172,6 +236,7 @@ export interface CharacterRecord {
   name: string;
   enabledSourceIds: ContentSourceId[];
   classId: string;
+  subclass: string;
   speciesId: string;
   backgroundId: string;
   level: number;
@@ -181,6 +246,10 @@ export interface CharacterRecord {
   armorId: string | null;
   shieldEquipped: boolean;
   weaponIds: string[];
+  featIds: string[];
+  featSelections: Record<string, string[]>;
+  bonusSpellClassId: string;
+  bonusSpellIds: string[];
   spellIds: string[];
   preparedSpellIds: string[];
   homebrewIds: string[];
@@ -188,6 +257,7 @@ export interface CharacterRecord {
   currentHitPoints: number;
   tempHitPoints: number;
   hitDiceSpent: number;
+  deathSaves: DeathSaveTrack;
   inspiration: boolean;
   createdAt: string;
   updatedAt: string;
@@ -197,6 +267,7 @@ export interface BuilderInput {
   name: string;
   enabledSourceIds: ContentSourceId[];
   classId: string;
+  subclass: string;
   speciesId: string;
   backgroundId: string;
   level: number;
@@ -206,15 +277,24 @@ export interface BuilderInput {
   armorId: string | null;
   shieldEquipped: boolean;
   weaponIds: string[];
+  featIds: string[];
+  featSelections: Record<string, string[]>;
+  bonusSpellClassId: string;
+  bonusSpellIds: string[];
   spellIds: string[];
   preparedSpellIds: string[];
   homebrewIds: string[];
   notes: NotesBlock;
+  currentHitPoints: number;
+  tempHitPoints: number;
+  hitDiceSpent: number;
+  deathSaves: DeathSaveTrack;
   inspiration: boolean;
 }
 
 export type CompendiumType =
   | "class"
+  | "subclass"
   | "species"
   | "background"
   | "spell"
@@ -267,10 +347,21 @@ export interface DerivedInventoryEntry {
   referenceSlug?: string;
 }
 
+export interface DerivedSpellcastingLine {
+  sourceId: string;
+  sourceLabel: string;
+  spellcastingAbility: AbilityName;
+  spellAttackBonus: number;
+  spellSaveDC: number;
+  spellIds: string[];
+}
+
 export interface DerivedSpellSummary {
   slotMode: "none" | "standard" | "pact";
+  spellcastingAbility: AbilityName | null;
   spellAttackBonus: number | null;
   spellSaveDC: number | null;
+  bonusSpellcasting: DerivedSpellcastingLine | null;
   spellSlotsMax: number[];
   pactSlotsMax: number;
   pactSlotLevel: number | null;
@@ -280,11 +371,14 @@ export interface DerivedSpellSummary {
 
 export interface DerivedSheetState {
   proficiencyBonus: number;
+  adjustedAbilities: AbilityScores;
   abilityModifiers: Record<AbilityName, number>;
   savingThrows: Record<AbilityName, number>;
   skills: Record<SkillName, number>;
+  passiveSkills: Record<SkillName, number>;
   armorClass: number;
   initiative: number;
+  size: CreatureSize;
   speed: number;
   hitPointsMax: number;
   hitDiceMax: number;
@@ -294,6 +388,7 @@ export interface DerivedSheetState {
   weaponEntries: DerivedWeaponEntry[];
   inventoryEntries: DerivedInventoryEntry[];
   classFeatures: string[];
+  backgroundFeatures: string[];
   speciesTraits: string[];
   feats: string[];
   activeEffects: string[];
@@ -335,6 +430,7 @@ export interface DndApi {
     save: (record: CharacterRecord) => Promise<CharacterRecord>;
     create: (input: BuilderInput) => Promise<CharacterRecord>;
     delete: (id: string) => Promise<void>;
+    importJson: () => Promise<CharacterRecord | null>;
     exportJson: (id: string) => Promise<string | null>;
     exportPdf: (id: string) => Promise<string | null>;
   };

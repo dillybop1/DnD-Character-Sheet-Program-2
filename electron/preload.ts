@@ -11,6 +11,7 @@ const api: DndApi = {
     save: (record) => ipcRenderer.invoke("characters:save", record),
     create: (input) => ipcRenderer.invoke("characters:create", input),
     delete: (id) => ipcRenderer.invoke("characters:delete", id),
+    importJson: () => ipcRenderer.invoke("characters:import-json"),
     exportJson: (id) => ipcRenderer.invoke("characters:export-json", id),
     exportPdf: (id) => ipcRenderer.invoke("characters:export-pdf", id),
   },

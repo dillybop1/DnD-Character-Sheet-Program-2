@@ -4,6 +4,7 @@ import {
   getWeaponTemplate,
 } from "./data/reference";
 import type {
+  BackgroundStartingInventoryEntry,
   BuilderInput,
   CharacterRecord,
   DerivedInventoryEntry,
@@ -33,6 +34,57 @@ export function createInventoryItem(
     quantity: sanitizeQuantity(options.quantity),
     equipped: options.equipped ?? false,
     notes: options.notes,
+  };
+}
+
+export function mergeInventorySuggestions(
+  inventory: InventoryItemRecord[],
+  suggestions: BackgroundStartingInventoryEntry[],
+) {
+  const nextInventory = inventory.map((item) => ({
+    ...item,
+    quantity: sanitizeQuantity(item.quantity),
+  }));
+  let addedCount = 0;
+  let updatedCount = 0;
+
+  for (const suggestion of suggestions) {
+    const suggestionQuantity = sanitizeQuantity(suggestion.quantity);
+    const existingIndex = nextInventory.findIndex(
+      (item) => item.templateType === suggestion.templateType && item.templateId === suggestion.templateId,
+    );
+
+    if (existingIndex === -1) {
+      nextInventory.push(
+        createInventoryItem(suggestion.templateType, suggestion.templateId, {
+          quantity: suggestionQuantity,
+          equipped: suggestion.equipped,
+        }),
+      );
+      addedCount += 1;
+      continue;
+    }
+
+    const existingItem = nextInventory[existingIndex];
+    const nextQuantity = Math.max(existingItem.quantity, suggestionQuantity);
+    const nextEquipped = existingItem.equipped || Boolean(suggestion.equipped);
+
+    if (nextQuantity === existingItem.quantity && nextEquipped === existingItem.equipped) {
+      continue;
+    }
+
+    nextInventory[existingIndex] = {
+      ...existingItem,
+      quantity: nextQuantity,
+      equipped: nextEquipped,
+    };
+    updatedCount += 1;
+  }
+
+  return {
+    inventory: nextInventory,
+    addedCount,
+    updatedCount,
   };
 }
 

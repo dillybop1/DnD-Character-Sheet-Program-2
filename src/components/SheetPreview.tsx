@@ -1,5 +1,16 @@
 import type { ReactNode } from "react";
-import { SKILL_TO_ABILITY, getArmorTemplate, getBackgroundTemplate, getClassTemplate, getSpeciesTemplate } from "../../shared/data/reference";
+import { findCompendiumEntry } from "../../shared/data/compendiumSeed";
+import {
+  SKILL_TO_ABILITY,
+  getArmorTemplate,
+  getBackgroundTemplate,
+  getClassTemplate,
+  listFeatSelectionLabels,
+  getSpeciesTemplate,
+  getSubclassLabel,
+  getSubclassTemplate,
+  sanitizeFeatState,
+} from "../../shared/data/reference";
 import { ABILITY_NAMES } from "../../shared/types";
 import type { AbilityName, CharacterRecord, DerivedSheetState, SkillName } from "../../shared/types";
 import { getArmorReferenceSlug, getSpellcastingReferenceSlug, RULE_REFERENCE_SLUGS } from "../lib/compendiumLinks";
@@ -24,6 +35,21 @@ const SKILL_COLUMNS: SkillName[][] = [
   ["nature", "perception", "performance", "persuasion", "religion", "sleightOfHand", "stealth", "survival", "intimidation"],
 ];
 
+const ABILITY_LABELS: Record<AbilityName, { long: string; short: string }> = {
+  strength: { long: "Strength", short: "STR" },
+  dexterity: { long: "Dexterity", short: "DEX" },
+  constitution: { long: "Constitution", short: "CON" },
+  intelligence: { long: "Intelligence", short: "INT" },
+  wisdom: { long: "Wisdom", short: "WIS" },
+  charisma: { long: "Charisma", short: "CHA" },
+};
+
+const PASSIVE_SKILL_LABELS: Array<{ key: "perception" | "investigation" | "insight"; label: string }> = [
+  { key: "perception", label: "Per" },
+  { key: "investigation", label: "Inv" },
+  { key: "insight", label: "Ins" },
+];
+
 function buildPips(total: number, filled: number, keyPrefix: string) {
   return Array.from({ length: total }, (_, index) => (
     <span
@@ -44,20 +70,29 @@ function buildOffenseRows(derived: DerivedSheetState): OffenseRow[] {
 
   const cantripRows = derived.spellcasting.knownSpells
     .filter((spell) => spell.level === 0)
-    .map((spell) => ({
-      id: spell.id,
-      name: spell.name,
-      attack:
-        spell.attackType === "save"
-          ? derived.spellcasting.spellSaveDC === null
+    .map((spell) => {
+      const bonusSpellcasting = derived.spellcasting.bonusSpellcasting;
+      const usesBonusSpellcasting = bonusSpellcasting?.spellIds.includes(spell.id) ?? false;
+      const spellAttackBonus = usesBonusSpellcasting
+        ? bonusSpellcasting?.spellAttackBonus ?? null
+        : derived.spellcasting.spellAttackBonus;
+      const spellSaveDC = usesBonusSpellcasting ? bonusSpellcasting?.spellSaveDC ?? null : derived.spellcasting.spellSaveDC;
+
+      return {
+        id: spell.id,
+        name: spell.name,
+        attack:
+          spell.attackType === "save"
+          ? spellSaveDC === null
             ? "None"
-            : `DC ${derived.spellcasting.spellSaveDC}`
-          : derived.spellcasting.spellAttackBonus === null
+            : `DC ${spellSaveDC}`
+          : spellAttackBonus === null
             ? "None"
-            : formatModifier(derived.spellcasting.spellAttackBonus),
-      damage: spell.cantripDamage ?? spell.summary,
-      notes: spell.attackType === "save" ? "Saving throw" : spell.attackType === "spellAttack" ? "Spell attack" : spell.school,
-    }));
+            : formatModifier(spellAttackBonus),
+        damage: spell.cantripDamage ?? spell.summary,
+        notes: spell.attackType === "save" ? "Saving throw" : spell.attackType === "spellAttack" ? "Spell attack" : spell.school,
+      };
+    });
 
   return [...weaponRows, ...cantripRows];
 }
@@ -81,9 +116,33 @@ function isSaveProficient(ability: AbilityName, derived: DerivedSheetState) {
   return derived.savingThrows[ability] - derived.abilityModifiers[ability] >= derived.proficiencyBonus;
 }
 
+function estimateListWeight(item: string) {
+  const punctuationWeight = (item.match(/[,:;()]/g)?.length ?? 0) * 6;
+  return Math.max(item.length, 18) + punctuationWeight;
+}
+
 function splitList(items: string[]) {
-  const midpoint = Math.max(1, Math.ceil(items.length / 2));
-  return [items.slice(0, midpoint), items.slice(midpoint)];
+  if (items.length <= 1) {
+    return [items, []];
+  }
+
+  const totalWeight = items.reduce((sum, item) => sum + estimateListWeight(item), 0);
+  let runningWeight = 0;
+  let bestIndex = 1;
+  let bestDelta = Number.POSITIVE_INFINITY;
+
+  for (let index = 0; index < items.length - 1; index += 1) {
+    runningWeight += estimateListWeight(items[index]);
+    const splitIndex = index + 1;
+    const delta = Math.abs(totalWeight - runningWeight * 2);
+
+    if (delta < bestDelta) {
+      bestDelta = delta;
+      bestIndex = splitIndex;
+    }
+  }
+
+  return [items.slice(0, bestIndex), items.slice(bestIndex)];
 }
 
 function formatSpellSlotSummary(derived: DerivedSheetState) {
@@ -130,14 +189,33 @@ function ReferenceButton({
 
 export function SheetPreview({ character, derived, onOpenReference }: SheetPreviewProps) {
   const classLabel = getClassTemplate(character.classId).name;
+  const subclassTemplate = getSubclassTemplate(character.classId, character.subclass, character.enabledSourceIds);
+  const subclassLabel = getSubclassLabel(character.classId, character.subclass, character.enabledSourceIds);
   const speciesLabel = getSpeciesTemplate(character.speciesId).name;
   const backgroundLabel = getBackgroundTemplate(character.backgroundId).name;
   const armor = getArmorTemplate(derived.equippedArmorId);
   const offenseRows = buildOffenseRows(derived);
   const emptyOffenseRows = Math.max(0, 6 - offenseRows.length);
   const featureColumns = splitList(derived.classFeatures);
-  const featEntries = [...derived.feats, ...derived.activeEffects];
+  const featState = sanitizeFeatState(character.featIds, character.featSelections, {
+    classId: character.classId,
+    skillProficiencies: character.skillProficiencies,
+  });
+  const selectedFeatEntries = featState.featIds
+    .map((featId) => findCompendiumEntry(featId))
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry && entry.type === "feat"));
+  const selectedFeatRows = selectedFeatEntries.map((entry) => ({
+    entry,
+    selectionLabels: listFeatSelectionLabels(entry.slug, featState.featSelections, {
+      classId: character.classId,
+      skillProficiencies: character.skillProficiencies,
+    }),
+  }));
+  const selectedFeatNames = new Set(selectedFeatEntries.map((entry) => entry.name));
+  const freeformFeatEntries = derived.feats.filter((entry) => !selectedFeatNames.has(entry));
   const spellSlotSummary = formatSpellSlotSummary(derived);
+  const primarySpellAttackSummary =
+    derived.spellcasting.spellAttackBonus === null ? "No spell attack" : formatModifier(derived.spellcasting.spellAttackBonus);
   const equippedWeapons = derived.inventoryEntries.filter((entry) => entry.kind === "weapon" && entry.equipped);
   const carriedGear = derived.inventoryEntries.filter((entry) => entry.kind === "gear");
 
@@ -181,25 +259,37 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
           </div>
           <div className="record-sheet__field">
             <span>Subclass</span>
-            <strong>Pending</strong>
+            {character.subclass ? (
+              <ReferenceButton
+                className="record-sheet__field-link"
+                onOpenReference={onOpenReference}
+                slug={subclassTemplate?.id}
+              >
+                {subclassLabel}
+              </ReferenceButton>
+            ) : (
+              <strong className="record-sheet__field-placeholder">Not set</strong>
+            )}
           </div>
         </article>
 
-        <article className="record-sheet__medallion">
-          <span>Level</span>
-          <strong>{character.level}</strong>
-        </article>
+        <div className="record-sheet__hero-emblems">
+          <article className="record-sheet__medallion">
+            <span>Level</span>
+            <strong>{character.level}</strong>
+          </article>
 
-        <article className="record-sheet__shield">
-          <ReferenceButton
-            onOpenReference={onOpenReference}
-            slug={RULE_REFERENCE_SLUGS.armorClass}
-          >
-            Armor Class
-          </ReferenceButton>
-          <strong>{derived.armorClass}</strong>
-          <small>{derived.shieldEquipped ? "Shield ready" : "No shield"}</small>
-        </article>
+          <article className="record-sheet__shield">
+            <ReferenceButton
+              onOpenReference={onOpenReference}
+              slug={RULE_REFERENCE_SLUGS.armorClass}
+            >
+              Armor Class
+            </ReferenceButton>
+            <strong>{derived.armorClass}</strong>
+            <small>{derived.shieldEquipped ? "Shield ready" : "No shield"}</small>
+          </article>
+        </div>
 
         <article className="record-sheet__panel record-sheet__vitals-panel">
           <div className="record-sheet__vital">
@@ -244,11 +334,11 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
             <div className="record-sheet__death-saves">
               <div className="record-sheet__pip-row">
                 <small>Successes</small>
-                <div>{buildPips(3, 0, "success")}</div>
+                <div>{buildPips(3, character.deathSaves.successes, "success")}</div>
               </div>
               <div className="record-sheet__pip-row">
                 <small>Failures</small>
-                <div>{buildPips(3, 0, "failure")}</div>
+                <div>{buildPips(3, character.deathSaves.failures, "failure")}</div>
               </div>
             </div>
           </div>
@@ -257,7 +347,10 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
 
       <div className="record-sheet__banner">
         <span className="record-sheet__banner-line" />
-        <strong>Adventurer Ledger</strong>
+        <div className="record-sheet__banner-copy">
+          <span>Campaign Record</span>
+          <strong>Adventurer Ledger</strong>
+        </div>
         <span className="record-sheet__banner-line" />
       </div>
 
@@ -269,15 +362,32 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
                 key={ability}
                 className="record-sheet__ability-card"
               >
-                <div className="record-sheet__ability-score">{character.abilities[ability]}</div>
+                <div className="record-sheet__ability-score">{derived.adjustedAbilities[ability]}</div>
                 <div className="record-sheet__ability-content">
-                  <h3>{humanizeLabel(ability)}</h3>
+                  <h3 title={ABILITY_LABELS[ability].long}>
+                    <span className="record-sheet__ability-name-long">{ABILITY_LABELS[ability].long}</span>
+                    <span
+                      aria-hidden="true"
+                      className="record-sheet__ability-name-short"
+                    >
+                      {ABILITY_LABELS[ability].short}
+                    </span>
+                  </h3>
                   <strong>{formatModifier(derived.abilityModifiers[ability])}</strong>
                   <div className="record-sheet__save-row">
                     <span
                       className={`record-sheet__toggle ${isSaveProficient(ability, derived) ? "record-sheet__toggle--on" : ""}`}
                     />
-                    <small>Saving Throw {formatModifier(derived.savingThrows[ability])}</small>
+                    <small>
+                      <span className="record-sheet__save-copy-long">Saving Throw</span>
+                      <span
+                        aria-hidden="true"
+                        className="record-sheet__save-copy-short"
+                      >
+                        Save
+                      </span>{" "}
+                      {formatModifier(derived.savingThrows[ability])}
+                    </small>
                   </div>
                 </div>
               </article>
@@ -285,7 +395,7 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
           </div>
 
           <div className="record-sheet__badge-row">
-            <article className="record-sheet__mini-panel">
+            <article className="record-sheet__mini-panel record-sheet__mini-panel--metric">
               <ReferenceButton
                 onOpenReference={onOpenReference}
                 slug={RULE_REFERENCE_SLUGS.proficiencyBonus}
@@ -294,7 +404,7 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
               </ReferenceButton>
               <strong>{formatModifier(derived.proficiencyBonus)}</strong>
             </article>
-            <article className="record-sheet__mini-panel">
+            <article className="record-sheet__mini-panel record-sheet__mini-panel--mark">
               <span>Heroic Inspiration</span>
               <div className="record-sheet__inspiration-mark">
                 <span className={character.inspiration ? "record-sheet__inspiration-mark--active" : ""} />
@@ -302,7 +412,7 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
             </article>
           </div>
 
-          <article className="record-sheet__panel record-sheet__skills-panel">
+          <article className="record-sheet__panel record-sheet__skills-panel record-sheet__skills-panel--compact">
             <header className="record-sheet__panel-header">
               <ReferenceButton
                 onOpenReference={onOpenReference}
@@ -334,40 +444,45 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
             </div>
 
             <div className="record-sheet__loadout">
-              <div>
+              <div className="record-sheet__loadout-group">
                 <h4>Weapons</h4>
-                <p className="record-sheet__link-list">
+                <ul className="record-sheet__loadout-list">
                   {equippedWeapons.length > 0
                     ? equippedWeapons.map((entry) => (
-                        <ReferenceButton
-                          key={entry.id}
-                          onOpenReference={onOpenReference}
-                          slug={entry.referenceSlug}
-                        >
-                          {entry.name}
-                        </ReferenceButton>
+                        <li key={entry.id}>
+                          <ReferenceButton
+                            onOpenReference={onOpenReference}
+                            slug={entry.referenceSlug}
+                          >
+                            {entry.name}
+                          </ReferenceButton>
+                        </li>
                       ))
-                    : "None"}
-                </p>
+                    : <li>None</li>}
+                </ul>
               </div>
-              <div>
+              <div className="record-sheet__loadout-group">
                 <h4>Armors</h4>
-                <p className="record-sheet__link-list">
-                  <ReferenceButton
-                    onOpenReference={onOpenReference}
-                    slug={getArmorReferenceSlug(derived.equippedArmorId)}
-                  >
-                    {armor.name}
-                  </ReferenceButton>
-                  {derived.shieldEquipped ? (
+                <ul className="record-sheet__loadout-list">
+                  <li>
                     <ReferenceButton
                       onOpenReference={onOpenReference}
-                      slug="shield"
+                      slug={getArmorReferenceSlug(derived.equippedArmorId)}
                     >
-                      Shield
+                      {armor.name}
                     </ReferenceButton>
+                  </li>
+                  {derived.shieldEquipped ? (
+                    <li>
+                      <ReferenceButton
+                        onOpenReference={onOpenReference}
+                        slug="shield"
+                      >
+                        Shield
+                      </ReferenceButton>
+                    </li>
                   ) : null}
-                </p>
+                </ul>
               </div>
             </div>
           </article>
@@ -375,7 +490,7 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
 
         <div className="record-sheet__right-rail">
           <div className="record-sheet__summary-row">
-            <article className="record-sheet__summary-panel">
+            <article className="record-sheet__summary-panel record-sheet__summary-panel--metric">
               <ReferenceButton
                 onOpenReference={onOpenReference}
                 slug={RULE_REFERENCE_SLUGS.initiative}
@@ -384,15 +499,31 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
               </ReferenceButton>
               <strong>{formatModifier(derived.initiative)}</strong>
             </article>
-            <article className="record-sheet__summary-panel">
+            <article className="record-sheet__summary-panel record-sheet__summary-panel--metric">
               <span>Speed</span>
               <strong>{derived.speed} ft</strong>
+              <small>{derived.size} size</small>
             </article>
-            <article className="record-sheet__summary-panel">
-              <span>Size</span>
-              <strong>Medium</strong>
+            <article className="record-sheet__summary-panel record-sheet__summary-panel--senses">
+              <ReferenceButton
+                onOpenReference={onOpenReference}
+                slug={RULE_REFERENCE_SLUGS.skills}
+              >
+                Passive Senses
+              </ReferenceButton>
+              <div className="record-sheet__passive-grid">
+                {PASSIVE_SKILL_LABELS.map(({ key, label }) => (
+                  <div
+                    key={key}
+                    className="record-sheet__passive-cell"
+                  >
+                    <small>{label}</small>
+                    <strong>{derived.passiveSkills[key]}</strong>
+                  </div>
+                ))}
+              </div>
             </article>
-            <article className="record-sheet__summary-panel">
+            <article className="record-sheet__summary-panel record-sheet__summary-panel--wide record-sheet__summary-panel--spellcasting">
               <ReferenceButton
                 onOpenReference={onOpenReference}
                 slug={getSpellcastingReferenceSlug(derived.spellcasting.spellAttackBonus !== null)}
@@ -400,17 +531,31 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
                 Spellcasting
               </ReferenceButton>
               <strong>{derived.spellcasting.spellSaveDC === null ? "None" : `DC ${derived.spellcasting.spellSaveDC}`}</strong>
-              <small>
-                {derived.spellcasting.spellAttackBonus === null
-                  ? "No spell attack"
-                  : `Atk ${formatModifier(derived.spellcasting.spellAttackBonus)} | ${spellSlotSummary}`}
-              </small>
+              <div className="record-sheet__spellcasting-summary">
+                <div className="record-sheet__spellcasting-line">
+                  <span>Attack</span>
+                  <small>{primarySpellAttackSummary}</small>
+                </div>
+                <div className="record-sheet__spellcasting-line">
+                  <span>Slots</span>
+                  <small>{spellSlotSummary}</small>
+                </div>
+                {derived.spellcasting.bonusSpellcasting ? (
+                  <div className="record-sheet__spellcasting-line">
+                    <span>{derived.spellcasting.bonusSpellcasting.sourceLabel}</span>
+                    <small>
+                      DC {derived.spellcasting.bonusSpellcasting.spellSaveDC} | Atk{" "}
+                      {formatModifier(derived.spellcasting.bonusSpellcasting.spellAttackBonus)}
+                    </small>
+                  </div>
+                ) : null}
+              </div>
             </article>
           </div>
 
           <article className="record-sheet__panel record-sheet__weapons-panel">
             <header className="record-sheet__panel-header">Weapons & Damage Cantrips</header>
-            <div className="record-sheet__table">
+            <div className="record-sheet__table record-sheet__table--compact">
               <div className="record-sheet__table-head">Name</div>
               <div className="record-sheet__table-head">Atk Bonus / DC</div>
               <div className="record-sheet__table-head">Damage & Type</div>
@@ -421,7 +566,7 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
                   key={row.id}
                   className="record-sheet__table-row"
                 >
-                  <div>
+                  <div data-label="Name">
                     <ReferenceButton
                       onOpenReference={onOpenReference}
                       slug={row.id}
@@ -429,9 +574,9 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
                       {row.name}
                     </ReferenceButton>
                   </div>
-                  <div>{row.attack}</div>
-                  <div>{row.damage}</div>
-                  <div>{row.notes}</div>
+                  <div data-label="Atk / DC">{row.attack}</div>
+                  <div data-label="Damage">{row.damage}</div>
+                  <div data-label="Notes">{row.notes}</div>
                 </div>
               ))}
 
@@ -450,12 +595,12 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
           </article>
 
           <article className="record-sheet__panel record-sheet__notes-panel">
-            <header className="record-sheet__panel-header">Class Features</header>
+            <header className="record-sheet__panel-header">Class &amp; Subclass Features</header>
             <div className="record-sheet__notes-columns">
               {featureColumns.map((column, columnIndex) => (
                 <ul
                   key={`feature-column-${columnIndex}`}
-                  className="record-sheet__notes-list"
+                  className="record-sheet__notes-list record-sheet__notes-list--dense"
                 >
                   {column.length === 0 ? <li>Class notes pending.</li> : null}
                   {column.map((feature) => (
@@ -467,7 +612,24 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
           </article>
 
           <div className="record-sheet__bottom-row">
-            <article className="record-sheet__panel record-sheet__notes-panel">
+            <article className="record-sheet__panel record-sheet__notes-panel record-sheet__notes-panel--compact">
+              <header className="record-sheet__panel-header">
+                <ReferenceButton
+                  onOpenReference={onOpenReference}
+                  slug={character.backgroundId}
+                >
+                  {backgroundLabel}
+                </ReferenceButton>
+              </header>
+              <ul className="record-sheet__notes-list">
+                {derived.backgroundFeatures.length === 0 ? <li>Background features pending.</li> : null}
+                {derived.backgroundFeatures.map((feature) => (
+                  <li key={feature}>{feature}</li>
+                ))}
+              </ul>
+            </article>
+
+            <article className="record-sheet__panel record-sheet__notes-panel record-sheet__notes-panel--compact">
               <header className="record-sheet__panel-header">Species Traits</header>
               <ul className="record-sheet__notes-list">
                 {derived.speciesTraits.length === 0 ? <li>Species traits pending.</li> : null}
@@ -477,20 +639,43 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
               </ul>
             </article>
 
-            <article className="record-sheet__panel record-sheet__notes-panel">
+            <article className="record-sheet__panel record-sheet__notes-panel record-sheet__notes-panel--compact">
               <header className="record-sheet__panel-header">Feats</header>
               <ul className="record-sheet__notes-list">
-                {featEntries.length === 0 ? <li>No feats or active homebrew.</li> : null}
-                {featEntries.map((entry) => (
+                {selectedFeatRows.length === 0 && freeformFeatEntries.length === 0 ? <li>No feats selected.</li> : null}
+                {selectedFeatRows.map(({ entry, selectionLabels }) => (
+                  <li key={entry.slug}>
+                    <ReferenceButton
+                      onOpenReference={onOpenReference}
+                      slug={entry.slug}
+                    >
+                      {entry.name}
+                    </ReferenceButton>
+                    {selectionLabels.length > 0 ? (
+                      <div className="record-sheet__notes-detail">{selectionLabels.join(", ")}</div>
+                    ) : null}
+                  </li>
+                ))}
+                {freeformFeatEntries.map((entry) => (
                   <li key={entry}>{entry}</li>
                 ))}
               </ul>
+              {derived.activeEffects.length > 0 ? (
+                <div className="record-sheet__notes-subsection">
+                  <span className="record-sheet__notes-kicker">Active Effects</span>
+                  <ul className="record-sheet__notes-list">
+                    {derived.activeEffects.map((entry) => (
+                      <li key={entry}>{entry}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
             </article>
           </div>
 
-          <article className="record-sheet__panel record-sheet__notes-panel">
+          <article className="record-sheet__panel record-sheet__notes-panel record-sheet__notes-panel--compact">
             <header className="record-sheet__panel-header">Carried Gear</header>
-            <ul className="record-sheet__notes-list">
+            <ul className="record-sheet__notes-list record-sheet__notes-list--gear">
               {carriedGear.length === 0 ? <li>No extra gear tracked.</li> : null}
               {carriedGear.map((entry) => (
                 <li key={entry.id}>
@@ -501,8 +686,13 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
                   >
                     {entry.name}
                   </ReferenceButton>
-                  {entry.quantity > 1 ? ` x${entry.quantity}` : ""}
-                  {entry.equipped ? " (equipped)" : ""}
+                  {entry.quantity > 1 || entry.equipped ? (
+                    <span className="record-sheet__gear-meta">
+                      {entry.quantity > 1 ? `x${entry.quantity}` : ""}
+                      {entry.quantity > 1 && entry.equipped ? " | " : ""}
+                      {entry.equipped ? "equipped" : ""}
+                    </span>
+                  ) : null}
                 </li>
               ))}
             </ul>

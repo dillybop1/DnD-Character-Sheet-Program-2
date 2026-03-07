@@ -4,7 +4,12 @@ import {
   PACT_MAGIC_SLOTS,
   SKILL_TO_ABILITY,
   getArmorTemplate,
+  getBackgroundTemplate,
   getClassTemplate,
+  getFeatTemplate,
+  resolveFeatEffects,
+  sanitizeFeatState,
+  getSubclassTemplate,
   getSpeciesTemplate,
   getWeaponTemplate,
 } from "./data/reference";
@@ -16,6 +21,7 @@ import type {
   AbilityScores,
   CasterType,
   CharacterRecord,
+  DerivedSpellcastingLine,
   DerivedSpellSummary,
   DerivedSheetState,
   Effect,
@@ -24,6 +30,7 @@ import type {
   SkillName,
   SpellRecord,
 } from "./types";
+import { SKILL_NAMES } from "./types";
 
 function clampLevel(level: number) {
   return Math.max(1, Math.min(20, level || 1));
@@ -64,7 +71,8 @@ function deriveSkillProficiencies(
     }
 
     if (effect.type === "grant_skill_proficiency") {
-      next[effect.target as SkillName] = "proficient";
+      const skill = effect.target as SkillName;
+      next[skill] = next[skill] === "expertise" ? "expertise" : "proficient";
     }
 
     if (effect.type === "grant_expertise") {
@@ -100,10 +108,20 @@ function proficiencyMultiplier(level: ProficiencyLevel) {
   return 0;
 }
 
-function collectEffects(record: CharacterRecord, homebrewEntries: HomebrewEntry[]) {
-  return homebrewEntries
-    .filter((entry) => record.homebrewIds.includes(entry.id))
-    .flatMap((entry) => entry.effects);
+function derivePassiveSkills(skills: Record<SkillName, number>, effects: Effect[]) {
+  return Object.fromEntries(
+    SKILL_NAMES.map((skill) => {
+      const passiveBonus = effects
+        .filter((effect) => effect.type === "passive_skill_bonus" && effect.target === skill)
+        .reduce((total, effect) => total + (effect.value ?? 0), 0);
+
+      return [skill, 10 + skills[skill] + passiveBonus];
+    }),
+  ) as Record<SkillName, number>;
+}
+
+function collectSelectedHomebrew(record: CharacterRecord, homebrewEntries: HomebrewEntry[]) {
+  return homebrewEntries.filter((entry) => record.homebrewIds.includes(entry.id));
 }
 
 function computeArmorClass(armorId: string | null, shieldEquipped: boolean, dexterityModifier: number, effects: Effect[]) {
@@ -174,6 +192,7 @@ function buildSpellSummaries(record: CharacterRecord, effects: Effect[]): SpellR
   const spellIds = Array.from(
     new Set([
       ...record.spellIds,
+      ...record.bonusSpellIds,
       ...effects
         .filter((effect) => effect.type === "grant_spell" && Boolean(effect.target))
         .map((effect) => effect.target as string),
@@ -199,10 +218,65 @@ function buildSpellSummaries(record: CharacterRecord, effects: Effect[]): SpellR
   });
 }
 
+function deriveBonusSpellcastingAbility(record: CharacterRecord, featIds: string[]) {
+  if (!featIds.includes("magic-initiate") || !record.bonusSpellClassId.trim()) {
+    return null;
+  }
+
+  const bonusSpellClass = getClassTemplate(record.bonusSpellClassId);
+  return bonusSpellClass.spellcastingAbility;
+}
+
+function deriveBonusSpellcastingLine(
+  record: CharacterRecord,
+  featIds: string[],
+  primarySpellcastingAbility: AbilityName | null,
+  abilityModifiers: Record<AbilityName, number>,
+  profBonus: number,
+): DerivedSpellcastingLine | null {
+  if (!featIds.includes("magic-initiate") || !record.bonusSpellClassId.trim() || record.bonusSpellIds.length === 0) {
+    return null;
+  }
+
+  const bonusSpellClass = getClassTemplate(record.bonusSpellClassId);
+  const bonusSpellcastingAbility = bonusSpellClass.spellcastingAbility;
+
+  if (!bonusSpellcastingAbility || bonusSpellcastingAbility === primarySpellcastingAbility) {
+    return null;
+  }
+
+  return {
+    sourceId: bonusSpellClass.id,
+    sourceLabel: `Magic Initiate (${bonusSpellClass.name})`,
+    spellcastingAbility: bonusSpellcastingAbility,
+    spellAttackBonus: abilityModifiers[bonusSpellcastingAbility] + profBonus,
+    spellSaveDC: 8 + profBonus + abilityModifiers[bonusSpellcastingAbility],
+    spellIds: Array.from(new Set(record.bonusSpellIds)),
+  };
+}
+
 export function calculateDerivedState(record: CharacterRecord, homebrewEntries: HomebrewEntry[] = []): DerivedSheetState {
   const classTemplate = getClassTemplate(record.classId);
+  const subclassTemplate = getSubclassTemplate(record.classId, record.subclass, record.enabledSourceIds);
+  const backgroundTemplate = getBackgroundTemplate(record.backgroundId);
   const speciesTemplate = getSpeciesTemplate(record.speciesId);
-  const effects = collectEffects(record, homebrewEntries);
+  const activeHomebrewEntries = collectSelectedHomebrew(record, homebrewEntries);
+  const featState = sanitizeFeatState(record.featIds, record.featSelections, {
+    classId: record.classId,
+    skillProficiencies: record.skillProficiencies,
+  });
+  const featTemplates = featState.featIds
+    .map((featId) => getFeatTemplate(featId))
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+  const effects = [
+    ...featState.featIds.flatMap((featId) =>
+      resolveFeatEffects(featId, featState.featSelections, {
+        classId: record.classId,
+        skillProficiencies: record.skillProficiencies,
+      }),
+    ),
+    ...activeHomebrewEntries.flatMap((entry) => entry.effects),
+  ];
   const inventory = normalizeInventory(record);
   const legacyLoadout = deriveLegacyLoadout(inventory);
   const adjustedAbilities = applyAbilityBonuses(record.abilities, effects);
@@ -225,6 +299,7 @@ export function calculateDerivedState(record: CharacterRecord, homebrewEntries: 
       return [skillName, abilityModifiers[ability] + profBonus * proficiency];
     }),
   ) as DerivedSheetState["skills"];
+  const passiveSkills = derivePassiveSkills(skills, effects);
 
   const savingThrows = Object.fromEntries(
     Object.entries(abilityModifiers).map(([abilityName, modifier]) => [
@@ -240,16 +315,33 @@ export function calculateDerivedState(record: CharacterRecord, homebrewEntries: 
   const bonusHitPoints = effects
     .filter((effect) => effect.type === "hp_bonus")
     .reduce((total, effect) => total + (effect.value ?? 0), 0);
+  const bonusHitPointsPerLevel = effects
+    .filter((effect) => effect.type === "hp_bonus_per_level")
+    .reduce((total, effect) => total + (effect.value ?? 0), 0);
+  const initiativeBonus = effects
+    .filter((effect) => effect.type === "initiative_bonus")
+    .reduce((total, effect) => total + (effect.value ?? 0), 0);
 
   const maxHitPoints =
     classTemplate.hitDie +
     abilityModifiers.constitution +
     Math.max(0, level - 1) * (averageHitDieGain(classTemplate.hitDie) + abilityModifiers.constitution) +
-    bonusHitPoints;
+    bonusHitPoints +
+    bonusHitPointsPerLevel * level;
 
-  const spellcastingAbilityEffect = effects.find((effect) => effect.type === "set_spellcasting_ability");
-  const spellcastingAbility = (spellcastingAbilityEffect?.target as AbilityName | undefined) ?? classTemplate.spellcastingAbility;
+  const spellcastingAbilityEffect = [...effects].reverse().find((effect) => effect.type === "set_spellcasting_ability");
+  const spellcastingAbility =
+    (spellcastingAbilityEffect?.target as AbilityName | undefined) ??
+    classTemplate.spellcastingAbility ??
+    deriveBonusSpellcastingAbility(record, featState.featIds);
   const spellAbilityModifier = spellcastingAbility ? abilityModifiers[spellcastingAbility] : null;
+  const bonusSpellcasting = deriveBonusSpellcastingLine(
+    record,
+    featState.featIds,
+    spellcastingAbility,
+    abilityModifiers,
+    profBonus,
+  );
   const knownSpells = buildSpellSummaries(record, effects);
   const slotProgression = deriveSpellSlots(level, classTemplate.casterType);
 
@@ -277,11 +369,14 @@ export function calculateDerivedState(record: CharacterRecord, homebrewEntries: 
 
   return {
     proficiencyBonus: profBonus,
+    adjustedAbilities,
     abilityModifiers,
     savingThrows,
     skills,
+    passiveSkills,
     armorClass: computeArmorClass(legacyLoadout.armorId, legacyLoadout.shieldEquipped, abilityModifiers.dexterity, effects),
-    initiative: abilityModifiers.dexterity,
+    initiative: abilityModifiers.dexterity + initiativeBonus,
+    size: speciesTemplate.size,
     speed: speciesTemplate.speed + speedBonus,
     hitPointsMax: maxHitPoints,
     hitDiceMax: level,
@@ -289,18 +384,36 @@ export function calculateDerivedState(record: CharacterRecord, homebrewEntries: 
     shieldEquipped: legacyLoadout.shieldEquipped,
     spellcasting: {
       ...slotProgression,
+      spellcastingAbility,
       spellAttackBonus: spellAbilityModifier === null ? null : spellAbilityModifier + profBonus,
       spellSaveDC: spellAbilityModifier === null ? null : 8 + profBonus + spellAbilityModifier,
+      bonusSpellcasting,
       knownSpells,
-      preparedSpells: knownSpells.filter((spell) => spell.level > 0 && record.preparedSpellIds.includes(spell.id)),
+      preparedSpells: knownSpells.filter(
+        (spell) => spell.level > 0 && (record.preparedSpellIds.includes(spell.id) || record.bonusSpellIds.includes(spell.id)),
+      ),
     },
     weaponEntries,
     inventoryEntries: listInventoryEntries(record),
-    classFeatures: [...classTemplate.featureSummary, record.notes.classFeatures].filter(Boolean),
-    speciesTraits: [...speciesTemplate.featureSummary, record.notes.speciesTraits].filter(Boolean),
-    feats: record.notes.feats ? [record.notes.feats] : [],
-    activeEffects: homebrewEntries
-      .filter((entry) => record.homebrewIds.includes(entry.id))
+    classFeatures: [
+      ...classTemplate.featureSummary,
+      ...(subclassTemplate?.featureSummary ?? []),
+      ...activeHomebrewEntries.filter((entry) => entry.type === "feature").map((entry) => entry.name),
+      record.notes.classFeatures,
+    ].filter(Boolean),
+    backgroundFeatures: [...backgroundTemplate.featureSummary, record.notes.backgroundFeatures].filter(Boolean),
+    speciesTraits: [
+      ...speciesTemplate.featureSummary,
+      ...activeHomebrewEntries.filter((entry) => entry.type === "speciesTrait").map((entry) => entry.name),
+      record.notes.speciesTraits,
+    ].filter(Boolean),
+    feats: [
+      ...featTemplates.map((entry) => entry.name),
+      ...activeHomebrewEntries.filter((entry) => entry.type === "feat").map((entry) => entry.name),
+      record.notes.feats,
+    ].filter(Boolean),
+    activeEffects: activeHomebrewEntries
+      .filter((entry) => entry.type === "item" || entry.type === "spell")
       .map((entry) => entry.name),
   };
 }
