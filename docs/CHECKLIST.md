@@ -1,0 +1,17 @@
+# Running Checklist
+
+| Task ID | Status | Milestone | Description | Dependencies | Verification Command | Exit Criteria |
+| --- | --- | --- | --- | --- | --- | --- |
+| M0-01 | done | M0 | Bootstrap repo, tracking docs, README workflow, and local git init | None | `git status --short && npm run typecheck && npm run test && npm run build` | Repo has committed handoff docs, a local `main` branch, and verified bootstrap commands |
+| M1-01 | done | M1 | Scaffold Electron + React + TypeScript app, renderer shell, and packaging baseline | M0-01 | `npm run build` | Desktop app builds successfully and emits a macOS DMG |
+| M1-02 | done | M1 | Provide a stable local live development flow behind `npm run dev` | M1-01 | `npm run dev` | Vite starts cleanly on `localhost:5173` and the app uses a browser-backed `dndApi` mock for HMR development |
+| M1-03 | blocked | M1 | Investigate a direct Electron-shell hot-run path beyond the browser dev shim | M1-01 | `./node_modules/electron/dist/Electron.app/Contents/MacOS/Electron .` | Native Electron dev boot no longer resolves `require('electron')` to the installed binary path |
+| M2-01 | done | M2 | Add SQLite persistence, migration runner, preload bridge, and starter local CRUD | M1-01 | `npm run typecheck && npm run test` | Characters, homebrew entries, and compendium seed data persist locally through the IPC surface |
+| M3-01 | in_progress | M3 | Replace starter compendium seed with fuller SRD/open ingestion pipeline | M2-01 | `npm run typecheck` | Seed/import workflow can load a materially larger compendium dataset |
+| M4-01 | done | M4 | Add starter rules engine coverage for core sheet math | M2-01 | `npm run test` | Unit tests cover fighter armor math and wizard spellcasting progression |
+| M5-01 | done | M5 | Implement guided builder, character library, and editable sheet preview | M2-01, M4-01 | `npm run typecheck && npm run build` | A character can be created, saved, reloaded, edited, deleted, and previewed with live derived values |
+| M4-02 | todo | M4 | Extend rules engine for more classes, spell progression edge cases, and overrides | M4-01 | `npm run test` | Core derived math covers the intended v1 classes and expected edge cases |
+| M6-01 | done | M6 | Rebuild the sheet preview to match the reference page's structural layout with live derived bindings | M5-01 | `npm run typecheck && npm run build` | The sheet uses the same major panel hierarchy as the reference while remaining driven by current app data |
+| M6-02 | todo | M6 | Refine ornamental detail, spacing, and print behavior into a print-perfect final sheet | M6-01 | `npm run dev && npm run build` | The sheet styling, pagination, and export output are polished enough to ship as the final presentation layer |
+| M7-01 | todo | M7 | Deepen inventory, spell preparation, and homebrew application beyond starter coverage | M5-01 | `npm run typecheck && npm run test` | Detailed character tabs handle more than the starter seed and bounded effects |
+| M8-01 | todo | M8 | Validate packaged macOS and Windows installers | M1-01 | `npm run build` | Installers launch and preserve local data on both target platforms |
