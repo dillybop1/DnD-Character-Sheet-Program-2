@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { calculateDerivedState } from "../../shared/calculations";
 import {
   listArmorTemplates,
@@ -9,18 +10,33 @@ import {
 } from "../../shared/data/reference";
 import { listCompendiumSpells } from "../../shared/data/compendiumSeed";
 import { ABILITY_NAMES, SKILL_NAMES } from "../../shared/types";
-import type { AbilityName, BuilderInput, CharacterRecord, CharacterSummary, HomebrewEntry, SkillName } from "../../shared/types";
+import type {
+  AbilityName,
+  BuilderInput,
+  CharacterRecord,
+  CharacterSummary,
+  CompendiumEntry,
+  HomebrewEntry,
+  SkillName,
+} from "../../shared/types";
+import { CompendiumEntryDetail } from "../components/CompendiumEntryDetail";
 import { SectionCard } from "../components/SectionCard";
 import { SheetPreview } from "../components/SheetPreview";
+import { getArmorReferenceSlug, RULE_REFERENCE_SLUGS } from "../lib/compendiumLinks";
 import { dndApi } from "../lib/api";
 import { buildPreviewCharacter, builderInputFromCharacter, createDefaultBuilderInput, humanizeLabel } from "../lib/editor";
 
 export function CharactersPage() {
+  const navigate = useNavigate();
   const [characters, setCharacters] = useState<CharacterSummary[]>([]);
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterRecord | null>(null);
   const [draft, setDraft] = useState<BuilderInput>(createDefaultBuilderInput());
   const [homebrewEntries, setHomebrewEntries] = useState<HomebrewEntry[]>([]);
   const [message, setMessage] = useState("Create a new character or select one from the library.");
+  const [referenceEntry, setReferenceEntry] = useState<CompendiumEntry | null>(null);
+  const [referenceStatus, setReferenceStatus] = useState(
+    "Click a class, spell, weapon, armor, or rule label to inspect it here.",
+  );
   const [loading, setLoading] = useState(true);
 
   async function loadCharacters(selectedId?: string | null) {
@@ -106,6 +122,26 @@ export function CharactersPage() {
     });
   }
 
+  async function openReference(slug: string) {
+    setReferenceStatus("Loading reference...");
+    const entry = await dndApi.compendium.get(slug);
+
+    if (!entry) {
+      setReferenceEntry(null);
+      setReferenceStatus("Reference entry not found.");
+      return;
+    }
+
+    setReferenceEntry(entry);
+    setReferenceStatus(`Showing ${entry.name}.`);
+  }
+
+  function openReferenceSafe(slug: string) {
+    void openReference(slug).catch((error: unknown) => {
+      setReferenceStatus(error instanceof Error ? error.message : "Failed to open reference.");
+    });
+  }
+
   async function handleSave() {
     try {
       if (!selectedCharacter) {
@@ -153,7 +189,7 @@ export function CharactersPage() {
   }
 
   if (loading) {
-    return <div className="empty-state">Loading character library…</div>;
+      return <div className="empty-state">Loading character library…</div>;
   }
 
   return (
@@ -371,54 +407,125 @@ export function CharactersPage() {
               </div>
             </div>
 
+            <div className="detail-card">
+              <div className="detail-card__header">
+                <strong>Quick References</strong>
+                <span>Builder context</span>
+              </div>
+              <div className="filter-row">
+                <button
+                  className="chip"
+                  onClick={() => openReferenceSafe(draft.classId)}
+                  type="button"
+                >
+                  {availableClasses.find((entry) => entry.id === draft.classId)?.name ?? "Class"}
+                </button>
+                <button
+                  className="chip"
+                  onClick={() => openReferenceSafe(draft.speciesId)}
+                  type="button"
+                >
+                  {availableSpecies.find((entry) => entry.id === draft.speciesId)?.name ?? "Species"}
+                </button>
+                <button
+                  className="chip"
+                  onClick={() => openReferenceSafe(draft.backgroundId)}
+                  type="button"
+                >
+                  {availableBackgrounds.find((entry) => entry.id === draft.backgroundId)?.name ?? "Background"}
+                </button>
+                <button
+                  className="chip"
+                  onClick={() => openReferenceSafe(getArmorReferenceSlug(draft.armorId))}
+                  type="button"
+                >
+                  {availableArmor.find((entry) => entry.id === (draft.armorId ?? "unarmored"))?.name ?? "Armor"}
+                </button>
+                <button
+                  className="chip"
+                  onClick={() => openReferenceSafe(RULE_REFERENCE_SLUGS.armorClass)}
+                  type="button"
+                >
+                  Armor Class Rule
+                </button>
+              </div>
+            </div>
+
             <div className="checkbox-grid">
               <div>
                 <h3 className="subheading">Weapons</h3>
                 {availableWeapons.map((weapon) => (
-                  <label
+                  <div
                     key={weapon.id}
-                    className="checkbox-field"
+                    className="choice-row"
                   >
-                    <input
-                      checked={draft.weaponIds.includes(weapon.id)}
-                      onChange={() => toggleArrayEntry("weaponIds", weapon.id)}
-                      type="checkbox"
-                    />
-                    <span>{weapon.name}</span>
-                  </label>
+                    <label className="checkbox-field">
+                      <input
+                        checked={draft.weaponIds.includes(weapon.id)}
+                        onChange={() => toggleArrayEntry("weaponIds", weapon.id)}
+                        type="checkbox"
+                      />
+                      <span>{weapon.name}</span>
+                    </label>
+                    <button
+                      className="inline-link-button"
+                      onClick={() => openReferenceSafe(weapon.id)}
+                      type="button"
+                    >
+                      Ref
+                    </button>
+                  </div>
                 ))}
               </div>
               <div>
                 <h3 className="subheading">Spells</h3>
                 {spellOptions.map((spell) => (
-                  <label
+                  <div
                     key={spell.slug}
-                    className="checkbox-field"
+                    className="choice-row"
                   >
-                    <input
-                      checked={draft.spellIds.includes(spell.slug)}
-                      onChange={() => toggleArrayEntry("spellIds", spell.slug)}
-                      type="checkbox"
-                    />
-                    <span>{spell.name}</span>
-                  </label>
+                    <label className="checkbox-field">
+                      <input
+                        checked={draft.spellIds.includes(spell.slug)}
+                        onChange={() => toggleArrayEntry("spellIds", spell.slug)}
+                        type="checkbox"
+                      />
+                      <span>{spell.name}</span>
+                    </label>
+                    <button
+                      className="inline-link-button"
+                      onClick={() => openReferenceSafe(spell.slug)}
+                      type="button"
+                    >
+                      Ref
+                    </button>
+                  </div>
                 ))}
               </div>
               <div>
                 <h3 className="subheading">Prepared Spells</h3>
                 {draft.spellIds.length === 0 ? <p className="muted-copy">Select spells first.</p> : null}
                 {draft.spellIds.map((spellId) => (
-                  <label
+                  <div
                     key={spellId}
-                    className="checkbox-field"
+                    className="choice-row"
                   >
-                    <input
-                      checked={draft.preparedSpellIds.includes(spellId)}
-                      onChange={() => toggleArrayEntry("preparedSpellIds", spellId)}
-                      type="checkbox"
-                    />
-                    <span>{humanizeLabel(spellId.replaceAll("-", " "))}</span>
-                  </label>
+                    <label className="checkbox-field">
+                      <input
+                        checked={draft.preparedSpellIds.includes(spellId)}
+                        onChange={() => toggleArrayEntry("preparedSpellIds", spellId)}
+                        type="checkbox"
+                      />
+                      <span>{humanizeLabel(spellId.replaceAll("-", " "))}</span>
+                    </label>
+                    <button
+                      className="inline-link-button"
+                      onClick={() => openReferenceSafe(spellId)}
+                      type="button"
+                    >
+                      Ref
+                    </button>
+                  </div>
                 ))}
               </div>
               <div>
@@ -524,6 +631,28 @@ export function CharactersPage() {
         <SheetPreview
           character={previewCharacter}
           derived={derived}
+          onOpenReference={openReferenceSafe}
+        />
+      </SectionCard>
+
+      <SectionCard
+        title={referenceEntry?.name ?? "Linked Reference"}
+        subtitle="In-context compendium detail"
+      >
+        <CompendiumEntryDetail
+          actions={
+            referenceEntry ? (
+              <button
+                className="action-button action-button--secondary"
+                onClick={() => navigate(`/compendium?slug=${referenceEntry.slug}`)}
+                type="button"
+              >
+                Open Full Compendium View
+              </button>
+            ) : undefined
+          }
+          emptyMessage={referenceStatus}
+          entry={referenceEntry}
         />
       </SectionCard>
     </div>

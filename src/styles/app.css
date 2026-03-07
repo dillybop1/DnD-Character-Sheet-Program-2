@@ -262,6 +262,34 @@ textarea {
   width: auto;
 }
 
+.choice-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.choice-row .checkbox-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.inline-link-button {
+  padding: 0.32rem 0.6rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.68rem;
+}
+
+.inline-link-button:hover {
+  color: var(--ink);
+  border-color: rgba(214, 171, 98, 0.52);
+}
+
 .ability-editor,
 .skill-editor,
 .checkbox-grid {
@@ -501,6 +529,18 @@ textarea {
   font-family: "Cormorant Garamond", Georgia, serif;
 }
 
+.record-sheet__link-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.record-sheet__link-button:hover {
+  color: #6b4b21;
+}
+
 .record-sheet__masthead {
   display: grid;
   grid-template-columns: minmax(0, 2.8fr) 120px 108px minmax(0, 1.7fr);
@@ -556,6 +596,11 @@ textarea {
 }
 
 .record-sheet__field span,
+.record-sheet__shield > .record-sheet__link-button,
+.record-sheet__vital > .record-sheet__link-button,
+.record-sheet__panel-header > .record-sheet__link-button,
+.record-sheet__mini-panel > .record-sheet__link-button,
+.record-sheet__summary-panel > .record-sheet__link-button,
 .record-sheet__medallion span,
 .record-sheet__shield span,
 .record-sheet__vital > span,
@@ -571,6 +616,12 @@ textarea {
 .record-sheet__field strong {
   font-size: 1.18rem;
   line-height: 1;
+}
+
+.record-sheet__field-link {
+  font-size: 1.18rem;
+  line-height: 1;
+  font-family: "Cormorant Garamond", Georgia, serif;
 }
 
 .record-sheet__field--wide strong {
@@ -896,6 +947,20 @@ textarea {
 .record-sheet__loadout p {
   margin: 0;
   color: var(--sheet-muted);
+}
+
+.record-sheet__link-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.65rem;
+}
+
+.record-sheet__link-list .record-sheet__link-button {
+  color: var(--sheet-muted);
+}
+
+.record-sheet__link-list .record-sheet__link-button:hover {
+  color: #6b4b21;
 }
 
 .record-sheet__summary-row {

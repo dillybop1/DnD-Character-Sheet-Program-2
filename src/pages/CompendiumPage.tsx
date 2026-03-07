@@ -1,5 +1,7 @@
 import { useDeferredValue, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import type { CompendiumEntry, CompendiumType } from "../../shared/types";
+import { CompendiumEntryDetail } from "../components/CompendiumEntryDetail";
 import { SectionCard } from "../components/SectionCard";
 import { dndApi } from "../lib/api";
 
@@ -16,12 +18,14 @@ const FILTERS: Array<{ label: string; value?: CompendiumType }> = [
 ];
 
 export function CompendiumPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<CompendiumType | undefined>(undefined);
   const [entries, setEntries] = useState<CompendiumEntry[]>([]);
   const [selectedEntry, setSelectedEntry] = useState<CompendiumEntry | null>(null);
   const [status, setStatus] = useState("Open-content reference library.");
   const deferredQuery = useDeferredValue(query);
+  const selectedSlug = searchParams.get("slug");
 
   useEffect(() => {
     async function search() {
@@ -31,6 +35,10 @@ export function CompendiumPage() {
       });
       setEntries(results);
       setSelectedEntry((current) => {
+        if (selectedSlug) {
+          return current;
+        }
+
         if (current && results.some((entry) => entry.slug === current.slug)) {
           return current;
         }
@@ -43,7 +51,23 @@ export function CompendiumPage() {
     search().catch((error: unknown) => {
       setStatus(error instanceof Error ? error.message : "Failed to search compendium.");
     });
-  }, [deferredQuery, filter]);
+  }, [deferredQuery, filter, selectedSlug]);
+
+  useEffect(() => {
+    if (!selectedSlug) {
+      return;
+    }
+
+    dndApi.compendium
+      .get(selectedSlug)
+      .then((entry) => {
+        setSelectedEntry(entry);
+        setStatus(entry ? `Showing ${entry.name}.` : "Linked entry not found.");
+      })
+      .catch((error: unknown) => {
+        setStatus(error instanceof Error ? error.message : "Failed to load linked entry.");
+      });
+  }, [selectedSlug]);
 
   return (
     <div className="workspace workspace--two-up">
@@ -76,8 +100,7 @@ export function CompendiumPage() {
                 key={entry.slug}
                 className={`library-item ${selectedEntry?.slug === entry.slug ? "library-item--active" : ""}`}
                 onClick={async () => {
-                  const detail = await dndApi.compendium.get(entry.slug);
-                  setSelectedEntry(detail);
+                  setSearchParams({ slug: entry.slug });
                 }}
                 type="button"
               >
@@ -95,32 +118,7 @@ export function CompendiumPage() {
         title={selectedEntry?.name ?? "Entry Detail"}
         subtitle={selectedEntry?.type ?? "Select an entry"}
       >
-        {selectedEntry ? (
-          <div className="stack-md">
-            <p>{selectedEntry.summary}</p>
-            <div className="detail-grid">
-              <div>
-                <span className="detail-label">Ruleset</span>
-                <strong>{selectedEntry.ruleset}</strong>
-              </div>
-              <div>
-                <span className="detail-label">Source</span>
-                <strong>{selectedEntry.source}</strong>
-              </div>
-              <div>
-                <span className="detail-label">License</span>
-                <strong>{selectedEntry.license}</strong>
-              </div>
-              <div>
-                <span className="detail-label">Attribution</span>
-                <strong>{selectedEntry.attribution}</strong>
-              </div>
-            </div>
-            <pre className="payload-view">{JSON.stringify(selectedEntry.payload, null, 2)}</pre>
-          </div>
-        ) : (
-          <div className="empty-state">Search or select an entry to inspect it.</div>
-        )}
+        <CompendiumEntryDetail entry={selectedEntry} />
       </SectionCard>
     </div>
   );

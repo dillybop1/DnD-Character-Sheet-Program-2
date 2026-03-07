@@ -1,11 +1,14 @@
+import type { ReactNode } from "react";
 import { SKILL_TO_ABILITY, getArmorTemplate, getBackgroundTemplate, getClassTemplate, getSpeciesTemplate } from "../../shared/data/reference";
 import { ABILITY_NAMES } from "../../shared/types";
 import type { AbilityName, CharacterRecord, DerivedSheetState, SkillName } from "../../shared/types";
+import { getArmorReferenceSlug, getSpellcastingReferenceSlug, RULE_REFERENCE_SLUGS } from "../lib/compendiumLinks";
 import { formatModifier, humanizeLabel } from "../lib/editor";
 
 interface SheetPreviewProps {
   character: CharacterRecord;
   derived: DerivedSheetState;
+  onOpenReference?: (slug: string) => void;
 }
 
 interface OffenseRow {
@@ -77,12 +80,37 @@ function splitList(items: string[]) {
   return [items.slice(0, midpoint), items.slice(midpoint)];
 }
 
-export function SheetPreview({ character, derived }: SheetPreviewProps) {
+function ReferenceButton({
+  children,
+  className,
+  onOpenReference,
+  slug,
+}: {
+  children: ReactNode;
+  className?: string;
+  onOpenReference?: (slug: string) => void;
+  slug?: string;
+}) {
+  if (!slug || !onOpenReference) {
+    return <span className={className}>{children}</span>;
+  }
+
+  return (
+    <button
+      className={`record-sheet__link-button ${className ?? ""}`.trim()}
+      onClick={() => onOpenReference(slug)}
+      type="button"
+    >
+      {children}
+    </button>
+  );
+}
+
+export function SheetPreview({ character, derived, onOpenReference }: SheetPreviewProps) {
   const classLabel = getClassTemplate(character.classId).name;
   const speciesLabel = getSpeciesTemplate(character.speciesId).name;
   const backgroundLabel = getBackgroundTemplate(character.backgroundId).name;
   const armor = getArmorTemplate(character.armorId);
-  const armorLoadout = `${armor.name}${character.shieldEquipped ? ", Shield" : ""}`;
   const offenseRows = buildOffenseRows(derived);
   const emptyOffenseRows = Math.max(0, 6 - offenseRows.length);
   const featureColumns = splitList(derived.classFeatures);
@@ -102,15 +130,33 @@ export function SheetPreview({ character, derived }: SheetPreviewProps) {
           </div>
           <div className="record-sheet__field">
             <span>Background</span>
-            <strong>{backgroundLabel}</strong>
+            <ReferenceButton
+              className="record-sheet__field-link"
+              onOpenReference={onOpenReference}
+              slug={character.backgroundId}
+            >
+              {backgroundLabel}
+            </ReferenceButton>
           </div>
           <div className="record-sheet__field">
             <span>Class</span>
-            <strong>{classLabel}</strong>
+            <ReferenceButton
+              className="record-sheet__field-link"
+              onOpenReference={onOpenReference}
+              slug={character.classId}
+            >
+              {classLabel}
+            </ReferenceButton>
           </div>
           <div className="record-sheet__field">
             <span>Species</span>
-            <strong>{speciesLabel}</strong>
+            <ReferenceButton
+              className="record-sheet__field-link"
+              onOpenReference={onOpenReference}
+              slug={character.speciesId}
+            >
+              {speciesLabel}
+            </ReferenceButton>
           </div>
           <div className="record-sheet__field">
             <span>Subclass</span>
@@ -124,7 +170,12 @@ export function SheetPreview({ character, derived }: SheetPreviewProps) {
         </article>
 
         <article className="record-sheet__shield">
-          <span>Armor Class</span>
+          <ReferenceButton
+            onOpenReference={onOpenReference}
+            slug={RULE_REFERENCE_SLUGS.armorClass}
+          >
+            Armor Class
+          </ReferenceButton>
           <strong>{derived.armorClass}</strong>
           <small>{character.shieldEquipped ? "Shield ready" : "No shield"}</small>
         </article>
@@ -149,7 +200,12 @@ export function SheetPreview({ character, derived }: SheetPreviewProps) {
           </div>
 
           <div className="record-sheet__vital">
-            <span>Hit Dice</span>
+            <ReferenceButton
+              onOpenReference={onOpenReference}
+              slug={RULE_REFERENCE_SLUGS.hitDice}
+            >
+              Hit Dice
+            </ReferenceButton>
             <div className="record-sheet__double">
               <div>
                 <small>Spent</small>
@@ -209,7 +265,12 @@ export function SheetPreview({ character, derived }: SheetPreviewProps) {
 
           <div className="record-sheet__badge-row">
             <article className="record-sheet__mini-panel">
-              <span>Proficiency</span>
+              <ReferenceButton
+                onOpenReference={onOpenReference}
+                slug={RULE_REFERENCE_SLUGS.proficiencyBonus}
+              >
+                Proficiency
+              </ReferenceButton>
               <strong>{formatModifier(derived.proficiencyBonus)}</strong>
             </article>
             <article className="record-sheet__mini-panel">
@@ -221,7 +282,14 @@ export function SheetPreview({ character, derived }: SheetPreviewProps) {
           </div>
 
           <article className="record-sheet__panel record-sheet__skills-panel">
-            <header className="record-sheet__panel-header">Skills</header>
+            <header className="record-sheet__panel-header">
+              <ReferenceButton
+                onOpenReference={onOpenReference}
+                slug={RULE_REFERENCE_SLUGS.skills}
+              >
+                Skills
+              </ReferenceButton>
+            </header>
             <div className="record-sheet__skills-columns">
               {SKILL_COLUMNS.map((column, columnIndex) => (
                 <div
@@ -247,11 +315,38 @@ export function SheetPreview({ character, derived }: SheetPreviewProps) {
             <div className="record-sheet__loadout">
               <div>
                 <h4>Weapons</h4>
-                <p>{derived.weaponEntries.length > 0 ? derived.weaponEntries.map((entry) => entry.name).join(", ") : "None"}</p>
+                <p className="record-sheet__link-list">
+                  {derived.weaponEntries.length > 0
+                    ? derived.weaponEntries.map((entry) => (
+                        <ReferenceButton
+                          key={entry.id}
+                          onOpenReference={onOpenReference}
+                          slug={entry.id}
+                        >
+                          {entry.name}
+                        </ReferenceButton>
+                      ))
+                    : "None"}
+                </p>
               </div>
               <div>
                 <h4>Armors</h4>
-                <p>{armorLoadout}</p>
+                <p className="record-sheet__link-list">
+                  <ReferenceButton
+                    onOpenReference={onOpenReference}
+                    slug={getArmorReferenceSlug(character.armorId)}
+                  >
+                    {armor.name}
+                  </ReferenceButton>
+                  {character.shieldEquipped ? (
+                    <ReferenceButton
+                      onOpenReference={onOpenReference}
+                      slug="shield"
+                    >
+                      Shield
+                    </ReferenceButton>
+                  ) : null}
+                </p>
               </div>
             </div>
           </article>
@@ -260,7 +355,12 @@ export function SheetPreview({ character, derived }: SheetPreviewProps) {
         <div className="record-sheet__right-rail">
           <div className="record-sheet__summary-row">
             <article className="record-sheet__summary-panel">
-              <span>Initiative</span>
+              <ReferenceButton
+                onOpenReference={onOpenReference}
+                slug={RULE_REFERENCE_SLUGS.initiative}
+              >
+                Initiative
+              </ReferenceButton>
               <strong>{formatModifier(derived.initiative)}</strong>
             </article>
             <article className="record-sheet__summary-panel">
@@ -272,7 +372,12 @@ export function SheetPreview({ character, derived }: SheetPreviewProps) {
               <strong>Medium</strong>
             </article>
             <article className="record-sheet__summary-panel">
-              <span>Spellcasting</span>
+              <ReferenceButton
+                onOpenReference={onOpenReference}
+                slug={getSpellcastingReferenceSlug(derived.spellcasting.spellAttackBonus !== null)}
+              >
+                Spellcasting
+              </ReferenceButton>
               <strong>{derived.spellcasting.spellSaveDC === null ? "None" : `DC ${derived.spellcasting.spellSaveDC}`}</strong>
               <small>
                 {derived.spellcasting.spellAttackBonus === null
@@ -295,7 +400,14 @@ export function SheetPreview({ character, derived }: SheetPreviewProps) {
                   key={row.id}
                   className="record-sheet__table-row"
                 >
-                  <div>{row.name}</div>
+                  <div>
+                    <ReferenceButton
+                      onOpenReference={onOpenReference}
+                      slug={row.id}
+                    >
+                      {row.name}
+                    </ReferenceButton>
+                  </div>
                   <div>{row.attack}</div>
                   <div>{row.damage}</div>
                   <div>{row.notes}</div>
