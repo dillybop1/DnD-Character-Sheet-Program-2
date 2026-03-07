@@ -2,6 +2,7 @@ import { join } from "node:path";
 import Database from "better-sqlite3";
 import { drizzle, type BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { COMPENDIUM_IMPORT_VERSION, COMPENDIUM_SEED } from "../../shared/data/compendiumSeed";
+import { CORE_OPEN_SOURCE_ID } from "../../shared/data/contentSources";
 import * as schema from "./schema";
 
 const MIGRATIONS = [
@@ -102,6 +103,12 @@ const MIGRATIONS = [
       END;
     `,
   },
+  {
+    id: "0002_compendium_source_id",
+    sql: `
+      ALTER TABLE compendium_entries ADD COLUMN source_id TEXT NOT NULL DEFAULT '${CORE_OPEN_SOURCE_ID}';
+    `,
+  },
 ];
 
 export type AppDatabase = BetterSQLite3Database<typeof schema>;
@@ -148,6 +155,7 @@ function syncCompendium(context: DatabaseContext) {
   const upsertEntry = context.sqlite.prepare(`
     INSERT INTO compendium_entries (
       slug,
+      source_id,
       type,
       name,
       ruleset,
@@ -157,8 +165,9 @@ function syncCompendium(context: DatabaseContext) {
       summary,
       search_text,
       payload
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(slug) DO UPDATE SET
+      source_id = excluded.source_id,
       type = excluded.type,
       name = excluded.name,
       ruleset = excluded.ruleset,
@@ -185,6 +194,7 @@ function syncCompendium(context: DatabaseContext) {
     for (const entry of COMPENDIUM_SEED) {
       upsertEntry.run(
         entry.slug,
+        entry.sourceId,
         entry.type,
         entry.name,
         entry.ruleset,

@@ -31,6 +31,20 @@ export const SKILL_NAMES = [
 export type AbilityName = (typeof ABILITY_NAMES)[number];
 export type SkillName = (typeof SKILL_NAMES)[number];
 export type ProficiencyLevel = "none" | "proficient" | "expertise";
+export type ContentSourceId = string;
+export type ContentSourceKind = "core" | "sourcebook" | "setting" | "campaign";
+export type ContentSourceAvailability = "installed" | "planned";
+
+export interface ContentSource {
+  id: ContentSourceId;
+  shortCode: string;
+  name: string;
+  ruleset: string;
+  category: ContentSourceKind;
+  availability: ContentSourceAvailability;
+  licenseMode: "open" | "licensed" | "custom";
+  summary: string;
+}
 
 export type EffectType =
   | "ability_bonus"
@@ -64,6 +78,7 @@ export interface AbilityScores {
 
 export interface WeaponTemplate {
   id: string;
+  sourceId: ContentSourceId;
   name: string;
   damage: string;
   damageType: string;
@@ -74,6 +89,7 @@ export interface WeaponTemplate {
 
 export interface ArmorTemplate {
   id: string;
+  sourceId: ContentSourceId;
   name: string;
   baseArmorClass: number;
   dexterityCap: number | null;
@@ -83,6 +99,7 @@ export interface ArmorTemplate {
 
 export interface ClassTemplate {
   id: string;
+  sourceId: ContentSourceId;
   name: string;
   hitDie: number;
   saveProficiencies: AbilityName[];
@@ -93,6 +110,7 @@ export interface ClassTemplate {
 
 export interface SpeciesTemplate {
   id: string;
+  sourceId: ContentSourceId;
   name: string;
   speed: number;
   featureSummary: string[];
@@ -100,12 +118,14 @@ export interface SpeciesTemplate {
 
 export interface BackgroundTemplate {
   id: string;
+  sourceId: ContentSourceId;
   name: string;
   featureSummary: string[];
 }
 
 export interface SpellRecord {
   id: string;
+  sourceId: ContentSourceId;
   name: string;
   level: number;
   school: string;
@@ -123,6 +143,7 @@ export interface NotesBlock {
 export interface CharacterRecord {
   id: string;
   name: string;
+  enabledSourceIds: ContentSourceId[];
   classId: string;
   speciesId: string;
   backgroundId: string;
@@ -146,6 +167,7 @@ export interface CharacterRecord {
 
 export interface BuilderInput {
   name: string;
+  enabledSourceIds: ContentSourceId[];
   classId: string;
   speciesId: string;
   backgroundId: string;
@@ -175,6 +197,7 @@ export type CompendiumType =
 export interface CompendiumEntry {
   id?: number;
   slug: string;
+  sourceId: ContentSourceId;
   type: CompendiumType;
   name: string;
   ruleset: string;
@@ -253,6 +276,7 @@ export interface AppInfo {
 export interface SearchInput {
   query: string;
   type?: CompendiumType;
+  sourceIds?: ContentSourceId[];
 }
 
 export interface DndApi {

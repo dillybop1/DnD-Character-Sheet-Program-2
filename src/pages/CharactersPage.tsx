@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { calculateDerivedState } from "../../shared/calculations";
-import { ARMORS, BACKGROUNDS, CLASSES, SPECIES, WEAPONS } from "../../shared/data/reference";
+import {
+  listArmorTemplates,
+  listBackgroundTemplates,
+  listClassTemplates,
+  listSpeciesTemplates,
+  listWeaponTemplates,
+} from "../../shared/data/reference";
 import { listCompendiumSpells } from "../../shared/data/compendiumSeed";
 import { ABILITY_NAMES, SKILL_NAMES } from "../../shared/types";
 import type { AbilityName, BuilderInput, CharacterRecord, CharacterSummary, HomebrewEntry, SkillName } from "../../shared/types";
@@ -8,8 +14,6 @@ import { SectionCard } from "../components/SectionCard";
 import { SheetPreview } from "../components/SheetPreview";
 import { dndApi } from "../lib/api";
 import { buildPreviewCharacter, builderInputFromCharacter, createDefaultBuilderInput, humanizeLabel } from "../lib/editor";
-
-const SPELL_OPTIONS = listCompendiumSpells();
 
 export function CharactersPage() {
   const [characters, setCharacters] = useState<CharacterSummary[]>([]);
@@ -57,6 +61,12 @@ export function CharactersPage() {
   const activeHomebrew = homebrewEntries.filter((entry) => draft.homebrewIds.includes(entry.id));
   const previewCharacter = buildPreviewCharacter(draft, selectedCharacter, activeHomebrew);
   const derived = calculateDerivedState(previewCharacter, activeHomebrew);
+  const availableClasses = listClassTemplates(draft.enabledSourceIds);
+  const availableSpecies = listSpeciesTemplates(draft.enabledSourceIds);
+  const availableBackgrounds = listBackgroundTemplates(draft.enabledSourceIds);
+  const availableArmor = listArmorTemplates(draft.enabledSourceIds);
+  const availableWeapons = listWeaponTemplates(draft.enabledSourceIds);
+  const spellOptions = listCompendiumSpells(draft.enabledSourceIds);
 
   function updateDraft<K extends keyof BuilderInput>(key: K, value: BuilderInput[K]) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -208,7 +218,7 @@ export function CharactersPage() {
               onChange={(event) => updateDraft("classId", event.target.value)}
               value={draft.classId}
             >
-              {CLASSES.map((entry) => (
+              {availableClasses.map((entry) => (
                 <option
                   key={entry.id}
                   value={entry.id}
@@ -224,7 +234,7 @@ export function CharactersPage() {
               onChange={(event) => updateDraft("speciesId", event.target.value)}
               value={draft.speciesId}
             >
-              {SPECIES.map((entry) => (
+              {availableSpecies.map((entry) => (
                 <option
                   key={entry.id}
                   value={entry.id}
@@ -240,7 +250,7 @@ export function CharactersPage() {
               onChange={(event) => updateDraft("backgroundId", event.target.value)}
               value={draft.backgroundId}
             >
-              {BACKGROUNDS.map((entry) => (
+              {availableBackgrounds.map((entry) => (
                 <option
                   key={entry.id}
                   value={entry.id}
@@ -266,7 +276,7 @@ export function CharactersPage() {
               onChange={(event) => updateDraft("armorId", event.target.value || null)}
               value={draft.armorId ?? "unarmored"}
             >
-              {ARMORS.map((entry) => (
+              {availableArmor.map((entry) => (
                 <option
                   key={entry.id}
                   value={entry.id}
@@ -339,72 +349,95 @@ export function CharactersPage() {
             </div>
           </div>
 
-          <div className="checkbox-grid">
-            <div>
-              <h3 className="subheading">Weapons</h3>
-              {WEAPONS.map((weapon) => (
-                <label
-                  key={weapon.id}
-                  className="checkbox-field"
-                >
-                  <input
-                    checked={draft.weaponIds.includes(weapon.id)}
-                    onChange={() => toggleArrayEntry("weaponIds", weapon.id)}
-                    type="checkbox"
-                  />
-                  <span>{weapon.name}</span>
-                </label>
-              ))}
+          <div className="stack-sm">
+            <div className="detail-card">
+              <div className="detail-card__header">
+                <strong>Enabled Content Sources</strong>
+                <span>{draft.enabledSourceIds.length}</span>
+              </div>
+              <p className="muted-copy">
+                This character stores its own content profile so future sourcebooks can be added without changing the
+                base character model.
+              </p>
+              <div className="filter-row">
+                {draft.enabledSourceIds.map((sourceId) => (
+                  <span
+                    key={sourceId}
+                    className="chip chip--active"
+                  >
+                    {sourceId}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div>
-              <h3 className="subheading">Spells</h3>
-              {SPELL_OPTIONS.map((spell) => (
-                <label
-                  key={spell.slug}
-                  className="checkbox-field"
-                >
-                  <input
-                    checked={draft.spellIds.includes(spell.slug)}
-                    onChange={() => toggleArrayEntry("spellIds", spell.slug)}
-                    type="checkbox"
-                  />
-                  <span>{spell.name}</span>
-                </label>
-              ))}
-            </div>
-            <div>
-              <h3 className="subheading">Prepared Spells</h3>
-              {draft.spellIds.length === 0 ? <p className="muted-copy">Select spells first.</p> : null}
-              {draft.spellIds.map((spellId) => (
-                <label
-                  key={spellId}
-                  className="checkbox-field"
-                >
-                  <input
-                    checked={draft.preparedSpellIds.includes(spellId)}
-                    onChange={() => toggleArrayEntry("preparedSpellIds", spellId)}
-                    type="checkbox"
-                  />
-                  <span>{humanizeLabel(spellId.replaceAll("-", " "))}</span>
-                </label>
-              ))}
-            </div>
-            <div>
-              <h3 className="subheading">Applied Homebrew</h3>
-              {homebrewEntries.length === 0 ? <p className="muted-copy">No saved homebrew entries yet.</p> : null}
-              {homebrewEntries.map((entry) => (
-                <label
-                  key={entry.id}
-                  className="checkbox-field"
-                >
-                  <input
-                    checked={draft.homebrewIds.includes(entry.id)}
-                    onChange={() => toggleArrayEntry("homebrewIds", entry.id)}
-                    type="checkbox"
-                  />
-                  <span>{entry.name}</span>
-                </label>
-              ))}
+
+            <div className="checkbox-grid">
+              <div>
+                <h3 className="subheading">Weapons</h3>
+                {availableWeapons.map((weapon) => (
+                  <label
+                    key={weapon.id}
+                    className="checkbox-field"
+                  >
+                    <input
+                      checked={draft.weaponIds.includes(weapon.id)}
+                      onChange={() => toggleArrayEntry("weaponIds", weapon.id)}
+                      type="checkbox"
+                    />
+                    <span>{weapon.name}</span>
+                  </label>
+                ))}
+              </div>
+              <div>
+                <h3 className="subheading">Spells</h3>
+                {spellOptions.map((spell) => (
+                  <label
+                    key={spell.slug}
+                    className="checkbox-field"
+                  >
+                    <input
+                      checked={draft.spellIds.includes(spell.slug)}
+                      onChange={() => toggleArrayEntry("spellIds", spell.slug)}
+                      type="checkbox"
+                    />
+                    <span>{spell.name}</span>
+                  </label>
+                ))}
+              </div>
+              <div>
+                <h3 className="subheading">Prepared Spells</h3>
+                {draft.spellIds.length === 0 ? <p className="muted-copy">Select spells first.</p> : null}
+                {draft.spellIds.map((spellId) => (
+                  <label
+                    key={spellId}
+                    className="checkbox-field"
+                  >
+                    <input
+                      checked={draft.preparedSpellIds.includes(spellId)}
+                      onChange={() => toggleArrayEntry("preparedSpellIds", spellId)}
+                      type="checkbox"
+                    />
+                    <span>{humanizeLabel(spellId.replaceAll("-", " "))}</span>
+                  </label>
+                ))}
+              </div>
+              <div>
+                <h3 className="subheading">Applied Homebrew</h3>
+                {homebrewEntries.length === 0 ? <p className="muted-copy">No saved homebrew entries yet.</p> : null}
+                {homebrewEntries.map((entry) => (
+                  <label
+                    key={entry.id}
+                    className="checkbox-field"
+                  >
+                    <input
+                      checked={draft.homebrewIds.includes(entry.id)}
+                      onChange={() => toggleArrayEntry("homebrewIds", entry.id)}
+                      type="checkbox"
+                    />
+                    <span>{entry.name}</span>
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
 

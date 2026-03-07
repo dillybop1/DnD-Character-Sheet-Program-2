@@ -1,10 +1,12 @@
 import { calculateDerivedState } from "../../shared/calculations";
+import { DEFAULT_ENABLED_SOURCE_IDS, resolveEnabledSourceIds } from "../../shared/data/contentSources";
 import { buildCharacterFromInput } from "../../shared/factories";
 import type { BuilderInput, CharacterRecord, HomebrewEntry } from "../../shared/types";
 
 export function createDefaultBuilderInput(): BuilderInput {
   return {
     name: "New Adventurer",
+    enabledSourceIds: [...DEFAULT_ENABLED_SOURCE_IDS],
     classId: "fighter",
     speciesId: "human",
     backgroundId: "soldier",
@@ -39,6 +41,7 @@ export function createDefaultBuilderInput(): BuilderInput {
 export function builderInputFromCharacter(record: CharacterRecord): BuilderInput {
   return {
     name: record.name,
+    enabledSourceIds: resolveEnabledSourceIds(record.enabledSourceIds),
     classId: record.classId,
     speciesId: record.speciesId,
     backgroundId: record.backgroundId,
@@ -68,6 +71,7 @@ export function buildPreviewCharacter(
   const nextRecord: CharacterRecord = {
     ...existingRecord,
     ...draft,
+    enabledSourceIds: resolveEnabledSourceIds(draft.enabledSourceIds),
     abilities: { ...draft.abilities },
     skillProficiencies: { ...draft.skillProficiencies },
     notes: { ...draft.notes },

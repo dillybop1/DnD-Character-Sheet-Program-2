@@ -1,4 +1,5 @@
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { resolveEnabledSourceIds } from "../../shared/data/contentSources";
 import { buildCharacterFromInput } from "../../shared/factories";
 import { builderInputSchema, characterRecordSchema, homebrewEntrySchema } from "../../shared/validation";
 import type {
@@ -90,24 +91,28 @@ export async function deleteCharacter(context: DatabaseContext, id: string) {
 
 export async function searchCompendium(context: DatabaseContext, input: SearchInput) {
   const normalizedQuery = input.query.trim();
+  const sourceIds = resolveEnabledSourceIds(input.sourceIds);
 
   if (!normalizedQuery) {
+    const sourceFilter = inArray(compendiumEntries.sourceId, sourceIds);
     const rows = input.type
       ? await context.db
           .select()
           .from(compendiumEntries)
-          .where(eq(compendiumEntries.type, input.type))
+          .where(and(eq(compendiumEntries.type, input.type), sourceFilter))
           .orderBy(asc(compendiumEntries.name))
           .limit(50)
       : await context.db
           .select()
           .from(compendiumEntries)
+          .where(sourceFilter)
           .orderBy(asc(compendiumEntries.name))
           .limit(50);
 
     return rows.map((entry): CompendiumEntry => ({
       id: entry.id,
       slug: entry.slug,
+      sourceId: entry.sourceId,
       type: entry.type,
       name: entry.name,
       ruleset: entry.ruleset,
@@ -125,27 +130,32 @@ export async function searchCompendium(context: DatabaseContext, input: SearchIn
     .map((term) => `${term.replaceAll('"', "")}*`)
     .join(" ");
 
-  const statement = input.type
-    ? context.sqlite.prepare(`
-        SELECT c.*
-        FROM compendium_entries c
-        JOIN compendium_entries_fts f ON c.id = f.rowid
-        WHERE compendium_entries_fts MATCH ? AND c.type = ?
-        ORDER BY c.name ASC
-        LIMIT 50
-      `)
-    : context.sqlite.prepare(`
-        SELECT c.*
-        FROM compendium_entries c
-        JOIN compendium_entries_fts f ON c.id = f.rowid
-        WHERE compendium_entries_fts MATCH ?
-        ORDER BY c.name ASC
-        LIMIT 50
-      `);
+  const conditions = ["compendium_entries_fts MATCH ?"];
+  const parameters: Array<string> = [queryTerms];
 
-  const rows = (input.type ? statement.all(queryTerms, input.type) : statement.all(queryTerms)) as Array<{
+  if (input.type) {
+    conditions.push("c.type = ?");
+    parameters.push(input.type);
+  }
+
+  if (sourceIds.length > 0) {
+    conditions.push(`c.source_id IN (${sourceIds.map(() => "?").join(", ")})`);
+    parameters.push(...sourceIds);
+  }
+
+  const statement = context.sqlite.prepare(`
+    SELECT c.*
+    FROM compendium_entries c
+    JOIN compendium_entries_fts f ON c.id = f.rowid
+    WHERE ${conditions.join(" AND ")}
+    ORDER BY c.name ASC
+    LIMIT 50
+  `);
+
+  const rows = statement.all(...parameters) as Array<{
     id: number;
     slug: string;
+    source_id: string;
     type: CompendiumEntry["type"];
     name: string;
     ruleset: string;
@@ -160,6 +170,7 @@ export async function searchCompendium(context: DatabaseContext, input: SearchIn
   return rows.map((row) => ({
     id: row.id,
     slug: row.slug,
+    sourceId: row.source_id,
     type: row.type,
     name: row.name,
     ruleset: row.ruleset,
@@ -186,6 +197,7 @@ export async function getCompendiumEntry(context: DatabaseContext, slug: string)
   return {
     id: row.id,
     slug: row.slug,
+    sourceId: row.sourceId,
     type: row.type,
     name: row.name,
     ruleset: row.ruleset,

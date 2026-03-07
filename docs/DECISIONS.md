@@ -48,3 +48,10 @@
 - Context: The original compendium was a tiny inline seed with no import versioning, which made growth and repeatable updates awkward.
 - Decision: Move to a versioned shared compendium manifest with normalized entries and sync it idempotently into SQLite on app startup.
 - Consequences: Browser dev and desktop builds now share the same larger dataset and can update local compendium content safely, but manifest version bumps become part of content changes.
+
+## DEC-008
+
+- Date: `2026-03-06`
+- Context: Future support for books such as `Tasha's Cauldron of Everything` or `Exploring Eberron` should not require redesigning the core character model.
+- Decision: Add a source registry, source metadata on templates and compendium entries, and per-character enabled source profiles now while the content surface is still small.
+- Consequences: Later books can be added as separate content packages with filtering and licensing boundaries, but the app now has to keep source metadata synchronized across shared data, UI helpers, and persistence.

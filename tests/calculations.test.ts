@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { calculateDerivedState } from "../shared/calculations";
+import { DEFAULT_ENABLED_SOURCE_IDS } from "../shared/data/contentSources";
 import { buildCharacterFromInput } from "../shared/factories";
 import type { BuilderInput } from "../shared/types";
 
 function makeBaseInput(overrides: Partial<BuilderInput> = {}): BuilderInput {
   return {
     name: "Test Character",
+    enabledSourceIds: [...DEFAULT_ENABLED_SOURCE_IDS],
     classId: "fighter",
     speciesId: "human",
     backgroundId: "soldier",

@@ -1,4 +1,5 @@
 import { calculateDerivedState } from "./calculations";
+import { resolveEnabledSourceIds } from "./data/contentSources";
 import type { BuilderInput, CharacterRecord, HomebrewEntry } from "./types";
 
 export function buildCharacterFromInput(input: BuilderInput, homebrewEntries: HomebrewEntry[] = []): CharacterRecord {
@@ -7,6 +8,7 @@ export function buildCharacterFromInput(input: BuilderInput, homebrewEntries: Ho
   const draft: CharacterRecord = {
     id: crypto.randomUUID(),
     name: input.name,
+    enabledSourceIds: resolveEnabledSourceIds(input.enabledSourceIds),
     classId: input.classId,
     speciesId: input.speciesId,
     backgroundId: input.backgroundId,

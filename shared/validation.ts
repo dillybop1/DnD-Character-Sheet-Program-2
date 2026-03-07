@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DEFAULT_ENABLED_SOURCE_IDS } from "./data/contentSources";
 import { ABILITY_NAMES, SKILL_NAMES } from "./types";
 
 const proficiencyLevelSchema = z.enum(["none", "proficient", "expertise"]);
@@ -15,6 +16,7 @@ export const notesSchema = z.object({
 
 export const builderInputSchema = z.object({
   name: z.string().trim().min(1).max(80),
+  enabledSourceIds: z.array(z.string().min(1)).min(1).default(DEFAULT_ENABLED_SOURCE_IDS),
   classId: z.string().min(1),
   speciesId: z.string().min(1),
   backgroundId: z.string().min(1),

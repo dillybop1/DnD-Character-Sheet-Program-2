@@ -1,4 +1,5 @@
 import type { CompendiumEntry, CompendiumType, SearchInput, SpellRecord } from "../types";
+import { CORE_OPEN_SOURCE_ID, DEFAULT_ENABLED_SOURCE_IDS, isSourceEnabled } from "./contentSources";
 
 interface CompendiumDraft {
   slug: string;
@@ -681,6 +682,7 @@ function toCompendiumEntry(draft: CompendiumDraft): CompendiumEntry {
   return {
     ...OPEN_CONTENT_META,
     slug: draft.slug,
+    sourceId: CORE_OPEN_SOURCE_ID,
     type: draft.type,
     name: draft.name,
     summary: draft.summary,
@@ -709,12 +711,13 @@ export const COMPENDIUM_SEED: CompendiumEntry[] = COMPENDIUM_DRAFTS.map(toCompen
 
 const COMPENDIUM_BY_SLUG = new Map(COMPENDIUM_SEED.map((entry) => [entry.slug, entry] as const));
 
-export function listCompendiumEntries(type?: CompendiumType) {
-  return type ? COMPENDIUM_SEED.filter((entry) => entry.type === type) : COMPENDIUM_SEED;
+export function listCompendiumEntries(type?: CompendiumType, enabledSourceIds = DEFAULT_ENABLED_SOURCE_IDS) {
+  const sourceFilteredEntries = COMPENDIUM_SEED.filter((entry) => isSourceEnabled(entry.sourceId, enabledSourceIds));
+  return type ? sourceFilteredEntries.filter((entry) => entry.type === type) : sourceFilteredEntries;
 }
 
-export function listCompendiumSpells() {
-  return listCompendiumEntries("spell");
+export function listCompendiumSpells(enabledSourceIds = DEFAULT_ENABLED_SOURCE_IDS) {
+  return listCompendiumEntries("spell", enabledSourceIds);
 }
 
 export function findCompendiumEntry(slug: string) {
@@ -722,7 +725,7 @@ export function findCompendiumEntry(slug: string) {
 }
 
 export function searchCompendiumSeed(input: SearchInput) {
-  const filteredEntries = input.type ? COMPENDIUM_SEED.filter((entry) => entry.type === input.type) : COMPENDIUM_SEED;
+  const filteredEntries = listCompendiumEntries(input.type, input.sourceIds ?? DEFAULT_ENABLED_SOURCE_IDS);
   const terms = input.query
     .trim()
     .toLowerCase()
@@ -753,6 +756,7 @@ export function spellRecordFromCompendium(slug: string): SpellRecord | null {
 
   return {
     id: entry.slug,
+    sourceId: entry.sourceId,
     name: entry.name,
     level: readNumber(entry.payload, "level") ?? 0,
     school: readString(entry.payload, "school") ?? "Unknown",

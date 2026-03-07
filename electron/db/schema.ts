@@ -54,6 +54,7 @@ export const homebrewEntries = sqliteTable("homebrew_entries", {
 export const compendiumEntries = sqliteTable("compendium_entries", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   slug: text("slug").notNull().unique(),
+  sourceId: text("source_id").notNull(),
   type: text("type").$type<CompendiumType>().notNull(),
   name: text("name").notNull(),
   ruleset: text("ruleset").notNull(),

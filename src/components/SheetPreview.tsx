@@ -1,4 +1,4 @@
-import { BACKGROUNDS, CLASSES, SKILL_TO_ABILITY, SPECIES, getArmorTemplate } from "../../shared/data/reference";
+import { SKILL_TO_ABILITY, getArmorTemplate, getBackgroundTemplate, getClassTemplate, getSpeciesTemplate } from "../../shared/data/reference";
 import { ABILITY_NAMES } from "../../shared/types";
 import type { AbilityName, CharacterRecord, DerivedSheetState, SkillName } from "../../shared/types";
 import { formatModifier, humanizeLabel } from "../lib/editor";
@@ -78,9 +78,9 @@ function splitList(items: string[]) {
 }
 
 export function SheetPreview({ character, derived }: SheetPreviewProps) {
-  const classLabel = CLASSES.find((entry) => entry.id === character.classId)?.name ?? character.classId;
-  const speciesLabel = SPECIES.find((entry) => entry.id === character.speciesId)?.name ?? character.speciesId;
-  const backgroundLabel = BACKGROUNDS.find((entry) => entry.id === character.backgroundId)?.name ?? character.backgroundId;
+  const classLabel = getClassTemplate(character.classId).name;
+  const speciesLabel = getSpeciesTemplate(character.speciesId).name;
+  const backgroundLabel = getBackgroundTemplate(character.backgroundId).name;
   const armor = getArmorTemplate(character.armorId);
   const armorLoadout = `${armor.name}${character.shieldEquipped ? ", Shield" : ""}`;
   const offenseRows = buildOffenseRows(derived);

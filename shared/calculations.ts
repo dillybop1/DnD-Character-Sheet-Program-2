@@ -1,5 +1,6 @@
 import { FULL_CASTER_SLOTS, SKILL_TO_ABILITY, getArmorTemplate, getClassTemplate, getSpeciesTemplate, getWeaponTemplate } from "./data/reference";
 import { spellRecordFromCompendium } from "./data/compendiumSeed";
+import { CORE_OPEN_SOURCE_ID } from "./data/contentSources";
 import type {
   AbilityName,
   AbilityScores,
@@ -127,6 +128,7 @@ function buildSpellSummaries(record: CharacterRecord): SpellRecord[] {
 
     return {
       id: spellId,
+      sourceId: CORE_OPEN_SOURCE_ID,
       name: spellId,
       level: 0,
       school: "Unknown",

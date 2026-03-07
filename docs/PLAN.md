@@ -10,6 +10,7 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - Dynamic calculations for AC, modifiers, saves, skills, HP, spell attack, spell DC, hit dice, and spell slots
 - Structural sheet layout that matches the approved reference page's information hierarchy before final art polish
 - Linked SRD/open compendium with search and detail views
+- Source-aware content architecture so later books can be added as new content packages instead of rewriting core models
 - Basic homebrew entries with bounded effects
 - JSON backup/export and print/PDF export
 - Original fantasy art direction inspired by the reference sheet
@@ -33,6 +34,7 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - ORM: Drizzle
 - Shared domain layer: TypeScript types and calculation engine in `shared/`
 - Compendium ingestion: versioned shared manifest synced idempotently into SQLite
+- Content packaging: shared source registry plus per-character enabled source profiles
 - IPC surface:
   - `characters.list/create/get/save/delete/exportJson/exportPdf`
   - `builder.createFromWizard`
@@ -60,4 +62,5 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - The main sheet mirrors the approved reference page's major section layout while using original art treatment.
 - Sheet entries can deep-link into the compendium.
 - Homebrew entries can be created and stored locally.
+- Future books can be added as new content sources without changing the base character record shape.
 - The app can build for macOS and Windows from the same codebase.

@@ -12,6 +12,7 @@ Offline-first `Electron + React + TypeScript` desktop app for building, storing,
   - Core derived sheet math
   - A structural sheet preview that follows the reference page's layout hierarchy
   - A larger versioned compendium for classes, species, backgrounds, spells, weapons, armor, feats, and rules
+  - Source-aware content architecture for future rulebook packages
   - Basic homebrew effect storage
   - JSON export and window-based PDF export
 - `npm run dev` now provides a stable browser-backed HMR workflow using a localStorage mock of the preload API when Electron is not present.
@@ -45,6 +46,8 @@ npm run pack
 `npm run dev` starts Vite on `http://localhost:5173` and uses a browser-backed mock of `window.dndApi`. Character data and homebrew entries persist in browser `localStorage`, so you can live-edit the UI and rules logic without waiting on Electron startup.
 
 The current sheet preview is in the "structural fidelity" stage: it now follows the reference sheet's major panel layout, but final ornamental polish and print-perfect tuning are still deferred to `M6-02`.
+
+The content model is also source-aware now: characters persist an enabled source profile, and templates plus compendium entries carry source metadata so later books can be added as separate packages.
 
 Desktop packaging remains the validation path for the native shell:
 
