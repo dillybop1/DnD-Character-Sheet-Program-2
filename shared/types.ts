@@ -31,6 +31,7 @@ export const SKILL_NAMES = [
 export type AbilityName = (typeof ABILITY_NAMES)[number];
 export type SkillName = (typeof SKILL_NAMES)[number];
 export type ProficiencyLevel = "none" | "proficient" | "expertise";
+export type CasterType = "none" | "full" | "half" | "pact";
 export type ContentSourceId = string;
 export type ContentSourceKind = "core" | "sourcebook" | "setting" | "campaign";
 export type ContentSourceAvailability = "installed" | "planned";
@@ -104,7 +105,7 @@ export interface ClassTemplate {
   hitDie: number;
   saveProficiencies: AbilityName[];
   spellcastingAbility: AbilityName | null;
-  casterType: "none" | "full";
+  casterType: CasterType;
   featureSummary: string[];
 }
 
@@ -228,9 +229,12 @@ export interface DerivedWeaponEntry {
 }
 
 export interface DerivedSpellSummary {
+  slotMode: "none" | "standard" | "pact";
   spellAttackBonus: number | null;
   spellSaveDC: number | null;
   spellSlotsMax: number[];
+  pactSlotsMax: number;
+  pactSlotLevel: number | null;
   knownSpells: SpellRecord[];
   preparedSpells: SpellRecord[];
 }

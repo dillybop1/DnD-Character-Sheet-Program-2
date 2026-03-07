@@ -30,7 +30,24 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
       primaryAbilities: ["Strength", "Dexterity", "Constitution"],
       saveProficiencies: ["Strength", "Constitution"],
       spellcastingAbility: null,
+      casterType: "none",
       keyFeatures: ["Second Wind", "Fighting Style", "Weapon Mastery"],
+    },
+  },
+  {
+    slug: "bard",
+    type: "class",
+    name: "Bard",
+    summary: "A Charisma-based full caster blending support magic, skill mastery, and adaptable utility.",
+    tags: ["arcane", "full caster", "charisma", "bardic inspiration", "expertise"],
+    payload: {
+      hitDie: 8,
+      role: "Support / skill expert",
+      primaryAbilities: ["Charisma", "Dexterity", "Constitution"],
+      saveProficiencies: ["Dexterity", "Charisma"],
+      spellcastingAbility: "Charisma",
+      casterType: "full",
+      keyFeatures: ["Bardic Inspiration", "Spellcasting", "Expertise"],
     },
   },
   {
@@ -45,6 +62,7 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
       primaryAbilities: ["Intelligence", "Constitution", "Dexterity"],
       saveProficiencies: ["Intelligence", "Wisdom"],
       spellcastingAbility: "Intelligence",
+      casterType: "full",
       keyFeatures: ["Spellcasting", "Arcane Recovery", "Ritual Casting"],
     },
   },
@@ -60,7 +78,56 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
       primaryAbilities: ["Wisdom", "Constitution", "Strength"],
       saveProficiencies: ["Wisdom", "Charisma"],
       spellcastingAbility: "Wisdom",
+      casterType: "full",
       keyFeatures: ["Spellcasting", "Divine Order", "Channel Divinity"],
+    },
+  },
+  {
+    slug: "druid",
+    type: "class",
+    name: "Druid",
+    summary: "A Wisdom-based full caster centered on primal magic, shapeshifting, and battlefield flexibility.",
+    tags: ["primal", "full caster", "wisdom", "wild shape", "nature"],
+    payload: {
+      hitDie: 8,
+      role: "Primal control / utility caster",
+      primaryAbilities: ["Wisdom", "Constitution", "Dexterity"],
+      saveProficiencies: ["Intelligence", "Wisdom"],
+      spellcastingAbility: "Wisdom",
+      casterType: "full",
+      keyFeatures: ["Primal Order", "Spellcasting", "Wild Shape"],
+    },
+  },
+  {
+    slug: "paladin",
+    type: "class",
+    name: "Paladin",
+    summary: "A durable half caster mixing weapons, armor, healing, and Charisma-driven divine magic.",
+    tags: ["divine", "half caster", "charisma", "lay on hands", "weapon mastery"],
+    payload: {
+      hitDie: 10,
+      role: "Divine defender / support",
+      primaryAbilities: ["Strength", "Charisma", "Constitution"],
+      saveProficiencies: ["Wisdom", "Charisma"],
+      spellcastingAbility: "Charisma",
+      casterType: "half",
+      keyFeatures: ["Lay on Hands", "Spellcasting", "Weapon Mastery"],
+    },
+  },
+  {
+    slug: "ranger",
+    type: "class",
+    name: "Ranger",
+    summary: "A mobile half caster combining martial pressure, exploration tools, and Wisdom-based magic.",
+    tags: ["primal", "half caster", "wisdom", "favored enemy", "weapon mastery"],
+    payload: {
+      hitDie: 10,
+      role: "Skirmisher / explorer",
+      primaryAbilities: ["Dexterity", "Wisdom", "Constitution"],
+      saveProficiencies: ["Strength", "Dexterity"],
+      spellcastingAbility: "Wisdom",
+      casterType: "half",
+      keyFeatures: ["Favored Enemy", "Spellcasting", "Weapon Mastery"],
     },
   },
   {
@@ -75,7 +142,40 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
       primaryAbilities: ["Dexterity", "Constitution", "Charisma"],
       saveProficiencies: ["Dexterity", "Intelligence"],
       spellcastingAbility: null,
+      casterType: "none",
       keyFeatures: ["Sneak Attack", "Expertise", "Cunning Action"],
+    },
+  },
+  {
+    slug: "sorcerer",
+    type: "class",
+    name: "Sorcerer",
+    summary: "A Charisma-based full caster that leans into raw magical output and flexible spell shaping.",
+    tags: ["arcane", "full caster", "charisma", "innate sorcery", "sorcery points"],
+    payload: {
+      hitDie: 6,
+      role: "Arcane striker / flexible caster",
+      primaryAbilities: ["Charisma", "Constitution", "Dexterity"],
+      saveProficiencies: ["Constitution", "Charisma"],
+      spellcastingAbility: "Charisma",
+      casterType: "full",
+      keyFeatures: ["Innate Sorcery", "Spellcasting", "Sorcery Points"],
+    },
+  },
+  {
+    slug: "warlock",
+    type: "class",
+    name: "Warlock",
+    summary: "A Charisma-based pact caster with short-rest spell slots, invocations, and reliable ranged pressure.",
+    tags: ["arcane", "pact magic", "charisma", "eldritch invocations", "short rest"],
+    payload: {
+      hitDie: 8,
+      role: "Ranged striker / pact caster",
+      primaryAbilities: ["Charisma", "Constitution", "Dexterity"],
+      saveProficiencies: ["Wisdom", "Charisma"],
+      spellcastingAbility: "Charisma",
+      casterType: "pact",
+      keyFeatures: ["Pact Magic", "Eldritch Invocations", "Magical Cunning"],
     },
   },
   {
@@ -705,7 +805,7 @@ function readNumber(payload: Record<string, unknown>, key: string) {
   return typeof value === "number" ? value : undefined;
 }
 
-export const COMPENDIUM_IMPORT_VERSION = "2026-03-06-open-starter-v2";
+export const COMPENDIUM_IMPORT_VERSION = "2026-03-06-open-starter-v3";
 
 export const COMPENDIUM_SEED: CompendiumEntry[] = COMPENDIUM_DRAFTS.map(toCompendiumEntry).sort(compareEntries);
 

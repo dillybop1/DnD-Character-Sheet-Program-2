@@ -48,9 +48,15 @@ function buildOffenseRows(derived: DerivedSheetState): OffenseRow[] {
       id: spell.id,
       name: spell.name,
       attack:
-        derived.spellcasting.spellAttackBonus === null ? "None" : formatModifier(derived.spellcasting.spellAttackBonus),
+        spell.attackType === "save"
+          ? derived.spellcasting.spellSaveDC === null
+            ? "None"
+            : `DC ${derived.spellcasting.spellSaveDC}`
+          : derived.spellcasting.spellAttackBonus === null
+            ? "None"
+            : formatModifier(derived.spellcasting.spellAttackBonus),
       damage: spell.cantripDamage ?? spell.summary,
-      notes: spell.attackType === "spellAttack" ? "Spell attack" : spell.school,
+      notes: spell.attackType === "save" ? "Saving throw" : spell.attackType === "spellAttack" ? "Spell attack" : spell.school,
     }));
 
   return [...weaponRows, ...cantripRows];
@@ -78,6 +84,22 @@ function isSaveProficient(ability: AbilityName, derived: DerivedSheetState) {
 function splitList(items: string[]) {
   const midpoint = Math.max(1, Math.ceil(items.length / 2));
   return [items.slice(0, midpoint), items.slice(midpoint)];
+}
+
+function formatSpellSlotSummary(derived: DerivedSheetState) {
+  if (derived.spellcasting.slotMode === "pact") {
+    if (derived.spellcasting.pactSlotsMax === 0 || derived.spellcasting.pactSlotLevel === null) {
+      return "Pact slots pending";
+    }
+
+    return `Pact L${derived.spellcasting.pactSlotLevel}:${derived.spellcasting.pactSlotsMax}`;
+  }
+
+  if (derived.spellcasting.spellSlotsMax.length > 0) {
+    return derived.spellcasting.spellSlotsMax.map((value, index) => `L${index + 1}:${value}`).join(" ");
+  }
+
+  return "None";
 }
 
 function ReferenceButton({
@@ -115,10 +137,7 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
   const emptyOffenseRows = Math.max(0, 6 - offenseRows.length);
   const featureColumns = splitList(derived.classFeatures);
   const featEntries = [...derived.feats, ...derived.activeEffects];
-  const spellSlotSummary =
-    derived.spellcasting.spellSlotsMax.length > 0
-      ? derived.spellcasting.spellSlotsMax.map((value, index) => `L${index + 1}:${value}`).join(" ")
-      : "None";
+  const spellSlotSummary = formatSpellSlotSummary(derived);
 
   return (
     <div className="record-sheet">

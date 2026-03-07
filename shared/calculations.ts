@@ -1,10 +1,21 @@
-import { FULL_CASTER_SLOTS, SKILL_TO_ABILITY, getArmorTemplate, getClassTemplate, getSpeciesTemplate, getWeaponTemplate } from "./data/reference";
+import {
+  FULL_CASTER_SLOTS,
+  HALF_CASTER_SLOTS,
+  PACT_MAGIC_SLOTS,
+  SKILL_TO_ABILITY,
+  getArmorTemplate,
+  getClassTemplate,
+  getSpeciesTemplate,
+  getWeaponTemplate,
+} from "./data/reference";
 import { spellRecordFromCompendium } from "./data/compendiumSeed";
 import { CORE_OPEN_SOURCE_ID } from "./data/contentSources";
 import type {
   AbilityName,
   AbilityScores,
+  CasterType,
   CharacterRecord,
+  DerivedSpellSummary,
   DerivedSheetState,
   Effect,
   HomebrewEntry,
@@ -118,8 +129,57 @@ function averageHitDieGain(hitDie: number) {
   return Math.floor(hitDie / 2) + 1;
 }
 
-function buildSpellSummaries(record: CharacterRecord): SpellRecord[] {
-  return record.spellIds.map((spellId) => {
+function deriveSpellSlots(level: number, casterType: CasterType): Pick<
+  DerivedSpellSummary,
+  "slotMode" | "spellSlotsMax" | "pactSlotsMax" | "pactSlotLevel"
+> {
+  if (casterType === "full") {
+    return {
+      slotMode: "standard",
+      spellSlotsMax: FULL_CASTER_SLOTS[level] ?? [],
+      pactSlotsMax: 0,
+      pactSlotLevel: null,
+    };
+  }
+
+  if (casterType === "half") {
+    return {
+      slotMode: "standard",
+      spellSlotsMax: HALF_CASTER_SLOTS[level] ?? [],
+      pactSlotsMax: 0,
+      pactSlotLevel: null,
+    };
+  }
+
+  if (casterType === "pact") {
+    const pactProgression = PACT_MAGIC_SLOTS[level];
+    return {
+      slotMode: "pact",
+      spellSlotsMax: [],
+      pactSlotsMax: pactProgression?.slots ?? 0,
+      pactSlotLevel: pactProgression?.slotLevel ?? null,
+    };
+  }
+
+  return {
+    slotMode: "none",
+    spellSlotsMax: [],
+    pactSlotsMax: 0,
+    pactSlotLevel: null,
+  };
+}
+
+function buildSpellSummaries(record: CharacterRecord, effects: Effect[]): SpellRecord[] {
+  const spellIds = Array.from(
+    new Set([
+      ...record.spellIds,
+      ...effects
+        .filter((effect) => effect.type === "grant_spell" && Boolean(effect.target))
+        .map((effect) => effect.target as string),
+    ]),
+  );
+
+  return spellIds.map((spellId) => {
     const compendiumSpell = spellRecordFromCompendium(spellId);
 
     if (compendiumSpell) {
@@ -186,7 +246,8 @@ export function calculateDerivedState(record: CharacterRecord, homebrewEntries: 
   const spellcastingAbilityEffect = effects.find((effect) => effect.type === "set_spellcasting_ability");
   const spellcastingAbility = (spellcastingAbilityEffect?.target as AbilityName | undefined) ?? classTemplate.spellcastingAbility;
   const spellAbilityModifier = spellcastingAbility ? abilityModifiers[spellcastingAbility] : null;
-  const knownSpells = buildSpellSummaries(record);
+  const knownSpells = buildSpellSummaries(record, effects);
+  const slotProgression = deriveSpellSlots(level, classTemplate.casterType);
 
   const weaponEntries = record.weaponIds
     .map((weaponId) => getWeaponTemplate(weaponId))
@@ -221,9 +282,9 @@ export function calculateDerivedState(record: CharacterRecord, homebrewEntries: 
     hitPointsMax: maxHitPoints,
     hitDiceMax: level,
     spellcasting: {
+      ...slotProgression,
       spellAttackBonus: spellAbilityModifier === null ? null : spellAbilityModifier + profBonus,
       spellSaveDC: spellAbilityModifier === null ? null : 8 + profBonus + spellAbilityModifier,
-      spellSlotsMax: classTemplate.casterType === "full" ? FULL_CASTER_SLOTS[level] ?? [] : [],
       knownSpells,
       preparedSpells: knownSpells.filter((spell) => record.preparedSpellIds.includes(spell.id)),
     },

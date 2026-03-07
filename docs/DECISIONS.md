@@ -62,3 +62,10 @@
 - Context: Compendium references are useful only if players can open them without losing the character-building context.
 - Decision: Add an in-context reference panel on the character workspace and route compendium entries by slug so sheet and builder interactions can open a matching reference immediately.
 - Consequences: The character workflow is more self-contained and the dedicated compendium page can still open linked entries directly, but UI components now carry explicit reference-link behavior.
+
+## DEC-010
+
+- Date: `2026-03-06`
+- Context: Updated 2024 class support needs more than one spell-slot progression family, but the saved character shape should stay stable for future books and migrations.
+- Decision: Model spellcasting progression by class `casterType` (`none`, `full`, `half`, `pact`) and derive a uniform spell summary that can represent both standard slots and pact slots.
+- Consequences: Paladin, Ranger, and Warlock progression now fit the same calculation pipeline without changing stored character records, but multiclass spell-slot blending and class-specific exceptions remain out of scope for v1.
