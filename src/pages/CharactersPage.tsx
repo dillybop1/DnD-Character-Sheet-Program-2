@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { calculateDerivedState } from "../../shared/calculations";
 import {
+  getGearTemplate,
   getClassTemplate,
   listArmorTemplates,
   listBackgroundTemplates,
@@ -106,7 +107,7 @@ export function CharactersPage() {
   const [message, setMessage] = useState("Create a new character or select one from the library.");
   const [referenceEntry, setReferenceEntry] = useState<CompendiumEntry | null>(null);
   const [referenceStatus, setReferenceStatus] = useState(
-    "Click a class, spell, weapon, armor, or rule label to inspect it here.",
+    "Click a class, spell, weapon, armor, gear, or rule label to inspect it here.",
   );
   const [loading, setLoading] = useState(true);
 
@@ -251,22 +252,13 @@ export function CharactersPage() {
 
   function addInventoryItem(templateType: InventoryItemRecord["templateType"], templateId: string) {
     applyInventoryUpdate((currentInventory) => {
+      const gearTemplate = templateType === "gear" ? getGearTemplate(templateId) : null;
+      const gearIsEquipable = gearTemplate?.equipable ?? false;
       const existingIndex = currentInventory.findIndex(
         (item) => item.templateType === templateType && item.templateId === templateId,
       );
 
-      if (existingIndex >= 0 && templateType === "gear" && templateId !== "shield") {
-        return currentInventory.map((item, index) =>
-          index === existingIndex
-            ? {
-                ...item,
-                quantity: item.quantity + 1,
-              }
-            : item,
-        );
-      }
-
-      if (existingIndex >= 0 && templateId === "shield") {
+      if (existingIndex >= 0 && templateType === "gear" && templateId === "shield") {
         return currentInventory.map((item, index) =>
           index === existingIndex
             ? {
@@ -277,8 +269,19 @@ export function CharactersPage() {
         );
       }
 
+      if (existingIndex >= 0 && templateType === "gear" && !gearIsEquipable) {
+        return currentInventory.map((item, index) =>
+          index === existingIndex
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+              }
+            : item,
+        );
+      }
+
       const nextItem = createInventoryItem(templateType, templateId, {
-        equipped: templateType !== "gear" || templateId === "shield",
+        equipped: templateType === "gear" ? gearIsEquipable : true,
       });
 
       if (templateType === "armor" && nextItem.equipped) {

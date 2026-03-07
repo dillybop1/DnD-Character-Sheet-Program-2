@@ -138,7 +138,7 @@ export function inventoryEntryFromItem(item: InventoryItemRecord): DerivedInvent
     quantity: sanitizeQuantity(item.quantity),
     equipped: item.equipped,
     notes: item.notes ?? gear.notes,
-    referenceSlug: gear.id === "shield" ? gear.id : undefined,
+    referenceSlug: gear.id,
   };
 }
 

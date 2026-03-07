@@ -13,6 +13,7 @@ const FILTERS: Array<{ label: string; value?: CompendiumType }> = [
   { label: "Spells", value: "spell" },
   { label: "Weapons", value: "weapon" },
   { label: "Armor", value: "armor" },
+  { label: "Gear", value: "gear" },
   { label: "Feats", value: "feat" },
   { label: "Rules", value: "rule" },
 ];
@@ -78,7 +79,7 @@ export function CompendiumPage() {
         <div className="stack-md">
           <input
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search spells, weapons, rules, and more..."
+            placeholder="Search spells, weapons, gear, rules, and more..."
             value={query}
           />
           <div className="filter-row">

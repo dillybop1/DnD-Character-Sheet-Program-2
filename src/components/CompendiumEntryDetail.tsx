@@ -7,6 +7,33 @@ interface CompendiumEntryDetailProps {
   actions?: ReactNode;
 }
 
+function formatDetailLabel(key: string) {
+  return key
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replaceAll("-", " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function formatDetailValue(value: unknown): string {
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value);
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((entry) => formatDetailValue(entry)).filter(Boolean).join(", ");
+  }
+
+  if (value && typeof value === "object") {
+    return JSON.stringify(value);
+  }
+
+  return "";
+}
+
 export function CompendiumEntryDetail({
   entry,
   emptyMessage = "Search or select an entry to inspect it.",
@@ -15,6 +42,8 @@ export function CompendiumEntryDetail({
   if (!entry) {
     return <div className="empty-state">{emptyMessage}</div>;
   }
+
+  const payloadDetails = Object.entries(entry.payload).filter(([, value]) => formatDetailValue(value));
 
   return (
     <div className="stack-md">
@@ -37,8 +66,13 @@ export function CompendiumEntryDetail({
           <span className="detail-label">Attribution</span>
           <strong>{entry.attribution}</strong>
         </div>
+        {payloadDetails.map(([key, value]) => (
+          <div key={key}>
+            <span className="detail-label">{formatDetailLabel(key)}</span>
+            <strong className="detail-value">{formatDetailValue(value)}</strong>
+          </div>
+        ))}
       </div>
-      <pre className="payload-view">{JSON.stringify(entry.payload, null, 2)}</pre>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import {
   COMPENDIUM_IMPORT_VERSION,
   COMPENDIUM_SEED,
   findCompendiumEntry,
+  listCompendiumEntries,
   listCompendiumSpells,
   searchCompendiumSeed,
   spellRecordFromCompendium,
@@ -15,6 +16,10 @@ describe("compendium seed", () => {
     expect(findCompendiumEntry("fighter")?.type).toBe("class");
     expect(findCompendiumEntry("misty-step")?.type).toBe("spell");
     expect(findCompendiumEntry("alert")?.type).toBe("feat");
+    expect(findCompendiumEntry("plate")?.type).toBe("armor");
+    expect(findCompendiumEntry("rapier")?.type).toBe("weapon");
+    expect(findCompendiumEntry("arcane-focus")?.type).toBe("gear");
+    expect(listCompendiumEntries("gear").length).toBeGreaterThan(10);
   });
 
   it("supports local search and structured spell lookup", () => {
@@ -33,6 +38,14 @@ describe("compendium seed", () => {
       classes: ["Sorcerer", "Wizard"],
       attackType: "spellAttack",
     });
+
+    const gearResults = searchCompendiumSeed({
+      query: "rope torches rations",
+      type: "gear",
+    });
+
+    expect(gearResults.some((entry) => entry.slug === "dungeoneers-pack")).toBe(true);
+    expect(gearResults.some((entry) => entry.slug === "explorers-pack")).toBe(true);
   });
 
   it("filters spells by class list for the builder workflow", () => {

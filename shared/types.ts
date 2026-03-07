@@ -220,6 +220,7 @@ export type CompendiumType =
   | "spell"
   | "weapon"
   | "armor"
+  | "gear"
   | "rule"
   | "feat";
 

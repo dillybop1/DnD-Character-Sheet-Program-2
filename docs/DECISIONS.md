@@ -83,3 +83,10 @@
 - Context: Equipment state needed to move beyond a single armor id, a shield boolean, and a weapon id array without breaking already-saved local characters.
 - Decision: Introduce a normalized inventory array with quantity and equipped state, and derive the legacy loadout fields from it during the transition period.
 - Consequences: The builder and sheet can now show richer equipment state while older saves still load, but both the inventory model and the legacy loadout fields must stay synchronized until a later cleanup/migration pass.
+
+## DEC-013
+
+- Date: `2026-03-06`
+- Context: Once the inventory editor supported normalized gear, most non-armor items still felt second-class because only shields had consistent compendium coverage and direct references.
+- Decision: Promote `gear` to a first-class compendium type, expand the open equipment dataset across armor, weapons, and gear, and give gear inventory rows direct reference slugs.
+- Consequences: The builder, sheet, and compendium now expose a broader and more consistent equipment surface, but the template ids and compendium slugs now need to stay aligned for every seeded item.

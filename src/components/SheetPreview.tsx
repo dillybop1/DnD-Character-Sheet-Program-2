@@ -494,7 +494,13 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
               {carriedGear.length === 0 ? <li>No extra gear tracked.</li> : null}
               {carriedGear.map((entry) => (
                 <li key={entry.id}>
-                  {entry.name}
+                  <ReferenceButton
+                    className="record-sheet__field-link"
+                    onOpenReference={onOpenReference}
+                    slug={entry.referenceSlug}
+                  >
+                    {entry.name}
+                  </ReferenceButton>
                   {entry.quantity > 1 ? ` x${entry.quantity}` : ""}
                   {entry.equipped ? " (equipped)" : ""}
                 </li>
