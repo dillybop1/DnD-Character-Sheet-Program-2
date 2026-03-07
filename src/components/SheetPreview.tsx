@@ -132,12 +132,14 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
   const classLabel = getClassTemplate(character.classId).name;
   const speciesLabel = getSpeciesTemplate(character.speciesId).name;
   const backgroundLabel = getBackgroundTemplate(character.backgroundId).name;
-  const armor = getArmorTemplate(character.armorId);
+  const armor = getArmorTemplate(derived.equippedArmorId);
   const offenseRows = buildOffenseRows(derived);
   const emptyOffenseRows = Math.max(0, 6 - offenseRows.length);
   const featureColumns = splitList(derived.classFeatures);
   const featEntries = [...derived.feats, ...derived.activeEffects];
   const spellSlotSummary = formatSpellSlotSummary(derived);
+  const equippedWeapons = derived.inventoryEntries.filter((entry) => entry.kind === "weapon" && entry.equipped);
+  const carriedGear = derived.inventoryEntries.filter((entry) => entry.kind === "gear");
 
   return (
     <div className="record-sheet">
@@ -196,7 +198,7 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
             Armor Class
           </ReferenceButton>
           <strong>{derived.armorClass}</strong>
-          <small>{character.shieldEquipped ? "Shield ready" : "No shield"}</small>
+          <small>{derived.shieldEquipped ? "Shield ready" : "No shield"}</small>
         </article>
 
         <article className="record-sheet__panel record-sheet__vitals-panel">
@@ -335,12 +337,12 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
               <div>
                 <h4>Weapons</h4>
                 <p className="record-sheet__link-list">
-                  {derived.weaponEntries.length > 0
-                    ? derived.weaponEntries.map((entry) => (
+                  {equippedWeapons.length > 0
+                    ? equippedWeapons.map((entry) => (
                         <ReferenceButton
                           key={entry.id}
                           onOpenReference={onOpenReference}
-                          slug={entry.id}
+                          slug={entry.referenceSlug}
                         >
                           {entry.name}
                         </ReferenceButton>
@@ -353,11 +355,11 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
                 <p className="record-sheet__link-list">
                   <ReferenceButton
                     onOpenReference={onOpenReference}
-                    slug={getArmorReferenceSlug(character.armorId)}
+                    slug={getArmorReferenceSlug(derived.equippedArmorId)}
                   >
                     {armor.name}
                   </ReferenceButton>
-                  {character.shieldEquipped ? (
+                  {derived.shieldEquipped ? (
                     <ReferenceButton
                       onOpenReference={onOpenReference}
                       slug="shield"
@@ -485,6 +487,20 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
               </ul>
             </article>
           </div>
+
+          <article className="record-sheet__panel record-sheet__notes-panel">
+            <header className="record-sheet__panel-header">Carried Gear</header>
+            <ul className="record-sheet__notes-list">
+              {carriedGear.length === 0 ? <li>No extra gear tracked.</li> : null}
+              {carriedGear.map((entry) => (
+                <li key={entry.id}>
+                  {entry.name}
+                  {entry.quantity > 1 ? ` x${entry.quantity}` : ""}
+                  {entry.equipped ? " (equipped)" : ""}
+                </li>
+              ))}
+            </ul>
+          </article>
         </div>
       </section>
     </div>

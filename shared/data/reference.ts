@@ -4,6 +4,7 @@ import type {
   ArmorTemplate,
   BackgroundTemplate,
   ClassTemplate,
+  GearTemplate,
   SpeciesTemplate,
   WeaponTemplate,
 } from "../types";
@@ -258,6 +259,63 @@ export const WEAPONS: WeaponTemplate[] = [
   },
 ];
 
+export const GEAR_ITEMS: GearTemplate[] = [
+  {
+    id: "shield",
+    sourceId: CORE_OPEN_SOURCE_ID,
+    name: "Shield",
+    category: "shield",
+    equipable: true,
+    armorClassBonus: 2,
+    notes: "+2 Armor Class while equipped",
+  },
+  {
+    id: "explorers-pack",
+    sourceId: CORE_OPEN_SOURCE_ID,
+    name: "Explorer's Pack",
+    category: "gear",
+    notes: "Starter travel supplies and utility basics.",
+  },
+  {
+    id: "thieves-tools",
+    sourceId: CORE_OPEN_SOURCE_ID,
+    name: "Thieves' Tools",
+    category: "tool",
+    notes: "A common precision toolkit for locks and traps.",
+  },
+  {
+    id: "holy-symbol",
+    sourceId: CORE_OPEN_SOURCE_ID,
+    name: "Holy Symbol",
+    category: "focus",
+    equipable: true,
+    notes: "Divine spellcasting focus.",
+  },
+  {
+    id: "component-pouch",
+    sourceId: CORE_OPEN_SOURCE_ID,
+    name: "Component Pouch",
+    category: "focus",
+    equipable: true,
+    notes: "Arcane or general spell components.",
+  },
+  {
+    id: "spellbook",
+    sourceId: CORE_OPEN_SOURCE_ID,
+    name: "Spellbook",
+    category: "focus",
+    equipable: true,
+    notes: "A wizard's primary spell reference.",
+  },
+  {
+    id: "rope-hempen",
+    sourceId: CORE_OPEN_SOURCE_ID,
+    name: "Hempen Rope",
+    category: "gear",
+    notes: "50 feet of rope for climbing and travel.",
+  },
+];
+
 export const FULL_CASTER_SLOTS: Record<number, number[]> = {
   1: [2],
   2: [3],
@@ -354,6 +412,10 @@ export function listWeaponTemplates(enabledSourceIds: ContentSourceId[] = DEFAUL
   return filterByEnabledSources(WEAPONS, enabledSourceIds);
 }
 
+export function listGearTemplates(enabledSourceIds: ContentSourceId[] = DEFAULT_ENABLED_SOURCE_IDS) {
+  return filterByEnabledSources(GEAR_ITEMS, enabledSourceIds);
+}
+
 export function getClassTemplate(classId: string) {
   return CLASSES.find((entry) => entry.id === classId) ?? CLASSES[0];
 }
@@ -372,4 +434,8 @@ export function getArmorTemplate(armorId: string | null) {
 
 export function getWeaponTemplate(weaponId: string) {
   return WEAPONS.find((entry) => entry.id === weaponId);
+}
+
+export function getGearTemplate(gearId: string) {
+  return GEAR_ITEMS.find((entry) => entry.id === gearId);
 }

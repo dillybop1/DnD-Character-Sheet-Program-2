@@ -10,6 +10,7 @@ import {
 } from "./data/reference";
 import { spellRecordFromCompendium } from "./data/compendiumSeed";
 import { CORE_OPEN_SOURCE_ID } from "./data/contentSources";
+import { deriveLegacyLoadout, listInventoryEntries, normalizeInventory } from "./inventory";
 import type {
   AbilityName,
   AbilityScores,
@@ -105,15 +106,15 @@ function collectEffects(record: CharacterRecord, homebrewEntries: HomebrewEntry[
     .flatMap((entry) => entry.effects);
 }
 
-function computeArmorClass(record: CharacterRecord, dexterityModifier: number, effects: Effect[]) {
-  const armor = getArmorTemplate(record.armorId);
+function computeArmorClass(armorId: string | null, shieldEquipped: boolean, dexterityModifier: number, effects: Effect[]) {
+  const armor = getArmorTemplate(armorId);
   const overrideFormula = effects.find((effect) => effect.type === "set_base_ac_formula");
   const acBonus = effects
     .filter((effect) => effect.type === "ac_bonus" && typeof effect.value === "number")
     .reduce((total, effect) => total + (effect.value ?? 0), 0);
 
   if (overrideFormula?.target === "unarmored") {
-    return 10 + dexterityModifier + (record.shieldEquipped ? 2 : 0) + acBonus;
+    return 10 + dexterityModifier + (shieldEquipped ? 2 : 0) + acBonus;
   }
 
   const dexContribution = armor.ignoresDexterity
@@ -122,7 +123,7 @@ function computeArmorClass(record: CharacterRecord, dexterityModifier: number, e
       ? dexterityModifier
       : Math.min(dexterityModifier, armor.dexterityCap);
 
-  return armor.baseArmorClass + dexContribution + (record.shieldEquipped ? 2 : 0) + acBonus;
+  return armor.baseArmorClass + dexContribution + (shieldEquipped ? 2 : 0) + acBonus;
 }
 
 function averageHitDieGain(hitDie: number) {
@@ -202,6 +203,8 @@ export function calculateDerivedState(record: CharacterRecord, homebrewEntries: 
   const classTemplate = getClassTemplate(record.classId);
   const speciesTemplate = getSpeciesTemplate(record.speciesId);
   const effects = collectEffects(record, homebrewEntries);
+  const inventory = normalizeInventory(record);
+  const legacyLoadout = deriveLegacyLoadout(inventory);
   const adjustedAbilities = applyAbilityBonuses(record.abilities, effects);
   const abilityModifiers = {
     strength: abilityModifier(adjustedAbilities.strength),
@@ -250,7 +253,7 @@ export function calculateDerivedState(record: CharacterRecord, homebrewEntries: 
   const knownSpells = buildSpellSummaries(record, effects);
   const slotProgression = deriveSpellSlots(level, classTemplate.casterType);
 
-  const weaponEntries = record.weaponIds
+  const weaponEntries = legacyLoadout.weaponIds
     .map((weaponId) => getWeaponTemplate(weaponId))
     .filter((weapon): weapon is NonNullable<typeof weapon> => Boolean(weapon))
     .map((weapon) => {
@@ -277,11 +280,13 @@ export function calculateDerivedState(record: CharacterRecord, homebrewEntries: 
     abilityModifiers,
     savingThrows,
     skills,
-    armorClass: computeArmorClass(record, abilityModifiers.dexterity, effects),
+    armorClass: computeArmorClass(legacyLoadout.armorId, legacyLoadout.shieldEquipped, abilityModifiers.dexterity, effects),
     initiative: abilityModifiers.dexterity,
     speed: speciesTemplate.speed + speedBonus,
     hitPointsMax: maxHitPoints,
     hitDiceMax: level,
+    equippedArmorId: legacyLoadout.armorId,
+    shieldEquipped: legacyLoadout.shieldEquipped,
     spellcasting: {
       ...slotProgression,
       spellAttackBonus: spellAbilityModifier === null ? null : spellAbilityModifier + profBonus,
@@ -290,6 +295,7 @@ export function calculateDerivedState(record: CharacterRecord, homebrewEntries: 
       preparedSpells: knownSpells.filter((spell) => spell.level > 0 && record.preparedSpellIds.includes(spell.id)),
     },
     weaponEntries,
+    inventoryEntries: listInventoryEntries(record),
     classFeatures: [...classTemplate.featureSummary, record.notes.classFeatures].filter(Boolean),
     speciesTraits: [...speciesTemplate.featureSummary, record.notes.speciesTraits].filter(Boolean),
     feats: record.notes.feats ? [record.notes.feats] : [],

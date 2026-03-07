@@ -1,9 +1,12 @@
 import { calculateDerivedState } from "./calculations";
 import { resolveEnabledSourceIds } from "./data/contentSources";
+import { deriveLegacyLoadout, normalizeInventory } from "./inventory";
 import type { BuilderInput, CharacterRecord, HomebrewEntry } from "./types";
 
 export function buildCharacterFromInput(input: BuilderInput, homebrewEntries: HomebrewEntry[] = []): CharacterRecord {
   const now = new Date().toISOString();
+  const inventory = normalizeInventory(input);
+  const legacyLoadout = deriveLegacyLoadout(inventory);
 
   const draft: CharacterRecord = {
     id: crypto.randomUUID(),
@@ -15,9 +18,10 @@ export function buildCharacterFromInput(input: BuilderInput, homebrewEntries: Ho
     level: input.level,
     abilities: input.abilities,
     skillProficiencies: input.skillProficiencies,
-    armorId: input.armorId,
-    shieldEquipped: input.shieldEquipped,
-    weaponIds: input.weaponIds,
+    inventory,
+    armorId: legacyLoadout.armorId,
+    shieldEquipped: legacyLoadout.shieldEquipped,
+    weaponIds: legacyLoadout.weaponIds,
     spellIds: input.spellIds,
     preparedSpellIds: input.preparedSpellIds,
     homebrewIds: input.homebrewIds,

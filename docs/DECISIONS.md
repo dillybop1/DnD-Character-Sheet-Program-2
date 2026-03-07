@@ -76,3 +76,10 @@
 - Context: A global unfiltered spell picker and single-effect homebrew editor were too loose for real character building once more classes were added.
 - Decision: Restrict manual spell selection to class-filtered compendium lists and let one homebrew entry compose multiple supported effects in the editor.
 - Consequences: The builder is more accurate and less noisy for players, but off-list spell access now flows through explicit homebrew grants instead of an unrestricted spell checkbox list.
+
+## DEC-012
+
+- Date: `2026-03-06`
+- Context: Equipment state needed to move beyond a single armor id, a shield boolean, and a weapon id array without breaking already-saved local characters.
+- Decision: Introduce a normalized inventory array with quantity and equipped state, and derive the legacy loadout fields from it during the transition period.
+- Consequences: The builder and sheet can now show richer equipment state while older saves still load, but both the inventory model and the legacy loadout fields must stay synchronized until a later cleanup/migration pass.

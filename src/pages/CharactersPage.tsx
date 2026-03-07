@@ -6,10 +6,18 @@ import {
   listArmorTemplates,
   listBackgroundTemplates,
   listClassTemplates,
+  listGearTemplates,
   listSpeciesTemplates,
   listWeaponTemplates,
 } from "../../shared/data/reference";
 import { listCompendiumSpells, spellRecordFromCompendium } from "../../shared/data/compendiumSeed";
+import {
+  createInventoryItem,
+  deriveLegacyLoadout,
+  isInventoryItemEquipable,
+  listInventoryEntries,
+  normalizeInventory,
+} from "../../shared/inventory";
 import { ABILITY_NAMES, SKILL_NAMES } from "../../shared/types";
 import type {
   AbilityName,
@@ -18,6 +26,7 @@ import type {
   CharacterSummary,
   CompendiumEntry,
   HomebrewEntry,
+  InventoryItemRecord,
   SkillName,
 } from "../../shared/types";
 import { CompendiumEntryDetail } from "../components/CompendiumEntryDetail";
@@ -84,6 +93,10 @@ function formatSpellSlotSummary(
   return spellcasting.spellSlotsMax.map((value, index) => `L${index + 1}:${value}`).join(" ");
 }
 
+function sanitizeInventoryQuantity(value: number) {
+  return Math.max(1, Math.floor(Number.isFinite(value) ? value : 1) || 1);
+}
+
 export function CharactersPage() {
   const navigate = useNavigate();
   const [characters, setCharacters] = useState<CharacterSummary[]>([]);
@@ -141,6 +154,11 @@ export function CharactersPage() {
   const availableBackgrounds = listBackgroundTemplates(draft.enabledSourceIds);
   const availableArmor = listArmorTemplates(draft.enabledSourceIds);
   const availableWeapons = listWeaponTemplates(draft.enabledSourceIds);
+  const availableGear = listGearTemplates(draft.enabledSourceIds);
+  const draftInventory = normalizeInventory(draft);
+  const draftInventoryById = new Map(draftInventory.map((item) => [item.id, item] as const));
+  const inventoryEntries = listInventoryEntries(draft);
+  const inventoryLoadout = deriveLegacyLoadout(draftInventory);
   const classSpellOptions =
     selectedClass.spellcastingAbility === null ? [] : listCompendiumSpells(draft.enabledSourceIds, selectedClass.name);
   const selectedSpellEntries = draft.spellIds
@@ -202,7 +220,22 @@ export function CharactersPage() {
     }));
   }
 
-  function toggleArrayEntry(key: "weaponIds" | "homebrewIds", value: string) {
+  function applyInventoryUpdate(updater: (inventory: InventoryItemRecord[]) => InventoryItemRecord[]) {
+    setDraft((current) => {
+      const nextInventory = updater(normalizeInventory(current));
+      const legacyLoadout = deriveLegacyLoadout(nextInventory);
+
+      return {
+        ...current,
+        inventory: nextInventory,
+        armorId: legacyLoadout.armorId,
+        shieldEquipped: legacyLoadout.shieldEquipped,
+        weaponIds: legacyLoadout.weaponIds,
+      };
+    });
+  }
+
+  function toggleArrayEntry(key: "homebrewIds", value: string) {
     setDraft((current) => {
       const entries = current[key];
       const nextEntries = entries.includes(value)
@@ -214,6 +247,103 @@ export function CharactersPage() {
         [key]: nextEntries,
       };
     });
+  }
+
+  function addInventoryItem(templateType: InventoryItemRecord["templateType"], templateId: string) {
+    applyInventoryUpdate((currentInventory) => {
+      const existingIndex = currentInventory.findIndex(
+        (item) => item.templateType === templateType && item.templateId === templateId,
+      );
+
+      if (existingIndex >= 0 && templateType === "gear" && templateId !== "shield") {
+        return currentInventory.map((item, index) =>
+          index === existingIndex
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+              }
+            : item,
+        );
+      }
+
+      if (existingIndex >= 0 && templateId === "shield") {
+        return currentInventory.map((item, index) =>
+          index === existingIndex
+            ? {
+                ...item,
+                equipped: true,
+              }
+            : item,
+        );
+      }
+
+      const nextItem = createInventoryItem(templateType, templateId, {
+        equipped: templateType !== "gear" || templateId === "shield",
+      });
+
+      if (templateType === "armor" && nextItem.equipped) {
+        return [
+          ...currentInventory.map((item) =>
+            item.templateType === "armor"
+              ? {
+                  ...item,
+                  equipped: false,
+                }
+              : item,
+          ),
+          nextItem,
+        ];
+      }
+
+      return [...currentInventory, nextItem];
+    });
+  }
+
+  function updateInventoryQuantity(itemId: string, quantity: number) {
+    applyInventoryUpdate((currentInventory) =>
+      currentInventory.map((item) =>
+        item.id === itemId
+          ? {
+              ...item,
+              quantity: sanitizeInventoryQuantity(quantity),
+            }
+          : item,
+      ),
+    );
+  }
+
+  function toggleInventoryEquipped(itemId: string) {
+    applyInventoryUpdate((currentInventory) => {
+      const targetItem = currentInventory.find((item) => item.id === itemId);
+
+      if (!targetItem || !isInventoryItemEquipable(targetItem)) {
+        return currentInventory;
+      }
+
+      const nextEquipped = !targetItem.equipped;
+
+      return currentInventory.map((item) => {
+        if (item.id === itemId) {
+          return {
+            ...item,
+            equipped: nextEquipped,
+          };
+        }
+
+        if (nextEquipped && targetItem.templateType === "armor" && item.templateType === "armor") {
+          return {
+            ...item,
+            equipped: false,
+          };
+        }
+
+        return item;
+      });
+    });
+  }
+
+  function removeInventoryItem(itemId: string) {
+    applyInventoryUpdate((currentInventory) => currentInventory.filter((item) => item.id !== itemId));
   }
 
   function toggleSpell(spellId: string) {
@@ -431,30 +561,6 @@ export function CharactersPage() {
               value={draft.level}
             />
           </label>
-          <label>
-            <span>Armor</span>
-            <select
-              onChange={(event) => updateDraft("armorId", event.target.value || null)}
-              value={draft.armorId ?? "unarmored"}
-            >
-              {availableArmor.map((entry) => (
-                <option
-                  key={entry.id}
-                  value={entry.id}
-                >
-                  {entry.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="checkbox-field">
-            <input
-              checked={draft.shieldEquipped}
-              onChange={(event) => updateDraft("shieldEquipped", event.target.checked)}
-              type="checkbox"
-            />
-            <span>Shield Equipped</span>
-          </label>
           <label className="checkbox-field">
             <input
               checked={draft.inspiration}
@@ -561,11 +667,20 @@ export function CharactersPage() {
                 </button>
                 <button
                   className="chip"
-                  onClick={() => openReferenceSafe(getArmorReferenceSlug(draft.armorId))}
+                  onClick={() => openReferenceSafe(getArmorReferenceSlug(inventoryLoadout.armorId))}
                   type="button"
                 >
-                  {availableArmor.find((entry) => entry.id === (draft.armorId ?? "unarmored"))?.name ?? "Armor"}
+                  {availableArmor.find((entry) => entry.id === (inventoryLoadout.armorId ?? "unarmored"))?.name ?? "Armor"}
                 </button>
+                {inventoryLoadout.shieldEquipped ? (
+                  <button
+                    className="chip"
+                    onClick={() => openReferenceSafe("shield")}
+                    type="button"
+                  >
+                    Shield
+                  </button>
+                ) : null}
                 <button
                   className="chip"
                   onClick={() => openReferenceSafe(RULE_REFERENCE_SLUGS.armorClass)}
@@ -576,32 +691,133 @@ export function CharactersPage() {
               </div>
             </div>
 
-            <div className="checkbox-grid">
-              <div>
-                <h3 className="subheading">Weapons</h3>
-                {availableWeapons.map((weapon) => (
-                  <div
-                    key={weapon.id}
-                    className="choice-row"
-                  >
-                    <label className="checkbox-field">
-                      <input
-                        checked={draft.weaponIds.includes(weapon.id)}
-                        onChange={() => toggleArrayEntry("weaponIds", weapon.id)}
-                        type="checkbox"
-                      />
-                      <span>{weapon.name}</span>
-                    </label>
-                    <button
-                      className="inline-link-button"
-                      onClick={() => openReferenceSafe(weapon.id)}
-                      type="button"
-                    >
-                      Ref
-                    </button>
+            <div className="detail-grid">
+              <div className="detail-card">
+                <div className="detail-card__header">
+                  <strong>Add Equipment</strong>
+                  <span>{inventoryEntries.length} tracked</span>
+                </div>
+                <div className="stack-sm">
+                  <div>
+                    <h3 className="subheading">Armor</h3>
+                    <div className="filter-row">
+                      {availableArmor.map((armor) => (
+                        <button
+                          key={armor.id}
+                          className="chip"
+                          onClick={() => addInventoryItem("armor", armor.id)}
+                          type="button"
+                        >
+                          {armor.name}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                ))}
+                  <div>
+                    <h3 className="subheading">Weapons</h3>
+                    <div className="filter-row">
+                      {availableWeapons.map((weapon) => (
+                        <button
+                          key={weapon.id}
+                          className="chip"
+                          onClick={() => addInventoryItem("weapon", weapon.id)}
+                          type="button"
+                        >
+                          {weapon.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="subheading">Gear</h3>
+                    <div className="filter-row">
+                      {availableGear.map((gear) => (
+                        <button
+                          key={gear.id}
+                          className="chip"
+                          onClick={() => addInventoryItem("gear", gear.id)}
+                          type="button"
+                        >
+                          {gear.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
+
+              <div className="detail-card">
+                <div className="detail-card__header">
+                  <strong>Inventory</strong>
+                  <span>{inventoryEntries.reduce((total, item) => total + item.quantity, 0)} total items</span>
+                </div>
+                <div className="filter-row">
+                  <span className="chip">
+                    Armor: {availableArmor.find((entry) => entry.id === (inventoryLoadout.armorId ?? "unarmored"))?.name ?? "Unarmored"}
+                  </span>
+                  <span className="chip">{inventoryLoadout.shieldEquipped ? "Shield ready" : "No shield"}</span>
+                  <span className="chip">{inventoryLoadout.weaponIds.length} equipped weapons</span>
+                </div>
+                <div className="inventory-list">
+                  {inventoryEntries.length === 0 ? <p className="muted-copy">No tracked inventory yet.</p> : null}
+                  {inventoryEntries.map((entry) => {
+                    const rawInventoryEntry = draftInventoryById.get(entry.id);
+
+                    return (
+                      <div
+                        key={entry.id}
+                        className="inventory-item"
+                      >
+                        <div>
+                          <strong>{entry.name}</strong>
+                          {entry.notes ? <p className="muted-copy">{entry.notes}</p> : null}
+                        </div>
+                        <div className="inventory-actions">
+                          <input
+                            className="inventory-qty-input"
+                            min={1}
+                            onChange={(event) => updateInventoryQuantity(entry.id, Number(event.target.value))}
+                            type="number"
+                            value={entry.quantity}
+                          />
+                          {rawInventoryEntry && isInventoryItemEquipable(rawInventoryEntry) ? (
+                            <button
+                              className="inline-link-button"
+                              onClick={() => toggleInventoryEquipped(entry.id)}
+                              type="button"
+                            >
+                              {entry.equipped ? "Unequip" : "Equip"}
+                            </button>
+                          ) : null}
+                          {entry.referenceSlug ? (
+                            <button
+                              className="inline-link-button"
+                              onClick={() => {
+                                if (entry.referenceSlug) {
+                                  openReferenceSafe(entry.referenceSlug);
+                                }
+                              }}
+                              type="button"
+                            >
+                              Ref
+                            </button>
+                          ) : null}
+                          <button
+                            className="inline-link-button"
+                            onClick={() => removeInventoryItem(entry.id)}
+                            type="button"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="checkbox-grid">
               <div>
                 <h3 className="subheading">Spells</h3>
                 <div className="detail-card">
@@ -667,6 +883,23 @@ export function CharactersPage() {
                 ))}
               </div>
               <div>
+                <h3 className="subheading">Applied Homebrew</h3>
+                {homebrewEntries.length === 0 ? <p className="muted-copy">No saved homebrew entries yet.</p> : null}
+                {homebrewEntries.map((entry) => (
+                  <label
+                    key={entry.id}
+                    className="checkbox-field"
+                  >
+                    <input
+                      checked={draft.homebrewIds.includes(entry.id)}
+                      onChange={() => toggleArrayEntry("homebrewIds", entry.id)}
+                      type="checkbox"
+                    />
+                    <span>{entry.name}</span>
+                  </label>
+                ))}
+              </div>
+              <div>
                 <h3 className="subheading">Prepared / Ready Spells</h3>
                 <div className="detail-card">
                   <p className="muted-copy">Cantrips are always available. Mark leveled spells you want surfaced as ready.</p>
@@ -693,23 +926,6 @@ export function CharactersPage() {
                       Ref
                     </button>
                   </div>
-                ))}
-              </div>
-              <div>
-                <h3 className="subheading">Applied Homebrew</h3>
-                {homebrewEntries.length === 0 ? <p className="muted-copy">No saved homebrew entries yet.</p> : null}
-                {homebrewEntries.map((entry) => (
-                  <label
-                    key={entry.id}
-                    className="checkbox-field"
-                  >
-                    <input
-                      checked={draft.homebrewIds.includes(entry.id)}
-                      onChange={() => toggleArrayEntry("homebrewIds", entry.id)}
-                      type="checkbox"
-                    />
-                    <span>{entry.name}</span>
-                  </label>
                 ))}
               </div>
             </div>

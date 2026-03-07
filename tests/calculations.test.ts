@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { calculateDerivedState } from "../shared/calculations";
 import { DEFAULT_ENABLED_SOURCE_IDS } from "../shared/data/contentSources";
 import { buildCharacterFromInput } from "../shared/factories";
+import { createInventoryItem } from "../shared/inventory";
 import type { BuilderInput, HomebrewEntry } from "../shared/types";
 
 function makeBaseInput(overrides: Partial<BuilderInput> = {}): BuilderInput {
@@ -48,6 +49,31 @@ describe("calculateDerivedState", () => {
     expect(derived.armorClass).toBe(18);
     expect(derived.proficiencyBonus).toBe(2);
     expect(derived.weaponEntries[0]?.attackBonus).toBe(5);
+  });
+
+  it("derives equipped loadout from inventory entries", () => {
+    const character = buildCharacterFromInput(
+      makeBaseInput({
+        inventory: [
+          createInventoryItem("armor", "leather", { equipped: true }),
+          createInventoryItem("gear", "shield", { equipped: true }),
+          createInventoryItem("weapon", "shortbow", { equipped: true }),
+          createInventoryItem("weapon", "longsword", { equipped: false }),
+          createInventoryItem("gear", "explorers-pack", { quantity: 1 }),
+        ],
+        armorId: null,
+        shieldEquipped: false,
+        weaponIds: [],
+      }),
+    );
+
+    const derived = calculateDerivedState(character);
+
+    expect(derived.armorClass).toBe(14);
+    expect(derived.equippedArmorId).toBe("leather");
+    expect(derived.shieldEquipped).toBe(true);
+    expect(derived.weaponEntries.map((entry) => entry.id)).toEqual(["shortbow"]);
+    expect(derived.inventoryEntries.map((entry) => entry.name)).toContain("Explorer's Pack");
   });
 
   it("computes full caster spell values and slots", () => {

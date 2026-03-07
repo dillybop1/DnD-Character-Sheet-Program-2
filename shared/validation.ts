@@ -14,6 +14,15 @@ export const notesSchema = z.object({
   feats: z.string(),
 });
 
+export const inventoryItemSchema = z.object({
+  id: z.string(),
+  templateType: z.enum(["weapon", "armor", "gear"]),
+  templateId: z.string().min(1),
+  quantity: z.number().int().min(1),
+  equipped: z.boolean(),
+  notes: z.string().optional(),
+});
+
 export const builderInputSchema = z.object({
   name: z.string().trim().min(1).max(80),
   enabledSourceIds: z.array(z.string().min(1)).min(1).default(DEFAULT_ENABLED_SOURCE_IDS),
@@ -25,6 +34,7 @@ export const builderInputSchema = z.object({
   skillProficiencies: z
     .object(Object.fromEntries(SKILL_NAMES.map((skill) => [skill, proficiencyLevelSchema.optional()])))
     .partial(),
+  inventory: z.array(inventoryItemSchema).optional(),
   armorId: z.string().nullable(),
   shieldEquipped: z.boolean(),
   weaponIds: z.array(z.string()),

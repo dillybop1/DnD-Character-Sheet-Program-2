@@ -32,6 +32,7 @@ export type AbilityName = (typeof ABILITY_NAMES)[number];
 export type SkillName = (typeof SKILL_NAMES)[number];
 export type ProficiencyLevel = "none" | "proficient" | "expertise";
 export type CasterType = "none" | "full" | "half" | "pact";
+export type InventoryItemKind = "weapon" | "armor" | "gear";
 export type ContentSourceId = string;
 export type ContentSourceKind = "core" | "sourcebook" | "setting" | "campaign";
 export type ContentSourceAvailability = "installed" | "planned";
@@ -98,6 +99,16 @@ export interface ArmorTemplate {
   notes?: string;
 }
 
+export interface GearTemplate {
+  id: string;
+  sourceId: ContentSourceId;
+  name: string;
+  category: "shield" | "gear" | "tool" | "focus";
+  equipable?: boolean;
+  armorClassBonus?: number;
+  notes?: string;
+}
+
 export interface ClassTemplate {
   id: string;
   sourceId: ContentSourceId;
@@ -147,6 +158,15 @@ export interface NotesBlock {
   feats: string;
 }
 
+export interface InventoryItemRecord {
+  id: string;
+  templateType: InventoryItemKind;
+  templateId: string;
+  quantity: number;
+  equipped: boolean;
+  notes?: string;
+}
+
 export interface CharacterRecord {
   id: string;
   name: string;
@@ -157,6 +177,7 @@ export interface CharacterRecord {
   level: number;
   abilities: AbilityScores;
   skillProficiencies: Partial<Record<SkillName, ProficiencyLevel>>;
+  inventory?: InventoryItemRecord[];
   armorId: string | null;
   shieldEquipped: boolean;
   weaponIds: string[];
@@ -181,6 +202,7 @@ export interface BuilderInput {
   level: number;
   abilities: AbilityScores;
   skillProficiencies: Partial<Record<SkillName, ProficiencyLevel>>;
+  inventory?: InventoryItemRecord[];
   armorId: string | null;
   shieldEquipped: boolean;
   weaponIds: string[];
@@ -234,6 +256,16 @@ export interface DerivedWeaponEntry {
   notes?: string;
 }
 
+export interface DerivedInventoryEntry {
+  id: string;
+  kind: InventoryItemKind;
+  name: string;
+  quantity: number;
+  equipped: boolean;
+  notes?: string;
+  referenceSlug?: string;
+}
+
 export interface DerivedSpellSummary {
   slotMode: "none" | "standard" | "pact";
   spellAttackBonus: number | null;
@@ -255,8 +287,11 @@ export interface DerivedSheetState {
   speed: number;
   hitPointsMax: number;
   hitDiceMax: number;
+  equippedArmorId: string | null;
+  shieldEquipped: boolean;
   spellcasting: DerivedSpellSummary;
   weaponEntries: DerivedWeaponEntry[];
+  inventoryEntries: DerivedInventoryEntry[];
   classFeatures: string[];
   speciesTraits: string[];
   feats: string[];
