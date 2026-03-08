@@ -1,6 +1,6 @@
 # Release Readiness
 
-- Last updated: `2026-03-07 23:16 America/New_York`
+- Last updated: `2026-03-07 23:19 America/New_York`
 - Target release: `v0.1.0`
 - Current status: `private beta path selected; unsigned macOS + Windows release pending final publish`
 
@@ -28,6 +28,7 @@
 
 - On `2026-03-07`, `npx -y -p node@22 -p npm@10 npm run release:verify-local` passed on this machine.
 - That command covered `typecheck`, `test`, macOS DMG build, Windows unpacked packaging, and Windows NSIS installer generation.
+- The clean release commit is `7ffcbfd`, and tag `v0.1.0` has already been pushed to `origin`.
 
 ## Build Baseline
 
@@ -52,18 +53,18 @@ Notes:
 
 ## Remaining Release Gaps
 
-- The repo still needs a clean release commit before tagging and publishing the private beta.
-- The publishing machine still needs to use Node `22.x` as pinned in `.nvmrc` or the documented `npx` fallback.
-- The private release entry still needs to be created and populated with the installers plus the unsigned-install caveat.
+- The private GitHub release entry still needs to be created and populated with the installers plus the unsigned-install caveat.
+- This shell can push through Git + macOS keychain, but it does not have `gh`, `hub`, or an exposed GitHub API token for creating the release entry programmatically.
+- If the installers are rebuilt again later, update this file if the artifact filenames change.
 
 ## Publish Checklist
 
 1. Reconfirm Node `22.x` on the release machine, or use `npx -y -p node@22 -p npm@10 npm ...`, and run a clean `npm install`.
-2. Commit the current code and doc state so the release tag points at a clean snapshot.
-3. Rebuild or explicitly bless the current validated artifacts with `npm run release:verify-local` on Node `22.x`.
-4. Update this file with the final artifact filenames and note that the beta ships unsigned on both platforms.
-5. Tag the repo as `v0.1.0`.
-6. Publish a private release with the installers and the unsigned-install caveat.
+2. Use commit `7ffcbfd` and pushed tag `v0.1.0` as the private-beta snapshot.
+3. Rebuild or explicitly bless the current validated artifacts with `npm run release:verify-local` on Node `22.x` if you want a fresh artifact set before publishing.
+4. Publish a private release for tag `v0.1.0`.
+5. Attach the DMG and NSIS installer artifacts.
+6. Include the unsigned-install caveat in the release notes.
 
 ## Tester Caveats
 

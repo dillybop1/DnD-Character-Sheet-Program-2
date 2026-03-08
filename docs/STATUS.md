@@ -1,6 +1,6 @@
 # Status Snapshot
 
-- Last updated: `2026-03-07 23:16 America/New_York`
+- Last updated: `2026-03-07 23:19 America/New_York`
 - Active branch: `main` (tracking `origin/main` at `https://github.com/dillybop1/DnD-Character-Sheet-Program-2.git`)
 - Current milestone: `M9`
 - Current task ID: `M9-03`
@@ -8,9 +8,9 @@
 
 ## Next 3 Actions
 
-1. Commit the current release candidate state so `v0.1.0` can be tagged from a clean snapshot instead of a dirty worktree.
-2. Tag `v0.1.0` from that clean commit and keep the verified private-beta artifacts aligned with the release notes.
-3. Publish a private `v0.1.0` release with the unsigned macOS/Windows caveat called out clearly.
+1. Create the private GitHub release entry for the already-pushed tag `v0.1.0`.
+2. Attach the verified DMG and NSIS installer artifacts to that release.
+3. Close `M9-03` once the release notes call out the unsigned macOS/Windows caveat and the installers are available to testers.
 
 ## Blockers / Open Questions
 
@@ -20,6 +20,8 @@
 - Fresh `npm install` under global Node `24.13.0` + Python `3.14` still fails because `better-sqlite3` falls back to `node-gyp`, but `npx -y -p node@22 -p npm@10 npm run release:verify-local` now passes on this machine as a working fallback.
 - The release path is now explicit: `v0.1.0` is a private beta that will ship unsigned on macOS and Windows, so signing/notarization is no longer the gating decision for this milestone.
 - This shell can still run the release verification flow without changing the global Node install by using `npx -y -p node@22 -p npm@10 npm run <script>`.
+- The clean release commit (`7ffcbfd`) and tag (`v0.1.0`) are already on `origin/main`.
+- This shell can push through Git + macOS keychain, but it does not have `gh`, `hub`, or an exposed GitHub API token for creating the GitHub release entry itself.
 - The rules engine now covers full casters, half casters, pact magic, homebrew-granted spells, and a broader equipment catalog, but the compendium content is still smaller than the eventual v1 surface.
 - The sheet now follows the reference page's structure, renders persistent vitals, and has completed the `M6-02` readability/print-tuning pass that the packaged export flow now relies on.
 - The latest `M6-02` pass tightened the masthead into a dedicated emblem column, added stronger section-header/banner hierarchy, and reduced print density so the exported sheet is closer to a deliberate one-page layout.
@@ -71,7 +73,7 @@
 
 - `docs/RELEASE.md`
 - `docs/STATUS.md`
-- `README.md`
+- `docs/CHECKLIST.md`
 
 ## Commands To Run First
 
