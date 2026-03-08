@@ -10,6 +10,7 @@ import {
 import { normalizePactSlotsRemaining, normalizeSpellSlotsRemaining } from "../../shared/spellSlots";
 import type { CharacterRecord, CompendiumEntry, HomebrewEntry } from "../../shared/types";
 import { CompendiumEntryDetail } from "../components/CompendiumEntryDetail";
+import { LockedSheetViewport } from "../components/LockedSheetViewport";
 import { SavedSheetBook } from "../components/SavedSheetBook";
 import { SectionCard } from "../components/SectionCard";
 import { dndApi } from "../lib/api";
@@ -434,12 +435,14 @@ export function CharacterSheetPage() {
         title="Character Sheet Pages"
         subtitle="Saved sheet route"
       >
-        <SavedSheetBook
-          character={character}
-          derived={derived}
-          onOpenReference={openReferenceSafe}
-          onSaveCharacter={handleSaveCharacterFromSheet}
-        />
+        <LockedSheetViewport minWidth={1180}>
+          <SavedSheetBook
+            character={character}
+            derived={derived}
+            onOpenReference={openReferenceSafe}
+            onSaveCharacter={handleSaveCharacterFromSheet}
+          />
+        </LockedSheetViewport>
       </SectionCard>
 
       <SectionCard

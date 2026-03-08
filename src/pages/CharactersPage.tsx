@@ -37,6 +37,7 @@ import { normalizePactSlotsRemaining, normalizeSpellSlotsRemaining } from "../..
 import { ABILITY_NAMES, SKILL_NAMES } from "../../shared/types";
 import type { AbilityName, BuilderInput, CharacterRecord, CompendiumEntry, HomebrewEntry, InventoryItemRecord, InventoryItemKind, SkillName } from "../../shared/types";
 import { CompendiumEntryDetail } from "../components/CompendiumEntryDetail";
+import { LockedSheetViewport } from "../components/LockedSheetViewport";
 import { SectionCard } from "../components/SectionCard";
 import { SheetPreview } from "../components/SheetPreview";
 import { getArmorReferenceSlug, RULE_REFERENCE_SLUGS } from "../lib/compendiumLinks";
@@ -2040,11 +2041,13 @@ export function CharactersPage() {
         title="Exact-Style Sheet Preview"
         subtitle="Structural layout pass with live values"
       >
-        <SheetPreview
-          character={previewCharacter}
-          derived={derived}
-          onOpenReference={openReferenceSafe}
-        />
+        <LockedSheetViewport minWidth={1120}>
+          <SheetPreview
+            character={previewCharacter}
+            derived={derived}
+            onOpenReference={openReferenceSafe}
+          />
+        </LockedSheetViewport>
       </SectionCard>
 
       <SectionCard

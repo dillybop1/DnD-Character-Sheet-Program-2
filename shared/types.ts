@@ -533,7 +533,9 @@ export interface JsonExportV1 {
 
 export interface AppInfo {
   appVersion: string;
+  builtAt: string | null;
   databasePath: string;
+  launchPath: string;
   runtime: "browser-dev" | "electron";
   storageKind: "localStorage" | "sqlite";
   isPackaged: boolean;

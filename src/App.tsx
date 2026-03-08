@@ -4,9 +4,12 @@ import { CharacterSheetPage } from "./pages/CharacterSheetPage";
 import { CharactersPage } from "./pages/CharactersPage";
 import { CompendiumPage } from "./pages/CompendiumPage";
 import { HomebrewPage } from "./pages/HomebrewPage";
+import { formatBuiltAt, getLaunchSummary, getRuntimeLabel, useAppInfo } from "./lib/appInfo";
 import { SettingsPage } from "./pages/SettingsPage";
 
 function AppShell() {
+  const appInfo = useAppInfo();
+
   return (
     <div className="app-shell">
       <aside className="app-shell__sidebar">
@@ -41,8 +44,18 @@ function AppShell() {
           </NavLink>
         </nav>
         <div className="sidebar-note">
-          <span>Offline-first</span>
-          <strong>Local DB + committed handoff docs</strong>
+          <span>{getRuntimeLabel(appInfo)}</span>
+          <strong>{appInfo ? `v${appInfo.appVersion}` : "Checking build details..."}</strong>
+          <p className="sidebar-note__meta">
+            {appInfo
+              ? appInfo.builtAt
+                ? `Built ${formatBuiltAt(appInfo.builtAt)}`
+                : "Live dev session"
+              : "Loading runtime diagnostics."}
+          </p>
+          <p className="sidebar-note__meta">
+            {appInfo ? getLaunchSummary(appInfo.launchPath) : "Waiting for launch path."}
+          </p>
         </div>
       </aside>
       <main className="app-shell__main">

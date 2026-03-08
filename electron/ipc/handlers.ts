@@ -1,4 +1,5 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, stat, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 import { app, dialog, ipcMain, shell } from "electron";
 import type { BrowserWindow } from "electron";
 import type { BuilderInput, CharacterRecord, HomebrewEntry, SearchInput } from "../../shared/types";
@@ -40,6 +41,36 @@ function sanitizeFilename(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
+function getLaunchPath() {
+  const executablePath = app.getPath("exe");
+
+  if (app.isPackaged && process.platform === "darwin") {
+    return dirname(dirname(dirname(executablePath)));
+  }
+
+  return executablePath;
+}
+
+async function getBuildTimestamp(launchPath: string) {
+  const candidatePaths = app.isPackaged
+    ? [launchPath, app.getPath("exe"), join(process.resourcesPath, "app.asar")]
+    : [
+        join(process.cwd(), "dist-electron", "main.cjs"),
+        join(process.cwd(), "dist", "index.html"),
+        join(process.cwd(), "package.json"),
+      ];
+
+  for (const candidatePath of candidatePaths) {
+    try {
+      return (await stat(candidatePath)).mtime.toISOString();
+    } catch {
+      continue;
+    }
+  }
+
+  return null;
+}
+
 async function exportCharacterJson(context: DatabaseContext, id: string) {
   const record = await getCharacter(context, id);
 
@@ -76,7 +107,10 @@ async function exportCharacterJson(context: DatabaseContext, id: string) {
 async function importCharacterJson(context: DatabaseContext) {
   const result = await dialog.showOpenDialog({
     properties: ["openFile"],
-    filters: [{ name: "D&D Character Sheet JSON", extensions: ["json", "dndsheet.json"] }, { name: "JSON", extensions: ["json"] }],
+    filters: [
+      { name: "D&D Character Sheet JSON", extensions: ["json", "dndsheet.json"] },
+      { name: "JSON", extensions: ["json"] },
+    ],
   });
 
   if (result.canceled || result.filePaths.length === 0) {
@@ -120,15 +154,21 @@ export function registerIpcHandlers(context: DatabaseContext, getWindow: () => B
     ipcMain.removeHandler(channel);
   }
 
-  ipcMain.handle("app:get-info", async () => ({
-    appVersion: app.getVersion(),
-    databasePath: context.databasePath,
-    runtime: "electron" as const,
-    storageKind: "sqlite" as const,
-    isPackaged: app.isPackaged,
-    platform: process.platform,
-    userDataPath: app.getPath("userData"),
-  }));
+  ipcMain.handle("app:get-info", async () => {
+    const launchPath = getLaunchPath();
+
+    return {
+      appVersion: app.getVersion(),
+      builtAt: await getBuildTimestamp(launchPath),
+      databasePath: context.databasePath,
+      launchPath,
+      runtime: "electron" as const,
+      storageKind: "sqlite" as const,
+      isPackaged: app.isPackaged,
+      platform: process.platform,
+      userDataPath: app.getPath("userData"),
+    };
+  });
 
   ipcMain.handle("app:reveal-database-file", async () => {
     shell.showItemInFolder(context.databasePath);

@@ -1,6 +1,7 @@
 import { findCompendiumEntry, searchCompendiumSeed } from "../../shared/data/compendiumSeed";
 import { buildCharacterFromInput } from "../../shared/factories";
 import { parseCharacterImport, parseCharacterRecord } from "../../shared/validation";
+import packageManifest from "../../package.json";
 import type {
   AppInfo,
   BuilderInput,
@@ -142,8 +143,10 @@ function makeBrowserApi(): DndApi {
   return {
     app: {
       getInfo: async (): Promise<AppInfo> => ({
-        appVersion: "browser-dev",
+        appVersion: packageManifest.version,
+        builtAt: null,
         databasePath: "localStorage",
+        launchPath: window.location.origin,
         runtime: "browser-dev",
         storageKind: "localStorage",
         isPackaged: false,
