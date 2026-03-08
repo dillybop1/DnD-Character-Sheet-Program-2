@@ -22,6 +22,7 @@
 - This shell can still run the release verification flow without changing the global Node install by using `npx -y -p node@22 -p npm@10 npm run <script>`.
 - The clean release commit (`7ffcbfd`) and tag (`v0.1.0`) are already on `origin/main`.
 - This shell can push through Git + macOS keychain, but it does not have `gh`, `hub`, or an exposed GitHub API token for creating the GitHub release entry itself.
+- `docs/RELEASE_BODY_v0.1.0.md` now contains the prepared private-beta release text for the manual GitHub release form.
 - The rules engine now covers full casters, half casters, pact magic, homebrew-granted spells, and a broader equipment catalog, but the compendium content is still smaller than the eventual v1 surface.
 - The sheet now follows the reference page's structure, renders persistent vitals, and has completed the `M6-02` readability/print-tuning pass that the packaged export flow now relies on.
 - The latest `M6-02` pass tightened the masthead into a dedicated emblem column, added stronger section-header/banner hierarchy, and reduced print density so the exported sheet is closer to a deliberate one-page layout.
@@ -72,6 +73,7 @@
 ## Files Expected To Change Next
 
 - `docs/RELEASE.md`
+- `docs/RELEASE_BODY_v0.1.0.md`
 - `docs/STATUS.md`
 - `docs/CHECKLIST.md`
 
