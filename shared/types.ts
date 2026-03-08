@@ -412,6 +412,11 @@ export interface JsonExportV1 {
 export interface AppInfo {
   appVersion: string;
   databasePath: string;
+  runtime: "browser-dev" | "electron";
+  storageKind: "localStorage" | "sqlite";
+  isPackaged: boolean;
+  platform: string;
+  userDataPath: string;
 }
 
 export interface SearchInput {
@@ -423,6 +428,7 @@ export interface SearchInput {
 export interface DndApi {
   app: {
     getInfo: () => Promise<AppInfo>;
+    revealDatabaseFile: () => Promise<boolean>;
   };
   characters: {
     list: () => Promise<CharacterSummary[]>;

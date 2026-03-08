@@ -60,6 +60,7 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - `M6`: exact-style sheet structure and dynamic bindings
 - `M7`: spells, inventory, features, homebrew application
 - `M8`: print/PDF export, ornamental polish, QA, packaging verification
+- `M9`: release readiness, signing/notarization strategy, and publish handoff
 
 ## Acceptance Criteria
 
@@ -74,3 +75,4 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - Homebrew entries can be created and stored locally.
 - Future books can be added as new content sources without changing the base character record shape.
 - The app can build for macOS and Windows from the same codebase.
+- A validated `v0.1.0` candidate can be traced to concrete build commands, expected artifacts, and a documented release/signing checklist.

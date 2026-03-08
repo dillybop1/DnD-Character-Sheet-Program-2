@@ -4,6 +4,7 @@ import type { DndApi } from "../shared/types";
 const api: DndApi = {
   app: {
     getInfo: () => ipcRenderer.invoke("app:get-info"),
+    revealDatabaseFile: () => ipcRenderer.invoke("app:reveal-database-file"),
   },
   characters: {
     list: () => ipcRenderer.invoke("characters:list"),

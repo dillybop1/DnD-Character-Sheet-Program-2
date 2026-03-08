@@ -430,6 +430,11 @@ textarea {
   font-weight: 600;
 }
 
+.action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .action-button--secondary,
 .chip--active {
   background: var(--accent-soft);

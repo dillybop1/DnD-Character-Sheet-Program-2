@@ -144,7 +144,13 @@ function makeBrowserApi(): DndApi {
       getInfo: async (): Promise<AppInfo> => ({
         appVersion: "browser-dev",
         databasePath: "localStorage",
+        runtime: "browser-dev",
+        storageKind: "localStorage",
+        isPackaged: false,
+        platform: "browser",
+        userDataPath: "browser-storage",
       }),
+      revealDatabaseFile: async () => false,
     },
     characters: {
       list: async () => listStoredCharacters().map(toSummary),

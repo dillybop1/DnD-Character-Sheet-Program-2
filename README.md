@@ -31,7 +31,8 @@ Offline-first `Electron + React + TypeScript` desktop app for building, storing,
   - `npm run lint`
   - `npm run pack:win-local`
   - `npm run build:win-local`
-- Manual Windows packaged-app checks now pass for create/save/reopen, JSON export/import, PDF export, and reinstall-over-existing-data behavior. The remaining installer validation gap is macOS on a real Mac.
+- Manual packaged macOS and Windows checks now pass for install/launch, create/save/reopen, JSON export/import, PDF export, and reinstall-over-existing-data behavior.
+- The current release path is a private beta: the app is functionally validated, but the shipped macOS and Windows installers are intentionally unsigned. See [`docs/RELEASE.md`](docs/RELEASE.md).
 
 ## Setup
 
@@ -53,13 +54,14 @@ npm run build
 npm run pack
 npm run build:win-local
 npm run pack:win-local
+npm run release:verify-local
 ```
 
 ## Live Development
 
 `npm run dev` starts Vite on `http://localhost:5173` and uses a browser-backed mock of `window.dndApi`. Character data and homebrew entries persist in browser `localStorage`, so you can live-edit the UI and rules logic without waiting on Electron startup.
 
-The current sheet preview is in the "structural fidelity" stage: it now follows the reference sheet's major panel layout, but final ornamental polish and print-perfect tuning are still deferred to `M6-02`.
+The current sheet preview has completed the structural, readability, and print-tuning milestones needed for the first packaged release candidate.
 
 The content model is also source-aware now: characters persist an enabled source profile, and templates plus compendium entries carry source metadata so later books can be added as separate packages.
 
@@ -74,6 +76,12 @@ If Windows packaging is blocked by local `winCodeSign` symlink privileges, use t
 ```bash
 npm run pack:win-local
 npm run build:win-local
+```
+
+If you need a temporary Node `22.x` runtime without switching your global install, this repo can also run scripts through:
+
+```bash
+npx -y -p node@22 -p npm@10 npm run release:verify-local
 ```
 
 ## Cross-Machine Workflow

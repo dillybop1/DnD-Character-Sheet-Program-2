@@ -16,6 +16,7 @@
     "pack:win-local": "tsc -b && vite build && tsup && electron-builder --win dir --x64 -c.win.signAndEditExecutable=false",
     "pack": "tsc -b && vite build && tsup && electron-builder --dir",
     "preview": "vite preview",
+    "release:verify-local": "npm run typecheck && npm run test && npm run build && npm run pack:win-local && npm run build:win-local",
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "test": "vitest run",

@@ -1,25 +1,27 @@
 # Status Snapshot
 
-- Last updated: `2026-03-07 18:21 America/New_York`
+- Last updated: `2026-03-07 23:16 America/New_York`
 - Active branch: `main` (tracking `origin/main` at `https://github.com/dillybop1/DnD-Character-Sheet-Program-2.git`)
-- Current milestone: `M6`
-- Current task ID: `M6-02`
-- Last completed task: `M5-02`
+- Current milestone: `M9`
+- Current task ID: `M9-03`
+- Last completed task: `M9-02`
 
 ## Next 3 Actions
 
-1. Manually validate roster -> sheet -> edit -> export loops against the latest denser print mode so the routed workflow feels finished end to end.
-2. Check whether any remaining `M6-02` gaps are now purely cosmetic or whether one more targeted export/layout pass is still warranted before signoff.
-3. If the latest routed-sheet and print behavior hold up in manual checks, close `M6-02` and move the active task forward.
+1. Commit the current release candidate state so `v0.1.0` can be tagged from a clean snapshot instead of a dirty worktree.
+2. Tag `v0.1.0` from that clean commit and keep the verified private-beta artifacts aligned with the release notes.
+3. Publish a private `v0.1.0` release with the unsigned macOS/Windows caveat called out clearly.
 
 ## Blockers / Open Questions
 
 - A direct Electron-shell hot-run path is still blocked by Electron 35 resolving `require("electron")` to the installed binary path during local CLI runs, so the supported live workflow is browser-backed Vite dev.
 - Product direction is now explicit: keep character navigation inside one Electron window and do not add a second native BrowserWindow for the sheet view.
 - The routed workflow split is now in place: app launch lands on `/characters`, saved characters open a dedicated `/characters/:id` sheet route, and edits/new drafts use `/characters/new` plus `/characters/:id/edit`.
-- Fresh `npm install` on this machine fails under Node `24.13.0` + Python `3.14` because `better-sqlite3` falls back to `node-gyp`; use Node `22.x` for normal setup.
+- Fresh `npm install` under global Node `24.13.0` + Python `3.14` still fails because `better-sqlite3` falls back to `node-gyp`, but `npx -y -p node@22 -p npm@10 npm run release:verify-local` now passes on this machine as a working fallback.
+- The release path is now explicit: `v0.1.0` is a private beta that will ship unsigned on macOS and Windows, so signing/notarization is no longer the gating decision for this milestone.
+- This shell can still run the release verification flow without changing the global Node install by using `npx -y -p node@22 -p npm@10 npm run <script>`.
 - The rules engine now covers full casters, half casters, pact magic, homebrew-granted spells, and a broader equipment catalog, but the compendium content is still smaller than the eventual v1 surface.
-- The sheet now follows the reference page's structure, renders persistent vitals, and has a print-only export view, but ornamental polish plus final print tuning are still deferred to `M6-02`.
+- The sheet now follows the reference page's structure, renders persistent vitals, and has completed the `M6-02` readability/print-tuning pass that the packaged export flow now relies on.
 - The latest `M6-02` pass tightened the masthead into a dedicated emblem column, added stronger section-header/banner hierarchy, and reduced print density so the exported sheet is closer to a deliberate one-page layout.
 - The restored-window clipping issue was caused by layouts keying off viewport breakpoints while the sidebar reduced the real content width; `app.css` now adds `app-shell__main` container queries plus missing `min-width: 0` shrink constraints so the renderer reflows correctly when the app is not maximized.
 - The narrow-sheet ability cards now switch to canonical short labels (`STR`, `DEX`, `CON`, etc.) plus shorter save-row copy based on the ability-grid width, which is cleaner than word-wrapping full labels inside cramped cards.
@@ -47,7 +49,7 @@
 - The route split preserved the existing one-window export/reference workflow: roster import happens on the landing route, the saved-sheet route still supports JSON/PDF export plus compendium links, and the editor route keeps the live preview and linked reference panel.
 - Source-aware content packaging is now in place, but actual non-core books remain unimplemented until licensed content packages are added.
 - The default `npm run build` path still stalls on this machine when `electron-builder` extracts `winCodeSign` symlinks without the needed privilege / Developer Mode, while the local Windows validation path remains `npm run pack:win-local` plus `npm run build:win-local` when the existing installer output file is not locked by the environment.
-- Windows NSIS installer validation has now passed manually on this machine for create/save/reopen, JSON export/import, PDF export, and reinstall-over-existing-data persistence. The remaining installer validation gap for `M8-01` is macOS on actual Apple hardware.
+- Windows NSIS installer validation has now passed manually on this machine for create/save/reopen, JSON export/import, PDF export, and reinstall-over-existing-data persistence.
 - The latest local `M6-02` pass keeps the compact weapons/cantrips layout legible by labeling stacked table fields in narrow sheet widths, and the print stylesheet now avoids splitting key sheet panels as aggressively.
 - The current `M6-02` pass also balances `Class & Subclass Features` columns by weighted text length instead of a raw midpoint split, and print output now hides blank offense filler rows while avoiding breaks inside notes items and subsections.
 - The latest local `M6-02` pass also makes the lower notes panels intentionally compact instead of treating every notes block as a large lined page, and tightens masthead/vitals spacing so the sheet uses vertical space more efficiently without changing the data shown.
@@ -58,20 +60,24 @@
 - The latest local `M6-02` pass also separates manual notes from structured feature/background/species/feat lists on the sheet, and restructures the spellcasting summary into compact scan-friendly cells so the saved-sheet route reads more clearly before final print tuning.
 - The latest local `M6-02` pass also gives the dedicated saved-sheet route a clearer workspace header with save metadata, route-level actions, and a compact snapshot grid, while feat-based secondary spellcasting now lists the actual bonus spell names in both the top summary and Feats panel.
 - The latest local `M6-02` pass also adds a density-aware sheet mode for heavy spell/equipment/feature builds and marks the long weapons/features/feats/gear panels as splittable in print, so exported pages compact more aggressively and paginate with fewer forced all-or-nothing panel breaks.
+- The latest local validation pass also expands `Settings` into a more useful runtime/storage diagnostics surface with packaged-state details, user-data/database paths, and a `Reveal Database File` action, which should make installer and persistence checks less manual.
+- Manual packaged macOS validation has now passed for install/launch, runtime diagnostics, create-save-reopen, roster -> sheet -> edit routing, JSON export, PDF export, and reinstall-over-existing-data persistence, so `M8-01` is closed.
+- Manual packaged Windows validation has also passed for create/save/reopen, JSON export/import, PDF export, and reinstall-over-existing-data persistence, so release risk is now about signing/distribution rather than core functionality.
+- `docs/RELEASE.md` now carries the concrete `v0.1.0` candidate summary, build baseline, release gaps, and publish checklist so the release path is no longer implicit.
+- `docs/RELEASE.md` now also records the chosen private-beta distribution strategy: unsigned macOS + unsigned Windows, with expected trust warnings for testers.
+- `package.json` now includes `npm run release:verify-local`, and that full flow has passed locally through the temporary Node `22.x` `npx` fallback path.
 
 ## Files Expected To Change Next
 
-- `docs/PLAN.md`
-- `docs/CHECKLIST.md`
+- `docs/RELEASE.md`
 - `docs/STATUS.md`
-- `src/pages/CharacterSheetPage.tsx`
-- `src/components/SheetPreview.tsx`
-- `src/styles/app.css`
+- `README.md`
 
 ## Commands To Run First
 
 ```bash
-npm install
-npm run dev
-npm run build
+cat .nvmrc
+cat .node-version
+npx -y node@22 -v
+npx -y -p node@22 -p npm@10 npm run release:verify-local
 ```

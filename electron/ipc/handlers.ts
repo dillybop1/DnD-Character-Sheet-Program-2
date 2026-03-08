@@ -1,5 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
-import { app, dialog, ipcMain } from "electron";
+import { app, dialog, ipcMain, shell } from "electron";
 import type { BrowserWindow } from "electron";
 import type { BuilderInput, CharacterRecord, HomebrewEntry, SearchInput } from "../../shared/types";
 import { parseCharacterImport } from "../../shared/validation";
@@ -19,6 +19,7 @@ import {
 
 const CHANNELS = [
   "app:get-info",
+  "app:reveal-database-file",
   "characters:list",
   "characters:get",
   "characters:save",
@@ -121,7 +122,17 @@ export function registerIpcHandlers(context: DatabaseContext, getWindow: () => B
   ipcMain.handle("app:get-info", async () => ({
     appVersion: app.getVersion(),
     databasePath: context.databasePath,
+    runtime: "electron" as const,
+    storageKind: "sqlite" as const,
+    isPackaged: app.isPackaged,
+    platform: process.platform,
+    userDataPath: app.getPath("userData"),
   }));
+
+  ipcMain.handle("app:reveal-database-file", async () => {
+    shell.showItemInFolder(context.databasePath);
+    return true;
+  });
 
   ipcMain.handle("characters:list", async () => listCharacters(context));
   ipcMain.handle("characters:get", async (_event, id: string) => getCharacter(context, id));
