@@ -32,7 +32,7 @@ Offline-first `Electron + React + TypeScript` desktop app for building, storing,
   - `npm run pack:win-local`
   - `npm run build:win-local`
 - Manual packaged macOS and Windows checks now pass for install/launch, create/save/reopen, JSON export/import, PDF export, and reinstall-over-existing-data behavior.
-- The current release path is a private beta: the app is functionally validated, but the shipped macOS and Windows installers are intentionally unsigned. See [`docs/RELEASE.md`](docs/RELEASE.md).
+- The current `v0.1.0` release is a published private beta: the app is functionally validated, but the shipped macOS and Windows installers are intentionally unsigned. See [`docs/RELEASE.md`](docs/RELEASE.md).
 
 ## Setup
 

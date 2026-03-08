@@ -1,8 +1,8 @@
 # Release Readiness
 
-- Last updated: `2026-03-07 23:19 America/New_York`
+- Last updated: `2026-03-07 23:41 America/New_York`
 - Target release: `v0.1.0`
-- Current status: `private beta path selected; unsigned macOS + Windows release pending final publish`
+- Current status: `private beta published; unsigned macOS + Windows release is live for testers`
 
 ## Distribution Decision
 
@@ -31,6 +31,14 @@
 - The clean release commit is `7ffcbfd`, and tag `v0.1.0` has already been pushed to `origin`.
 - A ready-to-paste GitHub release body now lives in `docs/RELEASE_BODY_v0.1.0.md`.
 
+## Published Release
+
+- GitHub release: `https://github.com/dillybop1/DnD-Character-Sheet-Program-2/releases/tag/v0.1.0`
+- Published state: `private pre-release`
+- Attached installer assets:
+  - `DND Character Sheet-0.1.0-arm64.dmg`
+  - `DND Character Sheet Setup 0.1.0.exe`
+
 ## Build Baseline
 
 Use Node `22.x`.
@@ -54,8 +62,8 @@ Notes:
 
 ## Remaining Release Gaps
 
-- The private GitHub release entry still needs to be created and populated with the installers plus the unsigned-install caveat.
-- This shell can push through Git + macOS keychain, but it does not have `gh`, `hub`, or an exposed GitHub API token for creating the release entry programmatically.
+- No blocking gaps remain for the published private beta.
+- A future public release still needs a separate signing/notarization milestone.
 - If the installers are rebuilt again later, update this file if the artifact filenames change.
 
 ## Publish Checklist
@@ -66,6 +74,8 @@ Notes:
 4. Publish a private release for tag `v0.1.0`.
 5. Attach the DMG and NSIS installer artifacts.
 6. Include the unsigned-install caveat in the release notes.
+
+Status: completed for `v0.1.0`.
 
 ## Tester Caveats
 

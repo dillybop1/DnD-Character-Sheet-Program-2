@@ -1,16 +1,16 @@
 # Status Snapshot
 
-- Last updated: `2026-03-07 23:19 America/New_York`
+- Last updated: `2026-03-07 23:41 America/New_York`
 - Active branch: `main` (tracking `origin/main` at `https://github.com/dillybop1/DnD-Character-Sheet-Program-2.git`)
-- Current milestone: `M9`
-- Current task ID: `M9-03`
-- Last completed task: `M9-02`
+- Current milestone: `None`
+- Current task ID: `None`
+- Last completed task: `M9-03`
 
 ## Next 3 Actions
 
-1. Create the private GitHub release entry for the already-pushed tag `v0.1.0`.
-2. Attach the verified DMG and NSIS installer artifacts to that release.
-3. Close `M9-03` once the release notes call out the unsigned macOS/Windows caveat and the installers are available to testers.
+1. Collect tester feedback from the published private beta and decide whether a patch release is needed.
+2. If broader distribution is next, open a new milestone for signing/notarization and public-release hardening.
+3. If product work resumes first, define the next scoped milestone instead of extending the closed release tracker.
 
 ## Blockers / Open Questions
 
@@ -18,11 +18,11 @@
 - Product direction is now explicit: keep character navigation inside one Electron window and do not add a second native BrowserWindow for the sheet view.
 - The routed workflow split is now in place: app launch lands on `/characters`, saved characters open a dedicated `/characters/:id` sheet route, and edits/new drafts use `/characters/new` plus `/characters/:id/edit`.
 - Fresh `npm install` under global Node `24.13.0` + Python `3.14` still fails because `better-sqlite3` falls back to `node-gyp`, but `npx -y -p node@22 -p npm@10 npm run release:verify-local` now passes on this machine as a working fallback.
-- The release path is now explicit: `v0.1.0` is a private beta that will ship unsigned on macOS and Windows, so signing/notarization is no longer the gating decision for this milestone.
+- The published release path is now explicit: `v0.1.0` is a private beta that ships unsigned on macOS and Windows.
 - This shell can still run the release verification flow without changing the global Node install by using `npx -y -p node@22 -p npm@10 npm run <script>`.
 - The clean release commit (`7ffcbfd`) and tag (`v0.1.0`) are already on `origin/main`.
-- This shell can push through Git + macOS keychain, but it does not have `gh`, `hub`, or an exposed GitHub API token for creating the GitHub release entry itself.
-- `docs/RELEASE_BODY_v0.1.0.md` now contains the prepared private-beta release text for the manual GitHub release form.
+- The private GitHub release for `v0.1.0` is now published with the verified macOS and Windows installer assets attached.
+- `docs/RELEASE_BODY_v0.1.0.md` remains as the source text used for the published private-beta release notes.
 - The rules engine now covers full casters, half casters, pact magic, homebrew-granted spells, and a broader equipment catalog, but the compendium content is still smaller than the eventual v1 surface.
 - The sheet now follows the reference page's structure, renders persistent vitals, and has completed the `M6-02` readability/print-tuning pass that the packaged export flow now relies on.
 - The latest `M6-02` pass tightened the masthead into a dedicated emblem column, added stronger section-header/banner hierarchy, and reduced print density so the exported sheet is closer to a deliberate one-page layout.
@@ -69,13 +69,14 @@
 - `docs/RELEASE.md` now carries the concrete `v0.1.0` candidate summary, build baseline, release gaps, and publish checklist so the release path is no longer implicit.
 - `docs/RELEASE.md` now also records the chosen private-beta distribution strategy: unsigned macOS + unsigned Windows, with expected trust warnings for testers.
 - `package.json` now includes `npm run release:verify-local`, and that full flow has passed locally through the temporary Node `22.x` `npx` fallback path.
+- `M9-03` is now complete: the private GitHub release is published and all tracked milestone work is closed.
 
 ## Files Expected To Change Next
 
 - `docs/RELEASE.md`
-- `docs/RELEASE_BODY_v0.1.0.md`
 - `docs/STATUS.md`
 - `docs/CHECKLIST.md`
+- `docs/PLAN.md`
 
 ## Commands To Run First
 
