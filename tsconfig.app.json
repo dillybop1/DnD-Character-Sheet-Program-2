@@ -27,5 +27,8 @@
     "src",
     "shared",
     "tests"
+  ],
+  "exclude": [
+    "tests/startup.test.ts"
   ]
 }

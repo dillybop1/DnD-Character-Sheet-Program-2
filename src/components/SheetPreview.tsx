@@ -50,6 +50,15 @@ const PASSIVE_SKILL_LABELS: Array<{ key: "perception" | "investigation" | "insig
   { key: "insight", label: "Ins" },
 ];
 
+function splitStructuredEntries(items: string[], manualNote: string) {
+  const trimmedManualNote = manualNote.trim();
+
+  return {
+    entries: trimmedManualNote ? items.filter((item) => item !== trimmedManualNote) : items,
+    manualNote: trimmedManualNote,
+  };
+}
+
 function buildPips(total: number, filled: number, keyPrefix: string) {
   return Array.from({ length: total }, (_, index) => (
     <span
@@ -191,12 +200,19 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
   const classLabel = getClassTemplate(character.classId).name;
   const subclassTemplate = getSubclassTemplate(character.classId, character.subclass, character.enabledSourceIds);
   const subclassLabel = getSubclassLabel(character.classId, character.subclass, character.enabledSourceIds);
-  const speciesLabel = getSpeciesTemplate(character.speciesId).name;
+  const speciesTemplate = getSpeciesTemplate(character.speciesId);
+  const speciesLabel = speciesTemplate.name;
   const backgroundLabel = getBackgroundTemplate(character.backgroundId).name;
   const armor = getArmorTemplate(derived.equippedArmorId);
   const offenseRows = buildOffenseRows(derived);
   const emptyOffenseRows = Math.max(0, 6 - offenseRows.length);
-  const featureColumns = splitList(derived.classFeatures);
+  const classFeatureSection = splitStructuredEntries(derived.classFeatures, character.notes.classFeatures);
+  const backgroundFeatureSection = splitStructuredEntries(
+    derived.backgroundFeatures,
+    character.notes.backgroundFeatures,
+  );
+  const speciesTraitSection = splitStructuredEntries(derived.speciesTraits, character.notes.speciesTraits);
+  const featureColumns = splitList(classFeatureSection.entries);
   const featState = sanitizeFeatState(character.featIds, character.featSelections, {
     classId: character.classId,
     skillProficiencies: character.skillProficiencies,
@@ -212,15 +228,33 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
     }),
   }));
   const selectedFeatNames = new Set(selectedFeatEntries.map((entry) => entry.name));
-  const freeformFeatEntries = derived.feats.filter((entry) => !selectedFeatNames.has(entry));
+  const featNote = character.notes.feats.trim();
+  const freeformFeatEntries = derived.feats.filter((entry) => !selectedFeatNames.has(entry) && entry !== featNote);
   const spellSlotSummary = formatSpellSlotSummary(derived);
+  const bonusSpellIds = new Set(derived.spellcasting.bonusSpellcasting?.spellIds ?? []);
+  const bonusSpellNames = derived.spellcasting.knownSpells
+    .filter((spell) => bonusSpellIds.has(spell.id))
+    .map((spell) => spell.name);
   const primarySpellAttackSummary =
     derived.spellcasting.spellAttackBonus === null ? "No spell attack" : formatModifier(derived.spellcasting.spellAttackBonus);
+  const spellcastingFocusLabel = derived.spellcasting.spellcastingAbility
+    ? `${ABILITY_LABELS[derived.spellcasting.spellcastingAbility].long} focus`
+    : derived.spellcasting.bonusSpellcasting
+      ? "Feat spell line only"
+      : "No spellcasting";
   const equippedWeapons = derived.inventoryEntries.filter((entry) => entry.kind === "weapon" && entry.equipped);
   const carriedGear = derived.inventoryEntries.filter((entry) => entry.kind === "gear");
+  const denseSheetMode =
+    offenseRows.length >= 5 ||
+    classFeatureSection.entries.length >= 8 ||
+    selectedFeatRows.length + freeformFeatEntries.length >= 5 ||
+    carriedGear.length >= 10 ||
+    derived.spellcasting.spellSlotsMax.length >= 6 ||
+    bonusSpellNames.length >= 3 ||
+    derived.activeEffects.length >= 4;
 
   return (
-    <div className="record-sheet">
+    <div className={`record-sheet ${denseSheetMode ? "record-sheet--dense" : ""}`.trim()}>
       <section className="record-sheet__masthead">
         <article className="record-sheet__panel record-sheet__identity-panel">
           <div className="record-sheet__field record-sheet__field--wide">
@@ -498,11 +532,14 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
                 Initiative
               </ReferenceButton>
               <strong>{formatModifier(derived.initiative)}</strong>
+              <small>Dex {formatModifier(derived.abilityModifiers.dexterity)}</small>
             </article>
             <article className="record-sheet__summary-panel record-sheet__summary-panel--metric">
               <span>Speed</span>
               <strong>{derived.speed} ft</strong>
-              <small>{derived.size} size</small>
+              <small>
+                {speciesTemplate.size === derived.size ? speciesTemplate.name : `${speciesTemplate.name} | ${derived.size}`}
+              </small>
             </article>
             <article className="record-sheet__summary-panel record-sheet__summary-panel--senses">
               <ReferenceButton
@@ -531,16 +568,27 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
                 Spellcasting
               </ReferenceButton>
               <strong>{derived.spellcasting.spellSaveDC === null ? "None" : `DC ${derived.spellcasting.spellSaveDC}`}</strong>
-              <div className="record-sheet__spellcasting-summary">
-                <div className="record-sheet__spellcasting-line">
+              <small className="record-sheet__spellcasting-focus">{spellcastingFocusLabel}</small>
+              <div className="record-sheet__spellcasting-summary record-sheet__spellcasting-summary--grid">
+                <div className="record-sheet__spellcasting-cell">
                   <span>Attack</span>
                   <small>{primarySpellAttackSummary}</small>
                 </div>
-                <div className="record-sheet__spellcasting-line">
+                <div className="record-sheet__spellcasting-cell">
                   <span>Slots</span>
                   <small>{spellSlotSummary}</small>
                 </div>
-                {derived.spellcasting.bonusSpellcasting ? (
+                <div className="record-sheet__spellcasting-cell">
+                  <span>Ready</span>
+                  <small>{derived.spellcasting.preparedSpells.length}</small>
+                </div>
+                <div className="record-sheet__spellcasting-cell">
+                  <span>Known</span>
+                  <small>{derived.spellcasting.knownSpells.length}</small>
+                </div>
+              </div>
+              {derived.spellcasting.bonusSpellcasting ? (
+                <div className="record-sheet__spellcasting-summary">
                   <div className="record-sheet__spellcasting-line">
                     <span>{derived.spellcasting.bonusSpellcasting.sourceLabel}</span>
                     <small>
@@ -548,12 +596,18 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
                       {formatModifier(derived.spellcasting.bonusSpellcasting.spellAttackBonus)}
                     </small>
                   </div>
-                ) : null}
-              </div>
+                  {bonusSpellNames.length > 0 ? (
+                    <div className="record-sheet__spellcasting-line">
+                      <span>Feat Spells</span>
+                      <small>{bonusSpellNames.join(", ")}</small>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
             </article>
           </div>
 
-          <article className="record-sheet__panel record-sheet__weapons-panel">
+          <article className="record-sheet__panel record-sheet__panel--splittable record-sheet__weapons-panel">
             <header className="record-sheet__panel-header">Weapons & Damage Cantrips</header>
             <div className="record-sheet__table record-sheet__table--compact">
               <div className="record-sheet__table-head">Name</div>
@@ -594,7 +648,7 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
             </div>
           </article>
 
-          <article className="record-sheet__panel record-sheet__notes-panel">
+          <article className="record-sheet__panel record-sheet__panel--splittable record-sheet__notes-panel">
             <header className="record-sheet__panel-header">Class &amp; Subclass Features</header>
             <div className="record-sheet__notes-columns">
               {featureColumns.map((column, columnIndex) => (
@@ -602,13 +656,19 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
                   key={`feature-column-${columnIndex}`}
                   className="record-sheet__notes-list record-sheet__notes-list--dense"
                 >
-                  {column.length === 0 ? <li>Class notes pending.</li> : null}
+                  {column.length === 0 ? <li>Class features pending.</li> : null}
                   {column.map((feature) => (
                     <li key={`${feature}-${columnIndex}`}>{feature}</li>
                   ))}
                 </ul>
               ))}
             </div>
+            {classFeatureSection.manualNote ? (
+              <div className="record-sheet__notes-subsection">
+                <span className="record-sheet__notes-kicker">Notes</span>
+                <p className="record-sheet__notes-paragraph">{classFeatureSection.manualNote}</p>
+              </div>
+            ) : null}
           </article>
 
           <div className="record-sheet__bottom-row">
@@ -622,24 +682,36 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
                 </ReferenceButton>
               </header>
               <ul className="record-sheet__notes-list">
-                {derived.backgroundFeatures.length === 0 ? <li>Background features pending.</li> : null}
-                {derived.backgroundFeatures.map((feature) => (
+                {backgroundFeatureSection.entries.length === 0 ? <li>Background features pending.</li> : null}
+                {backgroundFeatureSection.entries.map((feature) => (
                   <li key={feature}>{feature}</li>
                 ))}
               </ul>
+              {backgroundFeatureSection.manualNote ? (
+                <div className="record-sheet__notes-subsection">
+                  <span className="record-sheet__notes-kicker">Notes</span>
+                  <p className="record-sheet__notes-paragraph">{backgroundFeatureSection.manualNote}</p>
+                </div>
+              ) : null}
             </article>
 
             <article className="record-sheet__panel record-sheet__notes-panel record-sheet__notes-panel--compact">
               <header className="record-sheet__panel-header">Species Traits</header>
               <ul className="record-sheet__notes-list">
-                {derived.speciesTraits.length === 0 ? <li>Species traits pending.</li> : null}
-                {derived.speciesTraits.map((trait) => (
+                {speciesTraitSection.entries.length === 0 ? <li>Species traits pending.</li> : null}
+                {speciesTraitSection.entries.map((trait) => (
                   <li key={trait}>{trait}</li>
                 ))}
               </ul>
+              {speciesTraitSection.manualNote ? (
+                <div className="record-sheet__notes-subsection">
+                  <span className="record-sheet__notes-kicker">Notes</span>
+                  <p className="record-sheet__notes-paragraph">{speciesTraitSection.manualNote}</p>
+                </div>
+              ) : null}
             </article>
 
-            <article className="record-sheet__panel record-sheet__notes-panel record-sheet__notes-panel--compact">
+            <article className="record-sheet__panel record-sheet__panel--splittable record-sheet__notes-panel record-sheet__notes-panel--compact">
               <header className="record-sheet__panel-header">Feats</header>
               <ul className="record-sheet__notes-list">
                 {selectedFeatRows.length === 0 && freeformFeatEntries.length === 0 ? <li>No feats selected.</li> : null}
@@ -660,6 +732,25 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
                   <li key={entry}>{entry}</li>
                 ))}
               </ul>
+              {featNote ? (
+                <div className="record-sheet__notes-subsection">
+                  <span className="record-sheet__notes-kicker">Notes</span>
+                  <p className="record-sheet__notes-paragraph">{featNote}</p>
+                </div>
+              ) : null}
+              {derived.spellcasting.bonusSpellcasting ? (
+                <div className="record-sheet__notes-subsection">
+                  <span className="record-sheet__notes-kicker">Feat Spellcasting</span>
+                  <p className="record-sheet__notes-paragraph">
+                    {bonusSpellNames.length > 0 ? bonusSpellNames.join(", ") : "No feat-granted spells selected."}
+                  </p>
+                  <p className="record-sheet__notes-detail">
+                    {derived.spellcasting.bonusSpellcasting.sourceLabel}: DC{" "}
+                    {derived.spellcasting.bonusSpellcasting.spellSaveDC} | Atk{" "}
+                    {formatModifier(derived.spellcasting.bonusSpellcasting.spellAttackBonus)}
+                  </p>
+                </div>
+              ) : null}
               {derived.activeEffects.length > 0 ? (
                 <div className="record-sheet__notes-subsection">
                   <span className="record-sheet__notes-kicker">Active Effects</span>
@@ -673,7 +764,7 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
             </article>
           </div>
 
-          <article className="record-sheet__panel record-sheet__notes-panel record-sheet__notes-panel--compact">
+          <article className="record-sheet__panel record-sheet__panel--splittable record-sheet__notes-panel record-sheet__notes-panel--compact">
             <header className="record-sheet__panel-header">Carried Gear</header>
             <ul className="record-sheet__notes-list record-sheet__notes-list--gear">
               {carriedGear.length === 0 ? <li>No extra gear tracked.</li> : null}

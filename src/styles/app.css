@@ -236,6 +236,12 @@ button {
   font-size: 0.82rem;
 }
 
+.library-item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
 .library-item__pill {
   display: inline-flex;
   align-items: center;
@@ -1177,11 +1183,11 @@ textarea {
 }
 
 .record-sheet__summary-row {
-  grid-template-columns: repeat(3, minmax(0, 0.82fr)) minmax(0, 1.35fr);
+  grid-template-columns: minmax(0, 0.78fr) minmax(0, 0.82fr) minmax(0, 1fr) minmax(0, 1.48fr);
 }
 
 .record-sheet__summary-panel {
-  min-height: 90px;
+  min-height: 96px;
   align-content: start;
 }
 
@@ -1203,6 +1209,13 @@ textarea {
 
 .record-sheet__summary-panel--spellcasting strong {
   margin-bottom: 0.08rem;
+}
+
+.record-sheet__spellcasting-focus {
+  display: block;
+  margin-top: -0.08rem;
+  margin-bottom: 0.08rem;
+  line-height: 1.2;
 }
 
 .record-sheet__passive-grid {
@@ -1237,6 +1250,31 @@ textarea {
   display: grid;
   gap: 0.28rem;
   min-width: 0;
+}
+
+.record-sheet__spellcasting-summary--grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.32rem 0.42rem;
+}
+
+.record-sheet__spellcasting-cell {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+  padding-top: 0.28rem;
+  border-top: 1px solid var(--sheet-line);
+}
+
+.record-sheet__spellcasting-cell span {
+  font-size: 0.61rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sheet-muted);
+}
+
+.record-sheet__spellcasting-cell small {
+  min-width: 0;
+  line-height: 1.25;
 }
 
 .record-sheet__spellcasting-line {
@@ -1398,14 +1436,61 @@ textarea {
 }
 
 .record-sheet__notes-detail {
-  margin-top: 0.18rem;
+  margin: 0.18rem 0 0;
   font-size: 0.78rem;
   line-height: 1.35;
   color: var(--sheet-muted);
 }
 
+.record-sheet__notes-paragraph {
+  margin: 0;
+  color: var(--sheet-ink);
+  line-height: 1.38;
+  overflow-wrap: anywhere;
+}
+
 .record-sheet__notes-panel--compact .record-sheet__notes-detail {
   margin-top: 0.12rem;
+}
+
+.record-sheet--dense {
+  gap: 0.74rem;
+}
+
+.record-sheet--dense .record-sheet__body,
+.record-sheet--dense .record-sheet__left-rail,
+.record-sheet--dense .record-sheet__right-rail {
+  gap: 0.78rem;
+}
+
+.record-sheet--dense .record-sheet__badge-row,
+.record-sheet--dense .record-sheet__summary-row,
+.record-sheet--dense .record-sheet__bottom-row {
+  gap: 0.48rem;
+}
+
+.record-sheet--dense .record-sheet__mini-panel,
+.record-sheet--dense .record-sheet__summary-panel {
+  padding: 0.64rem 0.74rem;
+}
+
+.record-sheet--dense .record-sheet__skills-panel,
+.record-sheet--dense .record-sheet__weapons-panel,
+.record-sheet--dense .record-sheet__notes-panel {
+  padding: 0.78rem 0.86rem 0.84rem;
+}
+
+.record-sheet--dense .record-sheet__panel-header {
+  margin-bottom: 0.62rem;
+}
+
+.record-sheet--dense .record-sheet__notes-panel {
+  min-height: 204px;
+}
+
+.record-sheet--dense .record-sheet__notes-panel--compact,
+.record-sheet--dense .record-sheet__bottom-row .record-sheet__notes-panel--compact {
+  min-height: 168px;
 }
 
 .record-sheet__bottom-row {
@@ -1451,6 +1536,91 @@ textarea {
 .detail-card__header > div {
   display: grid;
   gap: 0.2rem;
+}
+
+.sheet-route-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.9fr);
+  gap: 1rem;
+  padding: 1.05rem 1.15rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 1.15rem;
+  background:
+    linear-gradient(180deg, rgba(255, 238, 211, 0.04), transparent 55%),
+    rgba(255, 255, 255, 0.025);
+}
+
+.sheet-route-overview__identity,
+.sheet-route-overview__actions {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.sheet-route-overview__eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sheet-route-overview__headline {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.sheet-route-overview__headline strong {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 2.15rem;
+  line-height: 0.94;
+}
+
+.sheet-route-overview__headline span {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.sheet-route-overview__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.sheet-route-overview__actions {
+  align-content: start;
+  padding-left: 1rem;
+  border-left: 1px solid rgba(215, 184, 126, 0.18);
+}
+
+.sheet-route-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.sheet-route-metric {
+  display: grid;
+  gap: 0.22rem;
+  min-width: 0;
+  padding: 0.75rem 0.8rem;
+  border: 1px solid rgba(215, 184, 126, 0.18);
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.sheet-route-metric span {
+  font-size: 0.71rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sheet-route-metric strong {
+  line-height: 1.12;
+  overflow-wrap: anywhere;
 }
 
 .payload-view {
@@ -1523,6 +1693,21 @@ textarea {
   .form-grid,
   .ability-editor,
   .skill-editor {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sheet-route-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .sheet-route-overview__actions {
+    padding-left: 0;
+    padding-top: 0.9rem;
+    border-left: 0;
+    border-top: 1px solid rgba(215, 184, 126, 0.18);
+  }
+
+  .sheet-route-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1645,6 +1830,10 @@ textarea {
   .form-grid,
   .ability-editor,
   .skill-editor {
+    grid-template-columns: 1fr;
+  }
+
+  .sheet-route-metrics {
     grid-template-columns: 1fr;
   }
 
@@ -1903,6 +2092,13 @@ textarea {
     background: rgba(255, 255, 255, 0.85);
     box-shadow: none;
     break-inside: avoid;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  .record-sheet__panel--splittable {
+    break-inside: auto;
+    page-break-inside: auto;
   }
 
   .record-sheet__panel-header {
@@ -1958,6 +2154,40 @@ textarea {
 
   .record-sheet__table-row--empty {
     display: none;
+  }
+
+  .record-sheet--dense {
+    gap: 0.4rem;
+    padding: 0.08in;
+  }
+
+  .record-sheet--dense .record-sheet__masthead,
+  .record-sheet--dense .record-sheet__body,
+  .record-sheet--dense .record-sheet__summary-row,
+  .record-sheet--dense .record-sheet__hero-emblems,
+  .record-sheet--dense .record-sheet__badge-row,
+  .record-sheet--dense .record-sheet__bottom-row {
+    gap: 0.34rem;
+  }
+
+  .record-sheet--dense .record-sheet__mini-panel,
+  .record-sheet--dense .record-sheet__summary-panel {
+    padding: 0.42rem 0.5rem;
+  }
+
+  .record-sheet--dense .record-sheet__skills-panel,
+  .record-sheet--dense .record-sheet__weapons-panel,
+  .record-sheet--dense .record-sheet__notes-panel {
+    padding: 0.52rem 0.58rem 0.58rem;
+  }
+
+  .record-sheet--dense .record-sheet__panel-header {
+    margin-bottom: 0.28rem;
+    padding-bottom: 0.16rem;
+  }
+
+  .record-sheet--dense .record-sheet__notes-list {
+    gap: 0.22rem;
   }
 
   .record-sheet__link-button {

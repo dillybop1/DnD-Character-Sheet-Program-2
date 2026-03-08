@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { calculateDerivedState } from "../../shared/calculations";
 import {
   getArmorTemplate,
@@ -10,7 +10,6 @@ import {
   getFeatTemplate,
   getGearTemplate,
   getClassTemplate,
-  getSpeciesTemplate,
   getSubclassLabel,
   isFeatSelectable,
   getWeaponTemplate,
@@ -35,7 +34,7 @@ import {
   normalizeInventory,
 } from "../../shared/inventory";
 import { ABILITY_NAMES, SKILL_NAMES } from "../../shared/types";
-import type { AbilityName, BuilderInput, CharacterRecord, CharacterSummary, CompendiumEntry, HomebrewEntry, InventoryItemRecord, InventoryItemKind, SkillName } from "../../shared/types";
+import type { AbilityName, BuilderInput, CharacterRecord, CompendiumEntry, HomebrewEntry, InventoryItemRecord, InventoryItemKind, SkillName } from "../../shared/types";
 import { CompendiumEntryDetail } from "../components/CompendiumEntryDetail";
 import { SectionCard } from "../components/SectionCard";
 import { SheetPreview } from "../components/SheetPreview";
@@ -154,51 +153,72 @@ function inventoryTemplateLabel(templateType: InventoryItemKind, templateId: str
 
 export function CharactersPage() {
   const navigate = useNavigate();
-  const [characters, setCharacters] = useState<CharacterSummary[]>([]);
+  const { characterId } = useParams();
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterRecord | null>(null);
   const [draft, setDraft] = useState<BuilderInput>(createDefaultBuilderInput());
   const [homebrewEntries, setHomebrewEntries] = useState<HomebrewEntry[]>([]);
-  const [message, setMessage] = useState("Create a new character or select one from the library.");
+  const [message, setMessage] = useState(
+    characterId ? "Update the builder fields and save changes." : "Create a new character draft.",
+  );
   const [referenceEntry, setReferenceEntry] = useState<CompendiumEntry | null>(null);
   const [referenceStatus, setReferenceStatus] = useState(
     "Click a class, subclass, spell, weapon, armor, gear, or rule label to inspect it here.",
   );
   const [loading, setLoading] = useState(true);
-
-  async function loadCharacters(selectedId?: string | null) {
-    const nextCharacters = await dndApi.characters.list();
-    setCharacters(nextCharacters);
-
-    const targetId = selectedId ?? nextCharacters[0]?.id ?? null;
-    if (!targetId) {
-      setSelectedCharacter(null);
-      setDraft(createDefaultBuilderInput());
-      return;
-    }
-
-    const record = await dndApi.characters.get(targetId);
-    if (record) {
-      setSelectedCharacter(record);
-      setDraft(builderInputFromCharacter(record));
-    }
-  }
-
-  async function loadHomebrew() {
-    const entries = await dndApi.homebrew.list();
-    setHomebrewEntries(entries);
-  }
+  const [missingCharacter, setMissingCharacter] = useState(false);
 
   useEffect(() => {
+    let isCancelled = false;
+
     async function bootstrap() {
-      await Promise.all([loadCharacters(), loadHomebrew()]);
+      const [entries, record] = await Promise.all([
+        dndApi.homebrew.list(),
+        characterId ? dndApi.characters.get(characterId) : Promise.resolve(null),
+      ]);
+
+      if (isCancelled) {
+        return;
+      }
+
+      setHomebrewEntries(entries);
+
+      if (!characterId) {
+        setMissingCharacter(false);
+        setSelectedCharacter(null);
+        setDraft(createDefaultBuilderInput());
+        setLoading(false);
+        return;
+      }
+
+      if (!record) {
+        setMissingCharacter(true);
+        setSelectedCharacter(null);
+        setDraft(createDefaultBuilderInput());
+        setMessage("The requested character could not be loaded.");
+        setLoading(false);
+        return;
+      }
+
+      setMissingCharacter(false);
+      setSelectedCharacter(record);
+      setDraft(builderInputFromCharacter(record));
       setLoading(false);
     }
 
+    setLoading(true);
     bootstrap().catch((error: unknown) => {
+      if (isCancelled) {
+        return;
+      }
+
       setMessage(error instanceof Error ? error.message : "Failed to load local data.");
       setLoading(false);
     });
-  }, []);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [characterId]);
 
   const activeHomebrew = homebrewEntries.filter((entry) => draft.homebrewIds.includes(entry.id));
   const previewCharacter = buildPreviewCharacter(draft, selectedCharacter, activeHomebrew);
@@ -822,7 +842,8 @@ export function CharactersPage() {
         const created = await dndApi.builder.createFromWizard(draft);
         setSelectedCharacter(created);
         setDraft(builderInputFromCharacter(created));
-        await loadCharacters(created.id);
+        setMissingCharacter(false);
+        navigate(`/characters/${created.id}/edit`, { replace: true });
         setMessage(`Created ${created.name}.`);
         return;
       }
@@ -833,7 +854,6 @@ export function CharactersPage() {
       });
       setSelectedCharacter(updated);
       setDraft(builderInputFromCharacter(updated));
-      await loadCharacters(updated.id);
       setMessage(`Saved ${updated.name}.`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to save character.");
@@ -848,26 +868,7 @@ export function CharactersPage() {
     }
 
     await dndApi.characters.delete(selectedCharacter.id);
-    await loadCharacters();
-    setMessage(`Deleted ${selectedCharacter.name}.`);
-  }
-
-  async function handleImport() {
-    try {
-      const imported = await dndApi.characters.importJson();
-
-      if (!imported) {
-        setMessage("Import canceled.");
-        return;
-      }
-
-      setSelectedCharacter(imported);
-      setDraft(builderInputFromCharacter(imported));
-      await loadCharacters(imported.id);
-      setMessage(`Imported ${imported.name}.`);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Unable to import character JSON.");
-    }
+    navigate("/characters", { replace: true });
   }
 
   async function handleExport(kind: "exportJson" | "exportPdf") {
@@ -881,73 +882,88 @@ export function CharactersPage() {
   }
 
   if (loading) {
-    return <div className="empty-state">Loading character library...</div>;
+    return <div className="empty-state">Loading character editor...</div>;
+  }
+
+  if (missingCharacter) {
+    return (
+      <div className="workspace">
+        <SectionCard
+          title="Character Not Found"
+          subtitle="Editor route"
+        >
+          <div className="stack-sm">
+            <p className="muted-copy">The requested character could not be loaded for editing.</p>
+            <div className="action-row">
+              <button
+                className="action-button"
+                onClick={() => navigate("/characters")}
+                type="button"
+              >
+                Back to Roster
+              </button>
+              <button
+                className="action-button action-button--secondary"
+                onClick={() => navigate("/characters/new", { replace: true })}
+                type="button"
+              >
+                New Character
+              </button>
+            </div>
+          </div>
+        </SectionCard>
+      </div>
+    );
   }
 
   return (
     <div className="workspace">
       <SectionCard
-        title="Character Library"
-        subtitle="Saved locally"
+        title={selectedCharacter ? `Edit ${selectedCharacter.name}` : "Create Character"}
+        subtitle={selectedCharacter ? "Creator / editor route" : "New character draft"}
       >
-        <div className="stack-sm">
+        <div className="detail-card">
+          <div className="detail-card__header">
+            <strong>Editor Actions</strong>
+            <span>{selectedCharacter ? "Saved character" : "Unsaved draft"}</span>
+          </div>
           <div className="action-row">
             <button
               className="action-button action-button--secondary"
-              onClick={() => {
-                setSelectedCharacter(null);
-                setDraft(createDefaultBuilderInput());
-                setMessage("Draft reset for a new character.");
-              }}
+              onClick={() => navigate("/characters")}
               type="button"
             >
-              New Character
+              Back to Roster
             </button>
-            <button
-              className="action-button action-button--secondary"
-              onClick={() => void handleImport()}
-              type="button"
-            >
-              Import JSON
-            </button>
+            {selectedCharacter ? (
+              <button
+                className="action-button action-button--secondary"
+                onClick={() => navigate(`/characters/${selectedCharacter.id}`)}
+                type="button"
+              >
+                Open Sheet
+              </button>
+            ) : null}
+            {!selectedCharacter ? (
+              <button
+                className="action-button action-button--secondary"
+                onClick={() => {
+                  setDraft(createDefaultBuilderInput());
+                  setMessage("Draft reset.");
+                }}
+                type="button"
+              >
+                Reset Draft
+              </button>
+            ) : null}
           </div>
-          <div className="library-list">
-            {characters.length === 0 ? <p className="muted-copy">No saved characters yet.</p> : null}
-            {characters.map((character) => {
-              const classLabel = getClassTemplate(character.classId).name;
-              const speciesLabel = getSpeciesTemplate(character.speciesId).name;
-
-              return (
-                <button
-                  key={character.id}
-                  className={`library-item ${selectedCharacter?.id === character.id ? "library-item--active" : ""}`}
-                  onClick={async () => {
-                    const record = await dndApi.characters.get(character.id);
-                    if (record) {
-                      setSelectedCharacter(record);
-                      setDraft(builderInputFromCharacter(record));
-                      setMessage(`Loaded ${record.name}.`);
-                    }
-                  }}
-                  type="button"
-                >
-                  <strong>{character.name}</strong>
-                  <div className="library-item__meta">
-                    <span className="library-item__pill">Level {character.level}</span>
-                    <span>{classLabel}</span>
-                    <span>{speciesLabel}</span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+          <p className="muted-copy">
+            {selectedCharacter
+              ? "This route keeps the full guided builder and live preview for an existing saved character."
+              : "Build a new character here, then save to convert this draft into a routed saved sheet."}
+          </p>
         </div>
-      </SectionCard>
 
-      <SectionCard
-        title="Guided Builder"
-        subtitle="Editable draft"
-      >
         <div className="form-grid">
           <label>
             <span>Name</span>

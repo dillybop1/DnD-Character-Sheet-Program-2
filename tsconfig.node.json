@@ -23,6 +23,7 @@
   "include": [
     "electron",
     "shared",
+    "tests/startup.test.ts",
     "tsup.config.ts",
     "vite.config.ts"
   ]

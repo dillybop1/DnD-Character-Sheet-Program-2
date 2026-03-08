@@ -1,4 +1,6 @@
 import { HashRouter, NavLink, Navigate, Outlet, Route, Routes } from "react-router-dom";
+import { CharacterRosterPage } from "./pages/CharacterRosterPage";
+import { CharacterSheetPage } from "./pages/CharacterSheetPage";
 import { CharactersPage } from "./pages/CharactersPage";
 import { CompendiumPage } from "./pages/CompendiumPage";
 import { HomebrewPage } from "./pages/HomebrewPage";
@@ -68,8 +70,20 @@ export default function App() {
             index
           />
           <Route
-            element={<CharactersPage />}
+            element={<CharacterRosterPage />}
             path="characters"
+          />
+          <Route
+            element={<CharactersPage />}
+            path="characters/new"
+          />
+          <Route
+            element={<CharacterSheetPage />}
+            path="characters/:characterId"
+          />
+          <Route
+            element={<CharactersPage />}
+            path="characters/:characterId/edit"
           />
           <Route
             element={<CompendiumPage />}

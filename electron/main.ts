@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { app, BrowserWindow } from "electron";
 import { getDatabaseContext } from "./db/client";
 import { registerIpcHandlers } from "./ipc/handlers";
+import { createStartupErrorHtml, getRendererLoadPlan } from "./startup";
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -36,11 +37,49 @@ async function createMainWindow() {
     },
   });
 
-  if (process.env.VITE_DEV_SERVER_URL) {
-    await mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
-  } else {
-    await mainWindow.loadFile(join(__dirname, "../dist/index.html"));
+  let showedStartupError = false;
+
+  const showStartupError = async (title: string, details: string[]) => {
+    if (!mainWindow || showedStartupError) {
+      return;
+    }
+
+    showedStartupError = true;
+    await mainWindow.loadURL(
+      `data:text/html;charset=UTF-8,${encodeURIComponent(createStartupErrorHtml({ title, details }))}`,
+    );
+  };
+
+  mainWindow.webContents.on(
+    "did-fail-load",
+    async (_event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+      if (!isMainFrame) {
+        return;
+      }
+
+      await showStartupError("Renderer failed to load", [
+        `Electron reported ${errorCode}: ${errorDescription}.`,
+        `Attempted URL: ${validatedURL || "unknown"}.`,
+      ]);
+    },
+  );
+
+  const rendererLoadPlan = getRendererLoadPlan(
+    join(__dirname, "../dist"),
+    process.env.VITE_DEV_SERVER_URL,
+  );
+
+  if (rendererLoadPlan.kind === "dev-server") {
+    await mainWindow.loadURL(rendererLoadPlan.url);
+    return;
   }
+
+  if (rendererLoadPlan.kind === "startup-error") {
+    await showStartupError(rendererLoadPlan.issue.title, rendererLoadPlan.issue.details);
+    return;
+  }
+
+  await mainWindow.loadFile(rendererLoadPlan.htmlPath);
 }
 
 async function bootstrap() {

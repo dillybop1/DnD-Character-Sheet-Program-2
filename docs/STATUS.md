@@ -1,22 +1,22 @@
 # Status Snapshot
 
-- Last updated: `2026-03-07 16:03 America/New_York`
+- Last updated: `2026-03-07 18:21 America/New_York`
 - Active branch: `main` (tracking `origin/main` at `https://github.com/dillybop1/DnD-Character-Sheet-Program-2.git`)
-- Current milestone: `M5 (reopened)`
-- Current task ID: `M5-02`
-- Last completed task: `M7-17`
+- Current milestone: `M6`
+- Current task ID: `M6-02`
+- Last completed task: `M5-02`
 
 ## Next 3 Actions
 
-1. Split the current `/characters` workspace into a roster landing route, a dedicated sheet route, and a creator/editor route with live preview while keeping everything inside the same Electron window.
-2. Preserve current edit, compendium-link, JSON import/export, and PDF export behavior across that route split so the new sheet page is not just a dead read-only surface.
-3. After the route split lands, resume `M6-02` sheet polish and rerun packaged-app checks while `M8-01` stays blocked on real-macOS validation.
+1. Manually validate roster -> sheet -> edit -> export loops against the latest denser print mode so the routed workflow feels finished end to end.
+2. Check whether any remaining `M6-02` gaps are now purely cosmetic or whether one more targeted export/layout pass is still warranted before signoff.
+3. If the latest routed-sheet and print behavior hold up in manual checks, close `M6-02` and move the active task forward.
 
 ## Blockers / Open Questions
 
 - A direct Electron-shell hot-run path is still blocked by Electron 35 resolving `require("electron")` to the installed binary path during local CLI runs, so the supported live workflow is browser-backed Vite dev.
 - Product direction is now explicit: keep character navigation inside one Electron window and do not add a second native BrowserWindow for the sheet view.
-- Working assumption for `M5-02`: existing characters should expose an `Edit` action that routes into the same creator/editor page used for new characters, preloaded with the current record.
+- The routed workflow split is now in place: app launch lands on `/characters`, saved characters open a dedicated `/characters/:id` sheet route, and edits/new drafts use `/characters/new` plus `/characters/:id/edit`.
 - Fresh `npm install` on this machine fails under Node `24.13.0` + Python `3.14` because `better-sqlite3` falls back to `node-gyp`; use Node `22.x` for normal setup.
 - The rules engine now covers full casters, half casters, pact magic, homebrew-granted spells, and a broader equipment catalog, but the compendium content is still smaller than the eventual v1 surface.
 - The sheet now follows the reference page's structure, renders persistent vitals, and has a print-only export view, but ornamental polish plus final print tuning are still deferred to `M6-02`.
@@ -44,6 +44,7 @@
 - Character library, compendium, and homebrew lists now render readable metadata labels instead of raw ids, and the previous mojibake punctuation has been removed from the renderer copy.
 - Custom app icon assets now live in `build/` as a checked-in SVG source plus generated `png` / `ico` outputs, and Electron packaging/runtime are wired to use them instead of the default Electron icon.
 - The packaged blank-window bug was caused by Vite emitting absolute `/assets/...` paths for `file://` loads; `vite.config.ts` now uses `base: "./"` and the rebuilt local Windows installer/package completes with relative asset paths.
+- The route split preserved the existing one-window export/reference workflow: roster import happens on the landing route, the saved-sheet route still supports JSON/PDF export plus compendium links, and the editor route keeps the live preview and linked reference panel.
 - Source-aware content packaging is now in place, but actual non-core books remain unimplemented until licensed content packages are added.
 - The default `npm run build` path still stalls on this machine when `electron-builder` extracts `winCodeSign` symlinks without the needed privilege / Developer Mode, while the local Windows validation path remains `npm run pack:win-local` plus `npm run build:win-local` when the existing installer output file is not locked by the environment.
 - Windows NSIS installer validation has now passed manually on this machine for create/save/reopen, JSON export/import, PDF export, and reinstall-over-existing-data persistence. The remaining installer validation gap for `M8-01` is macOS on actual Apple hardware.
@@ -54,21 +55,23 @@
 - The latest local `M6-02` pass also compresses the `Weapons & Damage Cantrips` table into a denser presentation and turns `Carried Gear` into a compact two-column equipment list with lighter metadata, which helps equipment-heavy characters stay closer to one page.
 - The current local `M6-02` pass also tightens the left-rail `Skills` metrics and converts the `Weapons` / `Armors` loadout section from wrapped inline links into compact lists, so martial/equipment-heavy builds waste less space on the sheet's left column.
 - The latest local `M6-02` pass also makes the badge/summary panels more uniform and trims print-only spacing in those top metric rows, so the upper sheet reads more consistently and wastes less paper height.
+- The latest local `M6-02` pass also separates manual notes from structured feature/background/species/feat lists on the sheet, and restructures the spellcasting summary into compact scan-friendly cells so the saved-sheet route reads more clearly before final print tuning.
+- The latest local `M6-02` pass also gives the dedicated saved-sheet route a clearer workspace header with save metadata, route-level actions, and a compact snapshot grid, while feat-based secondary spellcasting now lists the actual bonus spell names in both the top summary and Feats panel.
+- The latest local `M6-02` pass also adds a density-aware sheet mode for heavy spell/equipment/feature builds and marks the long weapons/features/feats/gear panels as splittable in print, so exported pages compact more aggressively and paginate with fewer forced all-or-nothing panel breaks.
 
 ## Files Expected To Change Next
 
 - `docs/PLAN.md`
 - `docs/CHECKLIST.md`
 - `docs/STATUS.md`
-- `docs/DECISIONS.md`
-- `src/App.tsx`
-- `src/pages/CharactersPage.tsx`
+- `src/pages/CharacterSheetPage.tsx`
 - `src/components/SheetPreview.tsx`
+- `src/styles/app.css`
 
 ## Commands To Run First
 
 ```bash
 npm install
 npm run dev
-npm run pack:win-local
+npm run build
 ```
