@@ -20,6 +20,7 @@ import {
 
 const CHANNELS = [
   "app:get-info",
+  "app:open-external-url",
   "app:reveal-database-file",
   "characters:list",
   "characters:get",
@@ -172,6 +173,11 @@ export function registerIpcHandlers(context: DatabaseContext, getWindow: () => B
 
   ipcMain.handle("app:reveal-database-file", async () => {
     shell.showItemInFolder(context.databasePath);
+    return true;
+  });
+
+  ipcMain.handle("app:open-external-url", async (_event, url: string) => {
+    await shell.openExternal(url);
     return true;
   });
 

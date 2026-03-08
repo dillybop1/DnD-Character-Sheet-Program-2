@@ -4,6 +4,7 @@ import { CharacterSheetPage } from "./pages/CharacterSheetPage";
 import { CharactersPage } from "./pages/CharactersPage";
 import { CompendiumPage } from "./pages/CompendiumPage";
 import { HomebrewPage } from "./pages/HomebrewPage";
+import { AppLogoMark } from "./components/AppLogoMark";
 import { formatBuiltAt, getLaunchSummary, getRuntimeLabel, useAppInfo } from "./lib/appInfo";
 import { SettingsPage } from "./pages/SettingsPage";
 
@@ -14,8 +15,11 @@ function AppShell() {
     <div className="app-shell">
       <aside className="app-shell__sidebar">
         <div className="brand-lockup">
-          <p>D&D Character Sheet</p>
-          <strong>Desktop Workshop</strong>
+          <AppLogoMark className="brand-lockup__mark" />
+          <div className="brand-lockup__copy">
+            <p>D&D Character Sheet</p>
+            <strong>Desktop Workshop</strong>
+          </div>
         </div>
         <nav className="sidebar-nav">
           <NavLink

@@ -38,6 +38,15 @@ function writeStore<T>(key: string, value: T) {
   window.localStorage.setItem(key, JSON.stringify(value));
 }
 
+async function openExternalUrlInBrowser(url: string) {
+  try {
+    const openedWindow = window.open(url, "_blank", "noopener,noreferrer");
+    return openedWindow !== null;
+  } catch {
+    return false;
+  }
+}
+
 function listStoredCharacters() {
   return readStore<unknown[]>(CHARACTERS_KEY, [])
     .flatMap((entry) => {
@@ -153,6 +162,7 @@ function makeBrowserApi(): DndApi {
         platform: "browser",
         userDataPath: "browser-storage",
       }),
+      openExternalUrl: async (url) => openExternalUrlInBrowser(url),
       revealDatabaseFile: async () => false,
     },
     characters: {

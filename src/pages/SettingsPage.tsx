@@ -8,6 +8,12 @@ import {
   LOCKED_SHEET_VIEWPORT_SCALES,
   useLockedSheetViewportScale,
 } from "../lib/lockedSheetViewport";
+import {
+  checkForAppUpdate,
+  formatUpdateTimestamp,
+  RELEASES_PAGE_URL,
+  type UpdateCheckResult,
+} from "../lib/updateCheck";
 
 export function SettingsPage() {
   const appInfo = useAppInfo();
@@ -17,6 +23,11 @@ export function SettingsPage() {
   );
   const [layoutStatus, setLayoutStatus] = useState(
     "Locked sheet previews use your preferred zoom on both the builder preview and saved-sheet route.",
+  );
+  const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
+  const [updateResult, setUpdateResult] = useState<UpdateCheckResult | null>(null);
+  const [updateStatus, setUpdateStatus] = useState(
+    "Manual update checks compare your installed version against the published GitHub releases.",
   );
   const contentSources = listContentSources();
 
@@ -32,6 +43,55 @@ export function SettingsPage() {
       setRevealStatus(error instanceof Error ? error.message : "Unable to reveal the database location.");
     }
   }
+
+  async function handleOpenExternalUrl(url: string, successMessage: string) {
+    try {
+      const opened = await dndApi.app.openExternalUrl(url);
+      setUpdateStatus(opened ? successMessage : "Unable to open the update page from this runtime.");
+    } catch (error) {
+      setUpdateStatus(error instanceof Error ? error.message : "Unable to open the update page.");
+    }
+  }
+
+  async function handleCheckForUpdates() {
+    if (!appInfo?.appVersion) {
+      setUpdateStatus("Application version details are unavailable, so update checks cannot run yet.");
+      return;
+    }
+
+    setIsCheckingUpdates(true);
+    setUpdateStatus("Checking published GitHub releases...");
+
+    try {
+      const result = await checkForAppUpdate(appInfo.appVersion, appInfo.platform);
+      setUpdateResult(result);
+
+      if (result.status === "update-available") {
+        setUpdateStatus(`Version ${result.latestVersion} is available. Use Download Update to open the release page.`);
+        return;
+      }
+
+      if (result.status === "up-to-date") {
+        setUpdateStatus(`You are already on the latest published version${result.latestVersion ? ` (${result.latestVersion})` : ""}.`);
+        return;
+      }
+
+      setUpdateStatus(result.message);
+    } finally {
+      setIsCheckingUpdates(false);
+    }
+  }
+
+  const updateStateLabel =
+    updateResult?.status === "update-available"
+      ? "Update Available"
+      : updateResult?.status === "up-to-date"
+        ? "Current"
+        : updateResult?.status === "unavailable"
+          ? "Unavailable"
+          : "Not Checked";
+  const latestPublishedLabel = updateResult?.status === "unavailable" ? "Unavailable" : (updateResult?.latestVersion ?? "Not checked");
+  const updateActionUrl = updateResult?.status === "update-available" ? updateResult.downloadUrl : (updateResult?.releaseUrl ?? RELEASES_PAGE_URL);
 
   return (
     <div className="workspace workspace--two-up">
@@ -100,6 +160,72 @@ export function SettingsPage() {
         </div>
       </SectionCard>
       <SectionCard
+        title="Updates"
+        subtitle="Published release checks"
+      >
+        <div className="stack-md">
+          <div className="detail-grid">
+            <div>
+              <span className="detail-label">Installed Version</span>
+              <strong>{appInfo?.appVersion ?? "Unavailable"}</strong>
+            </div>
+            <div>
+              <span className="detail-label">Latest Published</span>
+              <strong>{latestPublishedLabel}</strong>
+            </div>
+            <div>
+              <span className="detail-label">Status</span>
+              <strong>{updateStateLabel}</strong>
+            </div>
+            <div>
+              <span className="detail-label">Last Checked</span>
+              <strong>{updateResult ? formatUpdateTimestamp(updateResult.checkedAt) : "Not checked"}</strong>
+            </div>
+            <div>
+              <span className="detail-label">Release Source</span>
+              <strong>GitHub Releases</strong>
+            </div>
+            <div>
+              <span className="detail-label">Published At</span>
+              <strong>
+                {updateResult?.status === "update-available" ? formatUpdateTimestamp(updateResult.publishedAt) : "Unavailable"}
+              </strong>
+            </div>
+          </div>
+          <div className="action-row">
+            <button
+              className="action-button action-button--secondary"
+              disabled={!appInfo || isCheckingUpdates}
+              onClick={() => void handleCheckForUpdates()}
+              type="button"
+            >
+              {isCheckingUpdates ? "Checking..." : "Check for Updates"}
+            </button>
+            <button
+              className="action-button"
+              onClick={() =>
+                void handleOpenExternalUrl(
+                  updateActionUrl,
+                  updateResult?.status === "update-available"
+                    ? "Opened the latest release download in your browser."
+                    : "Opened the release page in your browser.",
+                )}
+              type="button"
+            >
+              {updateResult?.status === "update-available" ? "Download Update" : "View Releases"}
+            </button>
+          </div>
+          <p className="muted-copy">{updateStatus}</p>
+          {updateResult?.status === "update-available" && updateResult.summary ? (
+            <p className="muted-copy">{updateResult.summary}</p>
+          ) : null}
+          <p className="muted-copy">
+            This is a manual release check. It opens the installer or release page in your browser instead of patching
+            the app in place.
+          </p>
+        </div>
+      </SectionCard>
+      <SectionCard
         title="Content Sources"
         subtitle="Installed and planned"
       >
@@ -151,6 +277,18 @@ export function SettingsPage() {
             <div>
               <span className="detail-label">Small Window Behavior</span>
               <strong>Scale first, then horizontal scroll</strong>
+            </div>
+            <div>
+              <span className="detail-label">Mouse Drag</span>
+              <strong>Drag blank sheet space to pan horizontally</strong>
+            </div>
+            <div>
+              <span className="detail-label">Navigator Bar</span>
+              <strong>Use the thumb below the sheet to jump across wide layouts</strong>
+            </div>
+            <div>
+              <span className="detail-label">Keyboard Controls</span>
+              <strong>Click the sheet, then Left/Right pan, +/- zoom, 0 = Fit</strong>
             </div>
           </div>
           <div className="action-row">

@@ -68,9 +68,22 @@ button {
 }
 
 .brand-lockup {
+  display: grid;
+  gap: 0.9rem;
   margin-bottom: 1.75rem;
   padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--panel-border);
+}
+
+.brand-lockup__mark {
+  width: min(100%, 186px);
+  height: auto;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.28));
+}
+
+.brand-lockup__copy {
+  display: grid;
+  gap: 0.2rem;
 }
 
 .brand-lockup p,
@@ -2870,6 +2883,11 @@ textarea {
     text-align: center;
   }
 
+  .sheet-layout-lock__navigator-copy {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .saved-sheet-book__nav {
     display: grid;
     grid-template-columns: 1fr;
@@ -3312,6 +3330,10 @@ textarea {
   line-height: 1.4;
 }
 
+.sheet-layout-lock__shortcut-copy {
+  opacity: 0.82;
+}
+
 .sheet-layout-lock__controls {
   display: flex;
   flex-wrap: wrap;
@@ -3380,6 +3402,20 @@ textarea {
   padding-bottom: 0.45rem;
   overscroll-behavior-x: contain;
   scrollbar-gutter: stable;
+  cursor: grab;
+  touch-action: pan-y pinch-zoom;
+}
+
+.sheet-layout-lock:focus-visible {
+  outline: 2px solid rgba(154, 106, 48, 0.62);
+  outline-offset: 0.22rem;
+  border-radius: 1rem;
+}
+
+.sheet-layout-lock--dragging,
+.sheet-layout-lock--dragging * {
+  cursor: grabbing !important;
+  user-select: none !important;
 }
 
 .sheet-layout-lock__canvas {
@@ -3387,6 +3423,70 @@ textarea {
   width: 100%;
   transform-origin: top left;
   zoom: var(--sheet-layout-lock-scale, 1);
+}
+
+.sheet-layout-lock__navigator-shell {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.sheet-layout-lock__navigator-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  color: #6a5843;
+}
+
+.sheet-layout-lock__navigator-copy span {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #82694f;
+}
+
+.sheet-layout-lock__navigator-copy small {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.sheet-layout-lock__navigator {
+  position: relative;
+  height: 0.95rem;
+  border: 1px solid rgba(126, 89, 49, 0.22);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(232, 214, 181, 0.56)),
+    rgba(245, 233, 210, 0.88);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.58),
+    inset 0 -1px 2px rgba(93, 65, 32, 0.08);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.sheet-layout-lock__navigator:focus-visible {
+  outline: 2px solid rgba(154, 106, 48, 0.62);
+  outline-offset: 0.18rem;
+}
+
+.sheet-layout-lock__navigator-thumb {
+  position: absolute;
+  top: 0.08rem;
+  bottom: 0.08rem;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(250, 236, 202, 0.98), rgba(229, 205, 157, 0.96)),
+    rgba(236, 214, 171, 0.92);
+  box-shadow:
+    0 2px 6px rgba(65, 43, 20, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  cursor: grab;
+}
+
+.sheet-layout-lock__navigator--dragging,
+.sheet-layout-lock__navigator--dragging .sheet-layout-lock__navigator-thumb {
+  cursor: grabbing;
 }
 
 .sheet-layout-lock .record-sheet {
@@ -3726,6 +3826,10 @@ textarea {
   }
 
   .sheet-layout-lock__toolbar {
+    display: none;
+  }
+
+  .sheet-layout-lock__navigator-shell {
     display: none;
   }
 

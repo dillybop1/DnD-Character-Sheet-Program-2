@@ -10,6 +10,7 @@ export const LOCKED_SHEET_VIEWPORT_SCALES = [
   { value: 0.9, label: "90%" },
   { value: 0.8, label: "80%" },
 ] as const;
+const MANUAL_LOCKED_SHEET_VIEWPORT_SCALES = [0.8, 0.9, 1] as const;
 
 export type LockedSheetViewportScaleMode = (typeof LOCKED_SHEET_VIEWPORT_SCALES)[number]["value"];
 
@@ -53,6 +54,26 @@ export function clampLockedSheetFitScale(nextScale: number) {
 
 export function getLockedSheetViewportScaleLabel(scaleMode: LockedSheetViewportScaleMode) {
   return LOCKED_SHEET_VIEWPORT_SCALES.find((option) => option.value === scaleMode)?.label ?? "Fit";
+}
+
+export function getNextLockedSheetViewportScale(scaleMode: LockedSheetViewportScaleMode): LockedSheetViewportScaleMode {
+  if (scaleMode === "fit") {
+    return 1;
+  }
+
+  const scaleIndex = MANUAL_LOCKED_SHEET_VIEWPORT_SCALES.indexOf(scaleMode);
+  return scaleIndex >= MANUAL_LOCKED_SHEET_VIEWPORT_SCALES.length - 1
+    ? MANUAL_LOCKED_SHEET_VIEWPORT_SCALES[MANUAL_LOCKED_SHEET_VIEWPORT_SCALES.length - 1]
+    : MANUAL_LOCKED_SHEET_VIEWPORT_SCALES[scaleIndex + 1];
+}
+
+export function getPreviousLockedSheetViewportScale(scaleMode: LockedSheetViewportScaleMode): LockedSheetViewportScaleMode {
+  if (scaleMode === "fit") {
+    return 0.9;
+  }
+
+  const scaleIndex = MANUAL_LOCKED_SHEET_VIEWPORT_SCALES.indexOf(scaleMode);
+  return scaleIndex <= 0 ? MANUAL_LOCKED_SHEET_VIEWPORT_SCALES[0] : MANUAL_LOCKED_SHEET_VIEWPORT_SCALES[scaleIndex - 1];
 }
 
 export function useLockedSheetViewportScale() {

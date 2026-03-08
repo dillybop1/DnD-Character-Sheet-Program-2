@@ -552,6 +552,7 @@ export interface SearchInput {
 export interface DndApi {
   app: {
     getInfo: () => Promise<AppInfo>;
+    openExternalUrl: (url: string) => Promise<boolean>;
     revealDatabaseFile: () => Promise<boolean>;
   };
   characters: {
