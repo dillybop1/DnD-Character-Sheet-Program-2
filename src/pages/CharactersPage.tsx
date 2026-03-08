@@ -33,6 +33,7 @@ import {
   mergeInventorySuggestions,
   normalizeInventory,
 } from "../../shared/inventory";
+import { normalizePactSlotsRemaining, normalizeSpellSlotsRemaining } from "../../shared/spellSlots";
 import { ABILITY_NAMES, SKILL_NAMES } from "../../shared/types";
 import type { AbilityName, BuilderInput, CharacterRecord, CompendiumEntry, HomebrewEntry, InventoryItemRecord, InventoryItemKind, SkillName } from "../../shared/types";
 import { CompendiumEntryDetail } from "../components/CompendiumEntryDetail";
@@ -47,6 +48,10 @@ function readSpellLevel(entry: CompendiumEntry) {
 }
 
 function areSameStringArrays(left: string[], right: string[]) {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function areSameNumberArrays(left: number[], right: number[]) {
   return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
@@ -117,14 +122,16 @@ function formatSpellSlotSummary(
       return "Pact slots pending";
     }
 
-    return `${spellcasting.pactSlotsMax} pact slots at level ${spellcasting.pactSlotLevel}`;
+    return `${spellcasting.pactSlotsRemaining}/${spellcasting.pactSlotsMax} pact slots at level ${spellcasting.pactSlotLevel}`;
   }
 
   if (spellcasting.spellSlotsMax.length === 0) {
     return "No class slots";
   }
 
-  return spellcasting.spellSlotsMax.map((value, index) => `L${index + 1}:${value}`).join(" ");
+  return spellcasting.spellSlotsMax
+    .map((value, index) => `L${index + 1}:${spellcasting.spellSlotsRemaining[index] ?? value}/${value}`)
+    .join(" ");
 }
 
 function sanitizeInventoryQuantity(value: number) {
@@ -421,6 +428,14 @@ export function CharactersPage() {
       const nextCurrentHitPoints = Math.min(sanitizeNonNegativeInteger(current.currentHitPoints), derived.hitPointsMax);
       const nextTempHitPoints = sanitizeNonNegativeInteger(current.tempHitPoints);
       const nextHitDiceSpent = Math.min(sanitizeNonNegativeInteger(current.hitDiceSpent), derived.hitDiceMax);
+      const nextSpellSlotsRemaining = normalizeSpellSlotsRemaining(
+        current.spellSlotsRemaining,
+        derived.spellcasting.spellSlotsMax,
+      );
+      const nextPactSlotsRemaining = normalizePactSlotsRemaining(
+        current.pactSlotsRemaining,
+        derived.spellcasting.pactSlotsMax,
+      );
       const nextDeathSaves = {
         successes: sanitizeTrackCount(current.deathSaves.successes, 3),
         failures: sanitizeTrackCount(current.deathSaves.failures, 3),
@@ -430,6 +445,8 @@ export function CharactersPage() {
         nextCurrentHitPoints === current.currentHitPoints &&
         nextTempHitPoints === current.tempHitPoints &&
         nextHitDiceSpent === current.hitDiceSpent &&
+        areSameNumberArrays(nextSpellSlotsRemaining, current.spellSlotsRemaining) &&
+        nextPactSlotsRemaining === current.pactSlotsRemaining &&
         nextDeathSaves.successes === current.deathSaves.successes &&
         nextDeathSaves.failures === current.deathSaves.failures
       ) {
@@ -441,10 +458,12 @@ export function CharactersPage() {
         currentHitPoints: nextCurrentHitPoints,
         tempHitPoints: nextTempHitPoints,
         hitDiceSpent: nextHitDiceSpent,
+        spellSlotsRemaining: nextSpellSlotsRemaining,
+        pactSlotsRemaining: nextPactSlotsRemaining,
         deathSaves: nextDeathSaves,
       };
     });
-  }, [derived.hitDiceMax, derived.hitPointsMax]);
+  }, [derived.hitDiceMax, derived.hitPointsMax, derived.spellcasting.pactSlotsMax, derived.spellcasting.spellSlotsMax]);
 
   function updateDraft<K extends keyof BuilderInput>(key: K, value: BuilderInput[K]) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -486,6 +505,8 @@ export function CharactersPage() {
         ...current,
         classId,
         subclass: nextSubclass,
+        spellSlotsRemaining: [],
+        pactSlotsRemaining: undefined,
       };
     });
   }
@@ -510,6 +531,34 @@ export function CharactersPage() {
         [key]: sanitizeTrackCount(value, 3),
       },
     }));
+  }
+
+  function updateSpellSlotRemaining(slotIndex: number, value: number) {
+    setDraft((current) => {
+      const nextSpellSlotsRemaining = [...current.spellSlotsRemaining];
+      nextSpellSlotsRemaining[slotIndex] = value;
+
+      return {
+        ...current,
+        spellSlotsRemaining: normalizeSpellSlotsRemaining(nextSpellSlotsRemaining, derived.spellcasting.spellSlotsMax),
+      };
+    });
+  }
+
+  function updatePactSlotsRemaining(value: number) {
+    setDraft((current) => ({
+      ...current,
+      pactSlotsRemaining: normalizePactSlotsRemaining(value, derived.spellcasting.pactSlotsMax),
+    }));
+  }
+
+  function refreshSpellSlotsToMax() {
+    setDraft((current) => ({
+      ...current,
+      spellSlotsRemaining: [...derived.spellcasting.spellSlotsMax],
+      pactSlotsRemaining: derived.spellcasting.pactSlotsMax,
+    }));
+    setMessage("Reset tracked spell slots to their current maximum values.");
   }
 
   function applyInventoryUpdate(updater: (inventory: InventoryItemRecord[]) => InventoryItemRecord[]) {
@@ -1487,6 +1536,50 @@ export function CharactersPage() {
                     <span className="chip">{derived.spellcasting.preparedSpells.length} ready</span>
                   </div>
                 </div>
+                {derived.spellcasting.slotMode !== "none" ? (
+                  <div className="detail-card">
+                    <div className="detail-card__header">
+                      <strong>Tracked Spell Slots</strong>
+                      <button
+                        className="inline-link-button"
+                        onClick={refreshSpellSlotsToMax}
+                        type="button"
+                      >
+                        Reset to Max
+                      </button>
+                    </div>
+                    <div className="form-grid">
+                      {derived.spellcasting.slotMode === "pact" ? (
+                        <label>
+                          <span>Pact Slots Remaining</span>
+                          <input
+                            max={derived.spellcasting.pactSlotsMax}
+                            min={0}
+                            onChange={(event) => updatePactSlotsRemaining(Number(event.target.value))}
+                            type="number"
+                            value={draft.pactSlotsRemaining}
+                          />
+                        </label>
+                      ) : (
+                        derived.spellcasting.spellSlotsMax.map((slotMax, index) => (
+                          <label key={`spell-slot-${index + 1}`}>
+                            <span>Level {index + 1} Remaining</span>
+                            <input
+                              max={slotMax}
+                              min={0}
+                              onChange={(event) => updateSpellSlotRemaining(index, Number(event.target.value))}
+                              type="number"
+                              value={draft.spellSlotsRemaining[index] ?? slotMax}
+                            />
+                          </label>
+                        ))
+                      )}
+                    </div>
+                    <p className="muted-copy">
+                      Current slot state saves with the character and carries over to the saved sheet route and PDF export.
+                    </p>
+                  </div>
+                ) : null}
                 {magicInitiateSelected ? (
                   <div className="detail-card">
                     <div className="detail-card__header">

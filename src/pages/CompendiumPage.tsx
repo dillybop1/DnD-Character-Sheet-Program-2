@@ -13,6 +13,7 @@ const FILTERS: Array<{ label: string; value?: CompendiumType }> = [
   { label: "Species", value: "species" },
   { label: "Backgrounds", value: "background" },
   { label: "Spells", value: "spell" },
+  { label: "Creatures", value: "creature" },
   { label: "Weapons", value: "weapon" },
   { label: "Armor", value: "armor" },
   { label: "Gear", value: "gear" },

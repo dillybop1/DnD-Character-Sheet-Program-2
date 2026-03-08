@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  CONTENT_PACK_IMPORT_VERSION,
   COMPENDIUM_IMPORT_VERSION,
   COMPENDIUM_SEED,
+  creatureRecordFromCompendium,
   findCompendiumEntry,
+  listCompendiumCreatures,
   listCompendiumEntries,
   listCompendiumSpells,
   searchCompendiumSeed,
@@ -12,10 +15,12 @@ import {
 describe("compendium seed", () => {
   it("exposes a materially larger versioned dataset", () => {
     expect(COMPENDIUM_IMPORT_VERSION).toBeTruthy();
+    expect(CONTENT_PACK_IMPORT_VERSION).toBeTruthy();
     expect(COMPENDIUM_SEED.length).toBeGreaterThan(40);
     expect(findCompendiumEntry("fighter")?.type).toBe("class");
     expect(findCompendiumEntry("fighter-champion")?.type).toBe("subclass");
     expect(findCompendiumEntry("misty-step")?.type).toBe("spell");
+    expect(findCompendiumEntry("wolf")?.type).toBe("creature");
     expect(findCompendiumEntry("alert")?.type).toBe("feat");
     expect(findCompendiumEntry("mobile")?.type).toBe("feat");
     expect(findCompendiumEntry("athlete")?.type).toBe("feat");
@@ -27,6 +32,7 @@ describe("compendium seed", () => {
     expect(findCompendiumEntry("rapier")?.type).toBe("weapon");
     expect(findCompendiumEntry("arcane-focus")?.type).toBe("gear");
     expect(listCompendiumEntries("gear").length).toBeGreaterThan(10);
+    expect(listCompendiumEntries("creature").length).toBeGreaterThanOrEqual(4);
     expect(listCompendiumEntries("subclass").length).toBeGreaterThan(10);
   });
 
@@ -45,6 +51,23 @@ describe("compendium seed", () => {
       level: 0,
       classes: ["Sorcerer", "Wizard"],
       attackType: "spellAttack",
+      description: expect.stringContaining("magical flame"),
+    });
+    expect(spellRecordFromCompendium("sleep")?.higherLevel).toContain("higher-level slot");
+    expect(spellRecordFromCompendium("sacred-flame")?.saveAbility).toBe("dexterity");
+
+    const creatureResults = searchCompendiumSeed({
+      query: "pack tactics beast",
+      type: "creature",
+    });
+
+    expect(creatureResults.some((entry) => entry.slug === "wolf")).toBe(true);
+    expect(listCompendiumCreatures(undefined, { beastOnly: true }).length).toBeGreaterThanOrEqual(4);
+    expect(creatureRecordFromCompendium("wolf")).toMatchObject({
+      id: "wolf",
+      name: "Wolf",
+      creatureType: "Beast",
+      beastFormEligible: true,
     });
 
     const gearResults = searchCompendiumSeed({

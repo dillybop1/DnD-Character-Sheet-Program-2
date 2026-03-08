@@ -14,6 +14,20 @@ describe("content source architecture", () => {
     expect(draft.bonusSpellClassId).toBe("");
     expect(draft.bonusSpellIds).toEqual([]);
     expect(draft.notes.backgroundFeatures).toBe("");
+    expect(draft.sheetProfile).toEqual({
+      appearance: "",
+      alignment: "",
+      languages: [],
+      equipmentNotes: "",
+      currencies: {
+        cp: 0,
+        sp: 0,
+        ep: 0,
+        gp: 0,
+        pp: 0,
+      },
+    });
+    expect(draft.trackedResources).toEqual([]);
   });
 
   it("filters available content through installed sources", () => {

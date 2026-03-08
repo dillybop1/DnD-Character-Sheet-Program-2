@@ -7,11 +7,13 @@ import {
   getSpeciesTemplate,
   getSubclassLabel,
 } from "../../shared/data/reference";
+import { normalizePactSlotsRemaining, normalizeSpellSlotsRemaining } from "../../shared/spellSlots";
 import type { CharacterRecord, CompendiumEntry, HomebrewEntry } from "../../shared/types";
 import { CompendiumEntryDetail } from "../components/CompendiumEntryDetail";
+import { SavedSheetBook } from "../components/SavedSheetBook";
 import { SectionCard } from "../components/SectionCard";
-import { SheetPreview } from "../components/SheetPreview";
 import { dndApi } from "../lib/api";
+import { formatSavedSheetSpellSlotSummary } from "../lib/savedSheetBook";
 
 function formatTimestamp(value: string) {
   const date = new Date(value);
@@ -152,14 +154,66 @@ export function CharacterSheetPage() {
     );
   }
 
-  const activeHomebrew = homebrewEntries.filter((entry) => character.homebrewIds.includes(entry.id));
-  const derived = calculateDerivedState(character, activeHomebrew);
-  const selectedClass = getClassTemplate(character.classId);
-  const selectedSpecies = getSpeciesTemplate(character.speciesId);
-  const selectedBackground = getBackgroundTemplate(character.backgroundId);
-  const subclassLabel = character.subclass
-    ? getSubclassLabel(character.classId, character.subclass, character.enabledSourceIds)
+  const activeCharacter = character;
+  const activeHomebrew = homebrewEntries.filter((entry) => activeCharacter.homebrewIds.includes(entry.id));
+  const derived = calculateDerivedState(activeCharacter, activeHomebrew);
+  const selectedClass = getClassTemplate(activeCharacter.classId);
+  const selectedSpecies = getSpeciesTemplate(activeCharacter.speciesId);
+  const selectedBackground = getBackgroundTemplate(activeCharacter.backgroundId);
+  const subclassLabel = activeCharacter.subclass
+    ? getSubclassLabel(activeCharacter.classId, activeCharacter.subclass, activeCharacter.enabledSourceIds)
     : null;
+
+  async function saveTrackedCharacter(nextCharacter: CharacterRecord, successMessage: string) {
+    const saved = await dndApi.characters.save(nextCharacter);
+    setCharacter(saved);
+    setMessage(successMessage);
+  }
+
+  function handleSpellSlotRemainingChange(slotIndex: number, value: number) {
+    const nextSpellSlotsRemaining = [...activeCharacter.spellSlotsRemaining];
+    nextSpellSlotsRemaining[slotIndex] = value;
+
+    void saveTrackedCharacter(
+      {
+        ...activeCharacter,
+        spellSlotsRemaining: normalizeSpellSlotsRemaining(nextSpellSlotsRemaining, derived.spellcasting.spellSlotsMax),
+      },
+      "Saved spell slot tracking.",
+    );
+  }
+
+  function handlePactSlotsRemainingChange(value: number) {
+    void saveTrackedCharacter(
+      {
+        ...activeCharacter,
+        pactSlotsRemaining: normalizePactSlotsRemaining(value, derived.spellcasting.pactSlotsMax),
+      },
+      "Saved spell slot tracking.",
+    );
+  }
+
+  function handleResetSpellSlots() {
+    void saveTrackedCharacter(
+      {
+        ...activeCharacter,
+        spellSlotsRemaining: [...derived.spellcasting.spellSlotsMax],
+        pactSlotsRemaining: derived.spellcasting.pactSlotsMax,
+      },
+      "Reset tracked spell slots to their current maximum values.",
+    );
+  }
+
+  async function handleSaveSheetFields(updates: Pick<CharacterRecord, "sheetProfile" | "trackedResources">) {
+    await saveTrackedCharacter(
+      {
+        ...activeCharacter,
+        sheetProfile: updates.sheetProfile,
+        trackedResources: updates.trackedResources,
+      },
+      "Saved sheet fields.",
+    );
+  }
 
   return (
     <div className="workspace">
@@ -192,7 +246,7 @@ export function CharacterSheetPage() {
               <div className="action-row">
                 <button
                   className="action-button"
-                  onClick={() => navigate(`/characters/${character.id}/edit`)}
+                  onClick={() => navigate(`/characters/${activeCharacter.id}/edit`)}
                   type="button"
                 >
                   Edit Character
@@ -326,21 +380,71 @@ export function CharacterSheetPage() {
                   <span>Prepared</span>
                   <strong>{derived.spellcasting.preparedSpells.length}</strong>
                 </div>
+                <div className="sheet-route-metric">
+                  <span>Tracked Slots</span>
+                  <strong>{formatSavedSheetSpellSlotSummary(derived)}</strong>
+                </div>
               </div>
             </div>
+
+            {derived.spellcasting.slotMode !== "none" ? (
+              <div className="detail-card">
+                <div className="detail-card__header">
+                  <strong>Spell Slot Tracking</strong>
+                  <button
+                    className="inline-link-button"
+                    onClick={handleResetSpellSlots}
+                    type="button"
+                  >
+                    Reset to Max
+                  </button>
+                </div>
+                <div className="form-grid">
+                  {derived.spellcasting.slotMode === "pact" ? (
+                    <label>
+                      <span>Pact Slots Remaining</span>
+                      <input
+                        max={derived.spellcasting.pactSlotsMax}
+                        min={0}
+                        onChange={(event) => handlePactSlotsRemainingChange(Number(event.target.value))}
+                        type="number"
+                        value={activeCharacter.pactSlotsRemaining ?? derived.spellcasting.pactSlotsRemaining}
+                      />
+                    </label>
+                  ) : (
+                    derived.spellcasting.spellSlotsMax.map((slotMax, index) => (
+                      <label key={`saved-sheet-slot-${index + 1}`}>
+                        <span>Level {index + 1} Remaining</span>
+                        <input
+                          max={slotMax}
+                          min={0}
+                          onChange={(event) => handleSpellSlotRemainingChange(index, Number(event.target.value))}
+                          type="number"
+                          value={activeCharacter.spellSlotsRemaining[index] ?? slotMax}
+                        />
+                      </label>
+                    ))
+                  )}
+                </div>
+                <p className="muted-copy">
+                  Slot usage now persists directly on the saved-sheet route, so the read/export view is useful during play.
+                </p>
+              </div>
+            ) : null}
           </div>
         </div>
       </SectionCard>
 
       <SectionCard
         className="section-card--sheet-preview"
-        title="Character Sheet"
-        subtitle="Saved sheet view"
+        title="Character Sheet Pages"
+        subtitle="Saved sheet route"
       >
-        <SheetPreview
+        <SavedSheetBook
           character={character}
           derived={derived}
           onOpenReference={openReferenceSafe}
+          onSaveSheetFields={handleSaveSheetFields}
         />
       </SectionCard>
 

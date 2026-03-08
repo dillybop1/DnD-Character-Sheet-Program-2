@@ -1,0 +1,13 @@
+{
+  "id": "srd-5.2.1",
+  "shortCode": "SRD 5.2.1",
+  "name": "System Reference Document 5.2.1",
+  "ruleset": "2024",
+  "category": "core",
+  "licenseMode": "open",
+  "source": "SRD / Free Rules",
+  "license": "CC-BY-4.0 / Open Content",
+  "attribution": "Wizards of the Coast open rules content",
+  "version": "2026-03-08-m10-v1",
+  "summary": "Open baseline spell and beast content generated through the repo-managed content-pack pipeline."
+}

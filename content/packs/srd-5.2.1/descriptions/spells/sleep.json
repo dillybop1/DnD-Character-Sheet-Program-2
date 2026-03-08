@@ -1,0 +1,4 @@
+{
+  "description": "You release a wave of drowsy magic centered on a point in range. The spell affects creatures with the lowest current hit points first until its pool is spent.",
+  "higherLevel": "Casting with a higher-level slot expands the total hit points that can be put to sleep."
+}

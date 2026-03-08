@@ -1,28 +1,33 @@
 # Status Snapshot
 
-- Last updated: `2026-03-07 23:41 America/New_York`
+- Last updated: `2026-03-08 03:16 America/New_York`
 - Active branch: `main` (tracking `origin/main` at `https://github.com/dillybop1/DnD-Character-Sheet-Program-2.git`)
-- Current milestone: `None`
-- Current task ID: `None`
-- Last completed task: `M9-03`
+- Current milestone: `M10`
+- Current task ID: `M10-07`
+- Last completed task: `M10-06`
 
 ## Next 3 Actions
 
-1. Collect tester feedback from the published private beta and decide whether a patch release is needed.
-2. If broader distribution is next, open a new milestone for signing/notarization and public-release hardening.
-3. If product work resumes first, define the next scoped milestone instead of extending the closed release tracker.
+1. Implement the page-2 spell table and spell inspector using the richer content-pack spell metadata that already ships in the compendium.
+2. Add generic tracked-resource rows plus manual short-rest / long-rest controls on top of the new two-page shell.
+3. Tighten print/mobile behavior after the spell table lands so both saved-sheet pages still export and collapse cleanly.
 
 ## Blockers / Open Questions
 
 - A direct Electron-shell hot-run path is still blocked by Electron 35 resolving `require("electron")` to the installed binary path during local CLI runs, so the supported live workflow is browser-backed Vite dev.
 - Product direction is now explicit: keep character navigation inside one Electron window and do not add a second native BrowserWindow for the sheet view.
 - The routed workflow split is now in place: app launch lands on `/characters`, saved characters open a dedicated `/characters/:id` sheet route, and edits/new drafts use `/characters/new` plus `/characters/:id/edit`.
-- Fresh `npm install` under global Node `24.13.0` + Python `3.14` still fails because `better-sqlite3` falls back to `node-gyp`, but `npx -y -p node@22 -p npm@10 npm run release:verify-local` now passes on this machine as a working fallback.
+- Fresh `npm install` under global Node `24.13.0` + Python `3.14` still fails because `better-sqlite3` falls back to `node-gyp`, but `npx -y -p node@22 -p npm@10 npm run <script>` remains a working fallback without changing the global install.
 - The published release path is now explicit: `v0.1.0` is a private beta that ships unsigned on macOS and Windows.
 - This shell can still run the release verification flow without changing the global Node install by using `npx -y -p node@22 -p npm@10 npm run <script>`.
 - The clean release commit (`7ffcbfd`) and tag (`v0.1.0`) are already on `origin/main`.
 - The private GitHub release for `v0.1.0` is now published with the verified macOS and Windows installer assets attached.
 - `docs/RELEASE_BODY_v0.1.0.md` remains as the source text used for the published private-beta release notes.
+- Spell slot tracking is now first-class saved state: standard and pact slot counts persist on the character, both routed character surfaces can update them, legacy/imported records backfill safely, and the sheet/export summary now shows remaining/max slot values instead of only maxima.
+- `M10-02` and `M10-03` are now complete: spells and beast/creature entries can ship from repo-managed content packs under `content/packs/`, `npm run content:build` regenerates the merged pack dataset, browser dev + Electron sync both consume that generated JSON, and creatures are now a first-class compendium type alongside the richer spell payloads.
+- `M10-04` is now complete: `CharacterRecord` and `BuilderInput` both persist `sheetProfile` plus `trackedResources`, defaults/backfills normalize older saves safely, builder round-trips preserve those values even before the saved-sheet UI edits them, and regression coverage now proves language/currency/resource normalization works.
+- `M10-05` is now complete: the saved-sheet route renders a dedicated two-page shell through `SavedSheetBook`, desktop keeps both pages visible, narrow widths switch through explicit page navigation, and print/PDF output now forces page-one/page-two separation while leaving the builder preview untouched.
+- `M10-06` is now complete: page 1 has a real saved-sheet overview shell around the core preview, the saved-sheet route supports inline `Edit Sheet` mode for `sheetProfile` plus bounded `trackedResources`, and page-two summary cards preview unsaved field edits before they are persisted.
 - The rules engine now covers full casters, half casters, pact magic, homebrew-granted spells, and a broader equipment catalog, but the compendium content is still smaller than the eventual v1 surface.
 - The sheet now follows the reference page's structure, renders persistent vitals, and has completed the `M6-02` readability/print-tuning pass that the packaged export flow now relies on.
 - The latest `M6-02` pass tightened the masthead into a dedicated emblem column, added stronger section-header/banner hierarchy, and reduced print density so the exported sheet is closer to a deliberate one-page layout.
@@ -52,6 +57,7 @@
 - The route split preserved the existing one-window export/reference workflow: roster import happens on the landing route, the saved-sheet route still supports JSON/PDF export plus compendium links, and the editor route keeps the live preview and linked reference panel.
 - Source-aware content packaging is now in place, but actual non-core books remain unimplemented until licensed content packages are added.
 - The default `npm run build` path still stalls on this machine when `electron-builder` extracts `winCodeSign` symlinks without the needed privilege / Developer Mode, while the local Windows validation path remains `npm run pack:win-local` plus `npm run build:win-local` when the existing installer output file is not locked by the environment.
+- On `2026-03-08`, the feature baseline was re-verified on this machine with `typecheck`, `test`, `lint`, and `build:win-local` under temporary Node `22.x`; `release:verify-local` still hits the default `npm run build` symlink-privilege path here, so the machine-safe Windows baseline remains the per-command flow.
 - Windows NSIS installer validation has now passed manually on this machine for create/save/reopen, JSON export/import, PDF export, and reinstall-over-existing-data persistence.
 - The latest local `M6-02` pass keeps the compact weapons/cantrips layout legible by labeling stacked table fields in narrow sheet widths, and the print stylesheet now avoids splitting key sheet panels as aggressively.
 - The current `M6-02` pass also balances `Class & Subclass Features` columns by weighted text length instead of a raw midpoint split, and print output now hides blank offense filler rows while avoiding breaks inside notes items and subsections.
@@ -68,21 +74,28 @@
 - Manual packaged Windows validation has also passed for create/save/reopen, JSON export/import, PDF export, and reinstall-over-existing-data persistence, so release risk is now about signing/distribution rather than core functionality.
 - `docs/RELEASE.md` now carries the concrete `v0.1.0` candidate summary, build baseline, release gaps, and publish checklist so the release path is no longer implicit.
 - `docs/RELEASE.md` now also records the chosen private-beta distribution strategy: unsigned macOS + unsigned Windows, with expected trust warnings for testers.
-- `package.json` now includes `npm run release:verify-local`, and that full flow has passed locally through the temporary Node `22.x` `npx` fallback path.
-- `M9-03` is now complete: the private GitHub release is published and all tracked milestone work is closed.
+- `package.json` now includes `npm run release:verify-local`, but this Windows shell still relies on the explicit local validation commands when the default build path runs into `winCodeSign` symlink privileges.
+- `M10-01` is now complete: saved characters persist spell slot usage across the editor, the saved-sheet route, imports, and sheet/export output.
 
 ## Files Expected To Change Next
 
-- `docs/RELEASE.md`
 - `docs/STATUS.md`
 - `docs/CHECKLIST.md`
-- `docs/PLAN.md`
+- `src/components/SavedSheetBook.tsx`
+- `src/pages/CharacterSheetPage.tsx`
+- `src/styles/app.css`
+- `src/lib/savedSheetBook.ts`
+- `src/components/CompendiumEntryDetail.tsx`
+- `tests/*`
 
 ## Commands To Run First
 
 ```bash
 cat .nvmrc
-cat .node-version
 npx -y node@22 -v
-npx -y -p node@22 -p npm@10 npm run release:verify-local
+npx -y -p node@22 -p npm@10 npm run content:build
+npx -y -p node@22 -p npm@10 npm run typecheck
+npx -y -p node@22 -p npm@10 npm run test
+npx -y -p node@22 -p npm@10 npm run lint
+npx -y -p node@22 -p npm@10 npm run build:win-local
 ```

@@ -61,6 +61,22 @@ describe("parseCharacterRecord", () => {
       successes: 0,
       failures: 0,
     });
+    expect(parsed.sheetProfile).toEqual({
+      appearance: "",
+      alignment: "",
+      languages: [],
+      equipmentNotes: "",
+      currencies: {
+        cp: 0,
+        sp: 0,
+        ep: 0,
+        gp: 0,
+        pp: 0,
+      },
+    });
+    expect(parsed.trackedResources).toEqual([]);
+    expect(parsed.spellSlotsRemaining).toEqual([]);
+    expect(parsed.pactSlotsRemaining).toBe(0);
   });
 });
 
@@ -107,6 +123,22 @@ describe("parseCharacterImport", () => {
           speciesTraits: "",
           feats: "",
         },
+        sheetProfile: {
+          appearance: "Blue cloak",
+          languages: ["Common", " Elvish ", "Common"],
+          currencies: {
+            gp: 32,
+          },
+        },
+        trackedResources: [
+          {
+            label: "Arcane Recovery",
+            current: 2,
+            max: 1,
+            display: "counter",
+            recovery: "longRest",
+          },
+        ],
         currentHitPoints: 14,
         tempHitPoints: 0,
         hitDiceSpent: 1,
@@ -122,9 +154,34 @@ describe("parseCharacterImport", () => {
       successes: 0,
       failures: 0,
     });
+    expect(parsed.spellSlotsRemaining).toEqual([4, 2]);
+    expect(parsed.pactSlotsRemaining).toBe(0);
     expect(parsed.featSelections).toEqual({
       observant: ["intelligence"],
     });
+    expect(parsed.sheetProfile).toEqual({
+      appearance: "Blue cloak",
+      alignment: "",
+      languages: ["Common", "Elvish"],
+      equipmentNotes: "",
+      currencies: {
+        cp: 0,
+        sp: 0,
+        ep: 0,
+        gp: 32,
+        pp: 0,
+      },
+    });
+    expect(parsed.trackedResources).toEqual([
+      {
+        id: "tracked-resource-1",
+        label: "Arcane Recovery",
+        current: 1,
+        max: 1,
+        display: "counter",
+        recovery: "longRest",
+      },
+    ]);
   });
 
   it("still accepts raw character records", () => {
@@ -157,6 +214,8 @@ describe("parseCharacterImport", () => {
       bonusSpellIds: [],
       spellIds: [],
       preparedSpellIds: [],
+      spellSlotsRemaining: [],
+      pactSlotsRemaining: 0,
       homebrewIds: [],
       notes: {
         classFeatures: "",
@@ -181,5 +240,7 @@ describe("parseCharacterImport", () => {
       successes: 1,
       failures: 0,
     });
+    expect(parsed.spellSlotsRemaining).toEqual([]);
+    expect(parsed.pactSlotsRemaining).toBe(0);
   });
 });

@@ -1,0 +1,715 @@
+{
+  "buildVersion": "srd-5.2.1@2026-03-08-m10-v1",
+  "packs": [
+    {
+      "id": "srd-5.2.1",
+      "shortCode": "SRD 5.2.1",
+      "name": "System Reference Document 5.2.1",
+      "ruleset": "2024",
+      "category": "core",
+      "licenseMode": "open",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "version": "2026-03-08-m10-v1",
+      "summary": "Open baseline spell and beast content generated through the repo-managed content-pack pipeline."
+    }
+  ],
+  "entries": [
+    {
+      "slug": "black-bear",
+      "sourceId": "srd-5.2.1",
+      "type": "creature",
+      "name": "Black Bear",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A sturdy beast that mauls nearby targets with tooth and claw.",
+      "searchText": "black bear creature a sturdy beast that mauls nearby targets with tooth and claw. beast cr 1/2 land melee druid form medium beast 1/2 11 19 (3d8 + 6) 40 ft., climb 30 ft. 15 10 14 2 12 7 perception +3 passive perception 13 keen smell multiattack: make one bite attack and one claw attack. bite: a solid melee hit that deals piercing damage. claws: a heavier swipe that deals slashing damage. forest hill true",
+      "payload": {
+        "size": "Medium",
+        "creatureType": "Beast",
+        "challengeRating": "1/2",
+        "armorClass": "11",
+        "hitPoints": "19 (3d8 + 6)",
+        "speed": "40 ft., climb 30 ft.",
+        "abilityScores": {
+          "strength": 15,
+          "dexterity": 10,
+          "constitution": 14,
+          "intelligence": 2,
+          "wisdom": 12,
+          "charisma": 7
+        },
+        "skills": [
+          "Perception +3"
+        ],
+        "senses": [
+          "Passive Perception 13"
+        ],
+        "languages": [],
+        "features": [
+          "Keen Smell"
+        ],
+        "actions": [
+          "Multiattack: make one bite attack and one claw attack.",
+          "Bite: a solid melee hit that deals piercing damage.",
+          "Claws: a heavier swipe that deals slashing damage."
+        ],
+        "environment": [
+          "forest",
+          "hill"
+        ],
+        "beastFormEligible": true
+      }
+    },
+    {
+      "slug": "bless",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Bless",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A concentration spell that increases allies' attack rolls and saving throws.",
+      "searchText": "bless spell a concentration spell that increases allies' attack rolls and saving throws. level 1 buff cleric paladin concentration support 1 enchantment cleric paladin action 30 feet concentration, up to 1 minute true",
+      "payload": {
+        "level": 1,
+        "school": "Enchantment",
+        "classes": [
+          "Cleric",
+          "Paladin"
+        ],
+        "castingTime": "Action",
+        "range": "30 feet",
+        "duration": "Concentration, up to 1 minute",
+        "concentration": true
+      }
+    },
+    {
+      "slug": "cure-wounds",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Cure Wounds",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A staple restorative spell that heals a creature through divine or primal magic.",
+      "searchText": "cure wounds spell a staple restorative spell that heals a creature through divine or primal magic. level 1 healing bard cleric druid paladin ranger support abjuration 1 abjuration bard cleric druid paladin ranger action touch instantaneous 1d8 + spellcasting modifier you channel restorative magic through a touch, knitting injuries closed in a single burst of healing. the target regains hit points immediately.\n\nthis is the baseline close-range healing spell for many divine and primal casters, and stronger spell slots increase the amount restored.",
+      "payload": {
+        "level": 1,
+        "school": "Abjuration",
+        "classes": [
+          "Bard",
+          "Cleric",
+          "Druid",
+          "Paladin",
+          "Ranger"
+        ],
+        "castingTime": "Action",
+        "range": "Touch",
+        "duration": "Instantaneous",
+        "healing": "1d8 + spellcasting modifier",
+        "description": "You channel restorative magic through a touch, knitting injuries closed in a single burst of healing. The target regains hit points immediately.\n\nThis is the baseline close-range healing spell for many divine and primal casters, and stronger spell slots increase the amount restored."
+      }
+    },
+    {
+      "slug": "detect-magic",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Detect Magic",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A ritual-friendly utility spell for sensing the presence of magic nearby.",
+      "searchText": "detect magic spell a ritual-friendly utility spell for sensing the presence of magic nearby. level 1 divination bard cleric druid paladin ranger sorcerer warlock wizard ritual utility 1 divination bard cleric druid paladin ranger sorcerer warlock wizard action self concentration, up to 10 minutes true true",
+      "payload": {
+        "level": 1,
+        "school": "Divination",
+        "classes": [
+          "Bard",
+          "Cleric",
+          "Druid",
+          "Paladin",
+          "Ranger",
+          "Sorcerer",
+          "Warlock",
+          "Wizard"
+        ],
+        "castingTime": "Action",
+        "range": "Self",
+        "duration": "Concentration, up to 10 minutes",
+        "concentration": true,
+        "ritual": true
+      }
+    },
+    {
+      "slug": "druidcraft",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Druidcraft",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A primal utility cantrip for small natural omens and minor sensory effects.",
+      "searchText": "druidcraft spell a primal utility cantrip for small natural omens and minor sensory effects. cantrip transmutation druid primal utility 0 transmutation druid action 30 feet instantaneous",
+      "payload": {
+        "level": 0,
+        "school": "Transmutation",
+        "classes": [
+          "Druid"
+        ],
+        "castingTime": "Action",
+        "range": "30 feet",
+        "duration": "Instantaneous"
+      }
+    },
+    {
+      "slug": "eldritch-blast",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Eldritch Blast",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A force cantrip that fires a ranged beam and scales into multiple blasts with level.",
+      "searchText": "eldritch blast spell a force cantrip that fires a ranged beam and scales into multiple blasts with level. cantrip evocation warlock force spell attack 0 evocation warlock action 120 feet instantaneous spellattack 1d10 force",
+      "payload": {
+        "level": 0,
+        "school": "Evocation",
+        "classes": [
+          "Warlock"
+        ],
+        "castingTime": "Action",
+        "range": "120 feet",
+        "duration": "Instantaneous",
+        "attackType": "spellAttack",
+        "cantripDamage": "1d10 force"
+      }
+    },
+    {
+      "slug": "fire-bolt",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Fire Bolt",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A ranged attack cantrip that deals fire damage and scales with character level.",
+      "searchText": "fire bolt spell a ranged attack cantrip that deals fire damage and scales with character level. cantrip evocation attack wizard sorcerer arcane fire 0 evocation sorcerer wizard action 120 feet instantaneous spellattack 1d10 fire you hurl a compact burst of magical flame at one creature or unattended object in range. resolve it as a ranged spell attack; on a hit, the target takes fire damage.\n\nas your level rises, the bolt grows stronger and remains a reliable ranged damage option for arcane casters.",
+      "payload": {
+        "level": 0,
+        "school": "Evocation",
+        "classes": [
+          "Sorcerer",
+          "Wizard"
+        ],
+        "castingTime": "Action",
+        "range": "120 feet",
+        "duration": "Instantaneous",
+        "attackType": "spellAttack",
+        "cantripDamage": "1d10 fire",
+        "description": "You hurl a compact burst of magical flame at one creature or unattended object in range. Resolve it as a ranged spell attack; on a hit, the target takes fire damage.\n\nAs your level rises, the bolt grows stronger and remains a reliable ranged damage option for arcane casters."
+      }
+    },
+    {
+      "slug": "giant-spider",
+      "sourceId": "srd-5.2.1",
+      "type": "creature",
+      "name": "Giant Spider",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "An ambush predator that climbs with ease and threatens foes with webbing and venom.",
+      "searchText": "giant spider creature an ambush predator that climbs with ease and threatens foes with webbing and venom. beast cr 1 climb poison web druid form large beast 1 14 26 (4d10 + 4) 30 ft., climb 30 ft. 14 16 12 2 11 4 stealth +7 blindsight 10 ft. darkvision 60 ft. passive perception 10 spider climb web sense web walker bite: a venomous melee strike that deals piercing damage plus poison. web: a ranged restraint option that can pin a target in place until it breaks free. forest underdark true giant spiders thrive as ambush hunters. their web control and venom make them useful examples for future beast-form browsing because they are more than a simple melee stat block.",
+      "payload": {
+        "size": "Large",
+        "creatureType": "Beast",
+        "challengeRating": "1",
+        "armorClass": "14",
+        "hitPoints": "26 (4d10 + 4)",
+        "speed": "30 ft., climb 30 ft.",
+        "abilityScores": {
+          "strength": 14,
+          "dexterity": 16,
+          "constitution": 12,
+          "intelligence": 2,
+          "wisdom": 11,
+          "charisma": 4
+        },
+        "skills": [
+          "Stealth +7"
+        ],
+        "senses": [
+          "Blindsight 10 ft.",
+          "Darkvision 60 ft.",
+          "Passive Perception 10"
+        ],
+        "languages": [],
+        "features": [
+          "Spider Climb",
+          "Web Sense",
+          "Web Walker"
+        ],
+        "actions": [
+          "Bite: a venomous melee strike that deals piercing damage plus poison.",
+          "Web: a ranged restraint option that can pin a target in place until it breaks free."
+        ],
+        "environment": [
+          "forest",
+          "underdark"
+        ],
+        "beastFormEligible": true,
+        "description": "Giant spiders thrive as ambush hunters. Their web control and venom make them useful examples for future beast-form browsing because they are more than a simple melee stat block."
+      }
+    },
+    {
+      "slug": "guidance",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Guidance",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A support cantrip that boosts a future check with a small divine bonus.",
+      "searchText": "guidance spell a support cantrip that boosts a future check with a small divine bonus. cantrip support cleric druid divine primal check bonus 0 divination cleric druid action touch concentration, up to 1 minute true",
+      "payload": {
+        "level": 0,
+        "school": "Divination",
+        "classes": [
+          "Cleric",
+          "Druid"
+        ],
+        "castingTime": "Action",
+        "range": "Touch",
+        "duration": "Concentration, up to 1 minute",
+        "concentration": true
+      }
+    },
+    {
+      "slug": "guiding-bolt",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Guiding Bolt",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A ranged radiant spell attack that also helps the next allied attack land.",
+      "searchText": "guiding bolt spell a ranged radiant spell attack that also helps the next allied attack land. level 1 radiant cleric spell attack support damage 1 evocation cleric action 120 feet 1 round rider spellattack 4d6 radiant",
+      "payload": {
+        "level": 1,
+        "school": "Evocation",
+        "classes": [
+          "Cleric"
+        ],
+        "castingTime": "Action",
+        "range": "120 feet",
+        "duration": "1 round rider",
+        "attackType": "spellAttack",
+        "damage": "4d6 radiant"
+      }
+    },
+    {
+      "slug": "healing-word",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Healing Word",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A fast healing spell that restores a smaller amount of hit points at range.",
+      "searchText": "healing word spell a fast healing spell that restores a smaller amount of hit points at range. level 1 healing bard cleric druid bonus action support 1 abjuration bard cleric druid bonus action 60 feet instantaneous 1d4 + spellcasting modifier",
+      "payload": {
+        "level": 1,
+        "school": "Abjuration",
+        "classes": [
+          "Bard",
+          "Cleric",
+          "Druid"
+        ],
+        "castingTime": "Bonus Action",
+        "range": "60 feet",
+        "duration": "Instantaneous",
+        "healing": "1d4 + spellcasting modifier"
+      }
+    },
+    {
+      "slug": "hex",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Hex",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A curse that adds extra damage to attacks and hampers one chosen ability.",
+      "searchText": "hex spell a curse that adds extra damage to attacks and hampers one chosen ability. level 1 enchantment warlock curse concentration 1 enchantment warlock bonus action 90 feet concentration, up to 1 hour true",
+      "payload": {
+        "level": 1,
+        "school": "Enchantment",
+        "classes": [
+          "Warlock"
+        ],
+        "castingTime": "Bonus Action",
+        "range": "90 feet",
+        "duration": "Concentration, up to 1 hour",
+        "concentration": true
+      }
+    },
+    {
+      "slug": "hunters-mark",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Hunter's Mark",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A tracking-focused mark that boosts weapon pressure against one chosen target.",
+      "searchText": "hunter's mark spell a tracking-focused mark that boosts weapon pressure against one chosen target. level 1 divination ranger weapon damage concentration 1 divination ranger bonus action 90 feet concentration, up to 1 hour true",
+      "payload": {
+        "level": 1,
+        "school": "Divination",
+        "classes": [
+          "Ranger"
+        ],
+        "castingTime": "Bonus Action",
+        "range": "90 feet",
+        "duration": "Concentration, up to 1 hour",
+        "concentration": true
+      }
+    },
+    {
+      "slug": "light",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Light",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A utility cantrip that causes an object to emit bright light for an extended period.",
+      "searchText": "light spell a utility cantrip that causes an object to emit bright light for an extended period. cantrip utility bard cleric sorcerer wizard illumination 0 evocation bard cleric sorcerer wizard action touch 1 hour",
+      "payload": {
+        "level": 0,
+        "school": "Evocation",
+        "classes": [
+          "Bard",
+          "Cleric",
+          "Sorcerer",
+          "Wizard"
+        ],
+        "castingTime": "Action",
+        "range": "Touch",
+        "duration": "1 hour"
+      }
+    },
+    {
+      "slug": "mage-armor",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Mage Armor",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A defensive spell that sets a stronger baseline AC for an unarmored target.",
+      "searchText": "mage armor spell a defensive spell that sets a stronger baseline ac for an unarmored target. level 1 abjuration sorcerer wizard armor class defense 1 abjuration sorcerer wizard action touch 8 hours base ac becomes 13 + dexterity modifier while unarmored",
+      "payload": {
+        "level": 1,
+        "school": "Abjuration",
+        "classes": [
+          "Sorcerer",
+          "Wizard"
+        ],
+        "castingTime": "Action",
+        "range": "Touch",
+        "duration": "8 hours",
+        "effect": "Base AC becomes 13 + Dexterity modifier while unarmored"
+      }
+    },
+    {
+      "slug": "mage-hand",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Mage Hand",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A utility cantrip that creates a spectral hand for simple remote manipulation.",
+      "searchText": "mage hand spell a utility cantrip that creates a spectral hand for simple remote manipulation. cantrip utility bard warlock wizard arcane spectral hand 0 conjuration bard warlock wizard action 30 feet 1 minute",
+      "payload": {
+        "level": 0,
+        "school": "Conjuration",
+        "classes": [
+          "Bard",
+          "Warlock",
+          "Wizard"
+        ],
+        "castingTime": "Action",
+        "range": "30 feet",
+        "duration": "1 minute"
+      }
+    },
+    {
+      "slug": "magic-missile",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Magic Missile",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A dependable arcane spell that creates force darts which do not rely on an attack roll.",
+      "searchText": "magic missile spell a dependable arcane spell that creates force darts which do not rely on an attack roll. level 1 evocation sorcerer wizard force reliable damage 1 evocation sorcerer wizard action 120 feet instantaneous 3 darts of force",
+      "payload": {
+        "level": 1,
+        "school": "Evocation",
+        "classes": [
+          "Sorcerer",
+          "Wizard"
+        ],
+        "castingTime": "Action",
+        "range": "120 feet",
+        "duration": "Instantaneous",
+        "damage": "3 darts of force"
+      }
+    },
+    {
+      "slug": "misty-step",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Misty Step",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A short-range teleport that provides rapid repositioning as a bonus action.",
+      "searchText": "misty step spell a short-range teleport that provides rapid repositioning as a bonus action. level 2 conjuration sorcerer warlock wizard mobility teleport 2 conjuration sorcerer warlock wizard bonus action self instantaneous briefly wrap yourself in silvery magic and reappear a short distance away. the movement is instantaneous and does not require crossing the space between the start and end points.\n\nbecause it uses only a bonus action, the spell is a strong emergency repositioning tool.",
+      "payload": {
+        "level": 2,
+        "school": "Conjuration",
+        "classes": [
+          "Sorcerer",
+          "Warlock",
+          "Wizard"
+        ],
+        "castingTime": "Bonus Action",
+        "range": "Self",
+        "duration": "Instantaneous",
+        "description": "Briefly wrap yourself in silvery magic and reappear a short distance away. The movement is instantaneous and does not require crossing the space between the start and end points.\n\nBecause it uses only a bonus action, the spell is a strong emergency repositioning tool."
+      }
+    },
+    {
+      "slug": "panther",
+      "sourceId": "srd-5.2.1",
+      "type": "creature",
+      "name": "Panther",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A stealthy pouncer built for rapid movement and sudden takedowns.",
+      "searchText": "panther creature a stealthy pouncer built for rapid movement and sudden takedowns. beast cr 1/4 stealth pounce druid form medium beast 1/4 12 13 (3d8) 50 ft., climb 40 ft. 14 15 10 3 14 7 perception +4 stealth +6 passive perception 14 keen smell pounce bite: a quick melee strike that becomes more dangerous after a successful pounce. forest jungle true",
+      "payload": {
+        "size": "Medium",
+        "creatureType": "Beast",
+        "challengeRating": "1/4",
+        "armorClass": "12",
+        "hitPoints": "13 (3d8)",
+        "speed": "50 ft., climb 40 ft.",
+        "abilityScores": {
+          "strength": 14,
+          "dexterity": 15,
+          "constitution": 10,
+          "intelligence": 3,
+          "wisdom": 14,
+          "charisma": 7
+        },
+        "skills": [
+          "Perception +4",
+          "Stealth +6"
+        ],
+        "senses": [
+          "Passive Perception 14"
+        ],
+        "languages": [],
+        "features": [
+          "Keen Smell",
+          "Pounce"
+        ],
+        "actions": [
+          "Bite: a quick melee strike that becomes more dangerous after a successful pounce."
+        ],
+        "environment": [
+          "forest",
+          "jungle"
+        ],
+        "beastFormEligible": true
+      }
+    },
+    {
+      "slug": "sacred-flame",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Sacred Flame",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A radiant cantrip that forces a saving throw instead of a spell attack roll.",
+      "searchText": "sacred flame spell a radiant cantrip that forces a saving throw instead of a spell attack roll. cantrip radiant save cleric divine 0 evocation cleric action 60 feet instantaneous save dexterity 1d8 radiant",
+      "payload": {
+        "level": 0,
+        "school": "Evocation",
+        "classes": [
+          "Cleric"
+        ],
+        "castingTime": "Action",
+        "range": "60 feet",
+        "duration": "Instantaneous",
+        "attackType": "save",
+        "saveAbility": "dexterity",
+        "cantripDamage": "1d8 radiant"
+      }
+    },
+    {
+      "slug": "shield-of-faith",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Shield of Faith",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A protective ward that boosts a creature's Armor Class while concentration holds.",
+      "searchText": "shield of faith spell a protective ward that boosts a creature's armor class while concentration holds. level 1 abjuration cleric paladin armor class concentration 1 abjuration cleric paladin bonus action 60 feet concentration, up to 10 minutes true +2 bonus to armor class",
+      "payload": {
+        "level": 1,
+        "school": "Abjuration",
+        "classes": [
+          "Cleric",
+          "Paladin"
+        ],
+        "castingTime": "Bonus Action",
+        "range": "60 feet",
+        "duration": "Concentration, up to 10 minutes",
+        "concentration": true,
+        "effect": "+2 bonus to Armor Class"
+      }
+    },
+    {
+      "slug": "sleep",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Sleep",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "An arcane control spell that can knock weaker creatures unconscious.",
+      "searchText": "sleep spell an arcane control spell that can knock weaker creatures unconscious. level 1 enchantment bard sorcerer wizard control incapacitate 1 enchantment bard sorcerer wizard action 90 feet 1 minute you release a wave of drowsy magic centered on a point in range. the spell affects creatures with the lowest current hit points first until its pool is spent. casting with a higher-level slot expands the total hit points that can be put to sleep.",
+      "payload": {
+        "level": 1,
+        "school": "Enchantment",
+        "classes": [
+          "Bard",
+          "Sorcerer",
+          "Wizard"
+        ],
+        "castingTime": "Action",
+        "range": "90 feet",
+        "duration": "1 minute",
+        "description": "You release a wave of drowsy magic centered on a point in range. The spell affects creatures with the lowest current hit points first until its pool is spent.",
+        "higherLevel": "Casting with a higher-level slot expands the total hit points that can be put to sleep."
+      }
+    },
+    {
+      "slug": "vicious-mockery",
+      "sourceId": "srd-5.2.1",
+      "type": "spell",
+      "name": "Vicious Mockery",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A cutting insult that deals psychic damage and hinders the target's next attack.",
+      "searchText": "vicious mockery spell a cutting insult that deals psychic damage and hinders the target's next attack. cantrip enchantment bard psychic save 0 enchantment bard action 60 feet instantaneous save wisdom 1d6 psychic",
+      "payload": {
+        "level": 0,
+        "school": "Enchantment",
+        "classes": [
+          "Bard"
+        ],
+        "castingTime": "Action",
+        "range": "60 feet",
+        "duration": "Instantaneous",
+        "attackType": "save",
+        "saveAbility": "wisdom",
+        "cantripDamage": "1d6 psychic"
+      }
+    },
+    {
+      "slug": "wolf",
+      "sourceId": "srd-5.2.1",
+      "type": "creature",
+      "name": "Wolf",
+      "ruleset": "2024",
+      "source": "SRD / Free Rules",
+      "license": "CC-BY-4.0 / Open Content",
+      "attribution": "Wizards of the Coast open rules content",
+      "summary": "A swift hunting beast with pack tactics and a punishing bite.",
+      "searchText": "wolf creature a swift hunting beast with pack tactics and a punishing bite. beast cr 1/4 pack tactics keen hearing keen smell druid form medium beast 1/4 13 11 (2d8 + 2) 40 ft. 12 15 12 3 12 6 perception +3 stealth +4 passive perception 13 keen hearing and smell pack tactics bite: a melee strike that deals piercing damage and can drag a smaller target to the ground. forest grassland tundra true a wolf entry is a good baseline beast-form candidate because it combines speed, pack tactics, and a straightforward control rider on its bite.",
+      "payload": {
+        "size": "Medium",
+        "creatureType": "Beast",
+        "challengeRating": "1/4",
+        "armorClass": "13",
+        "hitPoints": "11 (2d8 + 2)",
+        "speed": "40 ft.",
+        "abilityScores": {
+          "strength": 12,
+          "dexterity": 15,
+          "constitution": 12,
+          "intelligence": 3,
+          "wisdom": 12,
+          "charisma": 6
+        },
+        "skills": [
+          "Perception +3",
+          "Stealth +4"
+        ],
+        "senses": [
+          "Passive Perception 13"
+        ],
+        "languages": [],
+        "features": [
+          "Keen Hearing and Smell",
+          "Pack Tactics"
+        ],
+        "actions": [
+          "Bite: a melee strike that deals piercing damage and can drag a smaller target to the ground."
+        ],
+        "environment": [
+          "forest",
+          "grassland",
+          "tundra"
+        ],
+        "beastFormEligible": true,
+        "description": "A wolf entry is a good baseline beast-form candidate because it combines speed, pack tactics, and a straightforward control rider on its bite."
+      }
+    }
+  ]
+}

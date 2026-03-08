@@ -28,7 +28,10 @@ function formatDetailValue(value: unknown): string {
   }
 
   if (value && typeof value === "object") {
-    return JSON.stringify(value);
+    return Object.entries(value)
+      .map(([key, entry]) => `${formatDetailLabel(key)}: ${formatDetailValue(entry)}`)
+      .filter((entry) => !entry.endsWith(": "))
+      .join(", ");
   }
 
   return "";

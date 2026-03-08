@@ -28,6 +28,8 @@
 
 - On `2026-03-07`, `npx -y -p node@22 -p npm@10 npm run release:verify-local` passed on this machine.
 - That command covered `typecheck`, `test`, macOS DMG build, Windows unpacked packaging, and Windows NSIS installer generation.
+- On `2026-03-08`, post-beta feature work was re-verified on this Windows machine with `npx -y -p node@22 -p npm@10 npm run typecheck`, `test`, `lint`, and `build:win-local`.
+- In this shell, `release:verify-local` still trips the documented default `npm run build` `winCodeSign` symlink-extraction path, so the practical Windows baseline remains the explicit `build:win-local` / `pack:win-local` commands plus the Node `22.x` `npx` fallback.
 - The clean release commit is `7ffcbfd`, and tag `v0.1.0` has already been pushed to `origin`.
 - A ready-to-paste GitHub release body now lives in `docs/RELEASE_BODY_v0.1.0.md`.
 

@@ -10,6 +10,7 @@
     "node": ">=22 <24"
   },
   "scripts": {
+    "content:build": "node scripts/build-content-packs.mjs",
     "dev": "vite",
     "build": "tsc -b && vite build && tsup && electron-builder",
     "build:win-local": "tsc -b && vite build && tsup && electron-builder --win nsis --x64 -c.win.signAndEditExecutable=false",

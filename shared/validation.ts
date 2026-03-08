@@ -1,5 +1,8 @@
 import { z } from "zod";
+import { calculateDerivedState } from "./calculations";
 import { DEFAULT_ENABLED_SOURCE_IDS } from "./data/contentSources";
+import { createDefaultSheetProfile, normalizeSheetProfile, normalizeTrackedResources } from "./sheetTracking";
+import { normalizePactSlotsRemaining, normalizeSpellSlotsRemaining } from "./spellSlots";
 import type { CharacterRecord } from "./types";
 import { ABILITY_NAMES, SKILL_NAMES } from "./types";
 
@@ -30,6 +33,33 @@ export const inventoryItemSchema = z.object({
   notes: z.string().optional(),
 });
 
+export const currencyWalletSchema = z.object({
+  cp: z.number().int().min(0).optional().default(0),
+  sp: z.number().int().min(0).optional().default(0),
+  ep: z.number().int().min(0).optional().default(0),
+  gp: z.number().int().min(0).optional().default(0),
+  pp: z.number().int().min(0).optional().default(0),
+});
+
+export const sheetProfileSchema = z.object({
+  appearance: z.string().optional().default(""),
+  alignment: z.string().optional().default(""),
+  languages: z.array(z.string()).optional().default([]),
+  equipmentNotes: z.string().optional().default(""),
+  currencies: currencyWalletSchema.optional().default(createDefaultSheetProfile().currencies),
+});
+
+export const trackedResourceSchema = z.object({
+  id: z.string().optional(),
+  label: z.string().optional().default(""),
+  current: z.number().int().min(0).optional().default(0),
+  max: z.number().int().min(0).optional().default(0),
+  display: z.enum(["checkboxes", "counter"]).optional().default("counter"),
+  recovery: z.enum(["manual", "shortRest", "longRest"]).optional().default("manual"),
+  referenceSlug: z.string().optional(),
+  notes: z.string().optional(),
+});
+
 export const builderInputSchema = z.object({
   name: z.string().trim().min(1).max(80),
   enabledSourceIds: z.array(z.string().min(1)).min(1).default(DEFAULT_ENABLED_SOURCE_IDS),
@@ -52,8 +82,12 @@ export const builderInputSchema = z.object({
   bonusSpellIds: z.array(z.string()).optional().default([]),
   spellIds: z.array(z.string()),
   preparedSpellIds: z.array(z.string()),
+  spellSlotsRemaining: z.array(z.number().int().min(0)).optional().default([]),
+  pactSlotsRemaining: z.number().int().min(0).optional(),
   homebrewIds: z.array(z.string()),
   notes: notesSchema,
+  sheetProfile: sheetProfileSchema.optional().default(createDefaultSheetProfile()),
+  trackedResources: z.array(trackedResourceSchema).optional().default([]),
   currentHitPoints: z.number().int().min(0),
   tempHitPoints: z.number().int().min(0),
   hitDiceSpent: z.number().int().min(0),
@@ -110,14 +144,23 @@ export const jsonExportSchema = z.object({
 });
 
 export function parseCharacterRecord(input: unknown): CharacterRecord {
-  return characterRecordSchema.parse(input) as unknown as CharacterRecord;
+  const parsed = characterRecordSchema.parse(input) as unknown as CharacterRecord;
+  const derived = calculateDerivedState(parsed);
+
+  return {
+    ...parsed,
+    sheetProfile: normalizeSheetProfile(parsed.sheetProfile),
+    trackedResources: normalizeTrackedResources(parsed.trackedResources),
+    spellSlotsRemaining: normalizeSpellSlotsRemaining(parsed.spellSlotsRemaining, derived.spellcasting.spellSlotsMax),
+    pactSlotsRemaining: normalizePactSlotsRemaining(parsed.pactSlotsRemaining, derived.spellcasting.pactSlotsMax),
+  };
 }
 
 export function parseCharacterImport(input: unknown): CharacterRecord {
   const wrapped = jsonExportSchema.safeParse(input);
 
   if (wrapped.success) {
-    return wrapped.data.character as unknown as CharacterRecord;
+    return parseCharacterRecord(wrapped.data.character);
   }
 
   return parseCharacterRecord(input);

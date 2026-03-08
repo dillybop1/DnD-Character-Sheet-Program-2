@@ -2,6 +2,8 @@ import { calculateDerivedState } from "./calculations";
 import { resolveEnabledSourceIds } from "./data/contentSources";
 import { normalizeSubclassSelection, sanitizeFeatState } from "./data/reference";
 import { deriveLegacyLoadout, normalizeInventory } from "./inventory";
+import { normalizeSheetProfile, normalizeTrackedResources } from "./sheetTracking";
+import { normalizePactSlotsRemaining, normalizeSpellSlotsRemaining } from "./spellSlots";
 import type { BuilderInput, CharacterRecord, HomebrewEntry } from "./types";
 
 function clampNonNegative(value: number) {
@@ -55,8 +57,12 @@ export function buildCharacterFromInput(input: BuilderInput, homebrewEntries: Ho
     bonusSpellIds: normalizeStringArray(input.bonusSpellIds),
     spellIds: input.spellIds,
     preparedSpellIds: input.preparedSpellIds,
+    spellSlotsRemaining: [...input.spellSlotsRemaining],
+    pactSlotsRemaining: input.pactSlotsRemaining === undefined ? undefined : clampNonNegative(input.pactSlotsRemaining),
     homebrewIds: input.homebrewIds,
     notes: input.notes,
+    sheetProfile: normalizeSheetProfile(input.sheetProfile),
+    trackedResources: normalizeTrackedResources(input.trackedResources),
     currentHitPoints: clampNonNegative(input.currentHitPoints),
     tempHitPoints: clampNonNegative(input.tempHitPoints),
     hitDiceSpent: clampNonNegative(input.hitDiceSpent),
@@ -72,5 +78,7 @@ export function buildCharacterFromInput(input: BuilderInput, homebrewEntries: Ho
   const derived = calculateDerivedState(draft, homebrewEntries);
   draft.currentHitPoints = Math.min(draft.currentHitPoints, derived.hitPointsMax);
   draft.hitDiceSpent = Math.min(draft.hitDiceSpent, derived.hitDiceMax);
+  draft.spellSlotsRemaining = normalizeSpellSlotsRemaining(draft.spellSlotsRemaining, derived.spellcasting.spellSlotsMax);
+  draft.pactSlotsRemaining = normalizePactSlotsRemaining(draft.pactSlotsRemaining, derived.spellcasting.pactSlotsMax);
   return draft;
 }

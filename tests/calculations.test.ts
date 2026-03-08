@@ -36,6 +36,8 @@ function makeBaseInput(overrides: Partial<BuilderInput> = {}): BuilderInput {
     bonusSpellIds: [],
     spellIds: [],
     preparedSpellIds: [],
+    spellSlotsRemaining: [],
+    pactSlotsRemaining: undefined,
     homebrewIds: [],
     notes: {
       classFeatures: "",
@@ -43,6 +45,20 @@ function makeBaseInput(overrides: Partial<BuilderInput> = {}): BuilderInput {
       speciesTraits: "",
       feats: "",
     },
+    sheetProfile: {
+      appearance: "",
+      alignment: "",
+      languages: [],
+      equipmentNotes: "",
+      currencies: {
+        cp: 0,
+        sp: 0,
+        ep: 0,
+        gp: 0,
+        pp: 0,
+      },
+    },
+    trackedResources: [],
     currentHitPoints: 12,
     tempHitPoints: 0,
     hitDiceSpent: 0,
@@ -63,6 +79,57 @@ describe("calculateDerivedState", () => {
     expect(derived.armorClass).toBe(18);
     expect(derived.proficiencyBonus).toBe(2);
     expect(derived.weaponEntries[0]?.attackBonus).toBe(5);
+  });
+
+  it("persists sheet profile fields and normalizes tracked resources when building characters", () => {
+    const character = buildCharacterFromInput(
+      makeBaseInput({
+        sheetProfile: {
+          appearance: "Scar over one eye",
+          alignment: "Chaotic Good",
+          languages: ["Common", " Goblin ", "Common"],
+          equipmentNotes: "Carries a marked longbow case.",
+          currencies: {
+            cp: 12,
+            sp: 3,
+            ep: 0,
+            gp: 45,
+            pp: 1,
+          },
+        },
+        trackedResources: [
+          {
+            id: "",
+            label: "Hunter's Mark Charges",
+            current: 7,
+            max: 4,
+            display: "checkboxes",
+            recovery: "longRest",
+          },
+          {
+            id: "blank-resource",
+            label: "   ",
+            current: 1,
+            max: 1,
+            display: "counter",
+            recovery: "manual",
+          },
+        ],
+      }),
+    );
+
+    expect(character.sheetProfile.languages).toEqual(["Common", "Goblin"]);
+    expect(character.sheetProfile.currencies.gp).toBe(45);
+    expect(character.trackedResources).toEqual([
+      {
+        id: "tracked-resource-1",
+        label: "Hunter's Mark Charges",
+        current: 4,
+        max: 4,
+        display: "checkboxes",
+        recovery: "longRest",
+      },
+    ]);
   });
 
   it("derives equipped loadout from inventory entries", () => {
@@ -116,7 +183,9 @@ describe("calculateDerivedState", () => {
     expect(derived.spellcasting.spellSaveDC).toBe(15);
     expect(derived.spellcasting.slotMode).toBe("standard");
     expect(derived.spellcasting.spellSlotsMax).toEqual([4, 3, 2]);
+    expect(derived.spellcasting.spellSlotsRemaining).toEqual([4, 3, 2]);
     expect(derived.spellcasting.pactSlotsMax).toBe(0);
+    expect(derived.spellcasting.pactSlotsRemaining).toBe(0);
     expect(derived.spellcasting.pactSlotLevel).toBeNull();
     expect(derived.spellcasting.preparedSpells.map((spell) => spell.id)).toEqual(["magic-missile"]);
   });
@@ -174,6 +243,7 @@ describe("calculateDerivedState", () => {
     expect(derived.spellcasting.spellSaveDC).toBe(15);
     expect(derived.spellcasting.spellSlotsMax).toEqual([]);
     expect(derived.spellcasting.pactSlotsMax).toBe(2);
+    expect(derived.spellcasting.pactSlotsRemaining).toBe(2);
     expect(derived.spellcasting.pactSlotLevel).toBe(4);
   });
 

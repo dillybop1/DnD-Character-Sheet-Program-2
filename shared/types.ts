@@ -48,6 +48,9 @@ export type CasterType = "none" | "full" | "half" | "pact";
 export type InventoryItemKind = "weapon" | "armor" | "gear";
 export type FeatChoiceKind = "skill" | "ability" | "expertise";
 export type FeatSupportLevel = "derived" | "partial" | "reference";
+export type SpellAttackType = "spellAttack" | "save";
+export type TrackedResourceDisplay = "checkboxes" | "counter";
+export type TrackedResourceRecovery = "manual" | "shortRest" | "longRest";
 export type ContentSourceId = string;
 export type ContentSourceKind = "core" | "sourcebook" | "setting" | "campaign";
 export type ContentSourceAvailability = "installed" | "planned";
@@ -211,8 +214,89 @@ export interface SpellRecord {
   duration?: string;
   concentration?: boolean;
   ritual?: boolean;
-  attackType?: "spellAttack" | "save";
+  attackType?: SpellAttackType;
+  saveAbility?: AbilityName;
   cantripDamage?: string;
+  description?: string;
+  higherLevel?: string;
+}
+
+export interface SpellCompendiumPayload extends Record<string, unknown> {
+  level: number;
+  school: string;
+  classes: string[];
+  castingTime: string;
+  range: string;
+  duration: string;
+  concentration?: boolean;
+  ritual?: boolean;
+  attackType?: SpellAttackType;
+  saveAbility?: AbilityName;
+  cantripDamage?: string;
+  damage?: string;
+  healing?: string;
+  effect?: string;
+  description?: string;
+  higherLevel?: string;
+}
+
+export interface CreatureCompendiumPayload extends Record<string, unknown> {
+  size: CreatureSize;
+  creatureType: string;
+  challengeRating: string;
+  armorClass: string;
+  hitPoints: string;
+  speed: string;
+  abilityScores: AbilityScores;
+  skills?: string[];
+  senses?: string[];
+  languages?: string[];
+  features?: string[];
+  actions?: string[];
+  environment?: string[];
+  beastFormEligible?: boolean;
+  description?: string;
+}
+
+export interface CreatureRecord {
+  id: string;
+  sourceId: ContentSourceId;
+  name: string;
+  size: CreatureSize;
+  creatureType: string;
+  challengeRating: string;
+  armorClass: string;
+  hitPoints: string;
+  speed: string;
+  abilityScores: AbilityScores;
+  skills: string[];
+  senses: string[];
+  languages: string[];
+  features: string[];
+  actions: string[];
+  environment: string[];
+  beastFormEligible: boolean;
+  description?: string;
+}
+
+export interface ContentPackManifest {
+  id: ContentSourceId;
+  shortCode: string;
+  name: string;
+  ruleset: string;
+  category: ContentSourceKind;
+  licenseMode: ContentSource["licenseMode"];
+  source: string;
+  license: string;
+  attribution: string;
+  version: string;
+  summary: string;
+}
+
+export interface GeneratedContentPackBuild {
+  buildVersion: string;
+  packs: ContentPackManifest[];
+  entries: CompendiumEntry[];
 }
 
 export interface NotesBlock {
@@ -228,6 +312,33 @@ export interface InventoryItemRecord {
   templateId: string;
   quantity: number;
   equipped: boolean;
+  notes?: string;
+}
+
+export interface CurrencyWallet {
+  cp: number;
+  sp: number;
+  ep: number;
+  gp: number;
+  pp: number;
+}
+
+export interface SheetProfile {
+  appearance: string;
+  alignment: string;
+  languages: string[];
+  equipmentNotes: string;
+  currencies: CurrencyWallet;
+}
+
+export interface TrackedResource {
+  id: string;
+  label: string;
+  current: number;
+  max: number;
+  display: TrackedResourceDisplay;
+  recovery: TrackedResourceRecovery;
+  referenceSlug?: string;
   notes?: string;
 }
 
@@ -252,8 +363,12 @@ export interface CharacterRecord {
   bonusSpellIds: string[];
   spellIds: string[];
   preparedSpellIds: string[];
+  spellSlotsRemaining: number[];
+  pactSlotsRemaining?: number;
   homebrewIds: string[];
   notes: NotesBlock;
+  sheetProfile: SheetProfile;
+  trackedResources: TrackedResource[];
   currentHitPoints: number;
   tempHitPoints: number;
   hitDiceSpent: number;
@@ -283,8 +398,12 @@ export interface BuilderInput {
   bonusSpellIds: string[];
   spellIds: string[];
   preparedSpellIds: string[];
+  spellSlotsRemaining: number[];
+  pactSlotsRemaining?: number;
   homebrewIds: string[];
   notes: NotesBlock;
+  sheetProfile: SheetProfile;
+  trackedResources: TrackedResource[];
   currentHitPoints: number;
   tempHitPoints: number;
   hitDiceSpent: number;
@@ -298,6 +417,7 @@ export type CompendiumType =
   | "species"
   | "background"
   | "spell"
+  | "creature"
   | "weapon"
   | "armor"
   | "gear"
@@ -365,6 +485,8 @@ export interface DerivedSpellSummary {
   spellSlotsMax: number[];
   pactSlotsMax: number;
   pactSlotLevel: number | null;
+  spellSlotsRemaining: number[];
+  pactSlotsRemaining: number;
   knownSpells: SpellRecord[];
   preparedSpells: SpellRecord[];
 }

@@ -3,6 +3,8 @@ import { DEFAULT_ENABLED_SOURCE_IDS, resolveEnabledSourceIds } from "../../share
 import { sanitizeFeatState } from "../../shared/data/reference";
 import { buildCharacterFromInput } from "../../shared/factories";
 import { createInventoryItem, deriveLegacyLoadout, normalizeInventory } from "../../shared/inventory";
+import { createDefaultSheetProfile, normalizeSheetProfile, normalizeTrackedResources } from "../../shared/sheetTracking";
+import { normalizePactSlotsRemaining, normalizeSpellSlotsRemaining } from "../../shared/spellSlots";
 import type { BuilderInput, CharacterRecord, HomebrewEntry } from "../../shared/types";
 
 function clampNonNegative(value: number) {
@@ -63,6 +65,8 @@ export function createDefaultBuilderInput(): BuilderInput {
     bonusSpellIds: [],
     spellIds: [],
     preparedSpellIds: [],
+    spellSlotsRemaining: [],
+    pactSlotsRemaining: undefined,
     homebrewIds: [],
     notes: {
       classFeatures: "",
@@ -70,6 +74,8 @@ export function createDefaultBuilderInput(): BuilderInput {
       speciesTraits: "",
       feats: "",
     },
+    sheetProfile: createDefaultSheetProfile(),
+    trackedResources: [],
     currentHitPoints: 0,
     tempHitPoints: 0,
     hitDiceSpent: 0,
@@ -90,6 +96,8 @@ export function createDefaultBuilderInput(): BuilderInput {
   return {
     ...draft,
     currentHitPoints: derived.hitPointsMax,
+    spellSlotsRemaining: [...derived.spellcasting.spellSlotsMax],
+    pactSlotsRemaining: derived.spellcasting.pactSlotsMax,
   };
 }
 
@@ -121,11 +129,15 @@ export function builderInputFromCharacter(record: CharacterRecord): BuilderInput
     bonusSpellIds: record.bonusSpellIds ?? [],
     spellIds: record.spellIds,
     preparedSpellIds: record.preparedSpellIds,
+    spellSlotsRemaining: [...record.spellSlotsRemaining],
+    pactSlotsRemaining: record.pactSlotsRemaining,
     homebrewIds: record.homebrewIds,
     notes: {
       ...record.notes,
       backgroundFeatures: record.notes.backgroundFeatures ?? "",
     },
+    sheetProfile: normalizeSheetProfile(record.sheetProfile),
+    trackedResources: normalizeTrackedResources(record.trackedResources),
     currentHitPoints: record.currentHitPoints,
     tempHitPoints: record.tempHitPoints,
     hitDiceSpent: record.hitDiceSpent,
@@ -180,7 +192,11 @@ export function buildPreviewCharacter(
     bonusSpellIds: [...draft.bonusSpellIds],
     spellIds: [...draft.spellIds],
     preparedSpellIds: [...draft.preparedSpellIds],
+    spellSlotsRemaining: [...draft.spellSlotsRemaining],
+    pactSlotsRemaining: draft.pactSlotsRemaining === undefined ? undefined : clampNonNegative(draft.pactSlotsRemaining),
     homebrewIds: [...draft.homebrewIds],
+    sheetProfile: normalizeSheetProfile(draft.sheetProfile),
+    trackedResources: normalizeTrackedResources(draft.trackedResources),
     currentHitPoints: clampNonNegative(draft.currentHitPoints),
     tempHitPoints: clampNonNegative(draft.tempHitPoints),
     hitDiceSpent: clampNonNegative(draft.hitDiceSpent),
@@ -197,6 +213,8 @@ export function buildPreviewCharacter(
     ...nextRecord,
     currentHitPoints: Math.min(nextRecord.currentHitPoints, derived.hitPointsMax),
     hitDiceSpent: Math.min(nextRecord.hitDiceSpent, derived.hitDiceMax),
+    spellSlotsRemaining: normalizeSpellSlotsRemaining(nextRecord.spellSlotsRemaining, derived.spellcasting.spellSlotsMax),
+    pactSlotsRemaining: normalizePactSlotsRemaining(nextRecord.pactSlotsRemaining, derived.spellcasting.pactSlotsMax),
   };
 }
 

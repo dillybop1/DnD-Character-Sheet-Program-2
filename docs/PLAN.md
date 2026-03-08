@@ -11,9 +11,11 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - Dynamic calculations for AC, modifiers, saves, skills, HP, spell attack, spell DC, hit dice, and spell slots
 - Structural sheet layout that matches the approved reference page's information hierarchy before final art polish
 - Linked SRD/open compendium with search and detail views
-- Source-aware content architecture so later books can be added as new content packages instead of rewriting core models
+- Source-aware content architecture so later books can be added as repo-managed content packs instead of rewriting core models
 - Basic homebrew entries with bounded effects
 - JSON backup/export and print/PDF export
+- Persistent saved-character play-state tracking for spell slots and vitals
+- Repo-managed spell and creature/beast packs that compile into the shared compendium dataset before SQLite sync
 - Original fantasy art direction inspired by the reference sheet
 
 ## Non-Goals
@@ -40,8 +42,8 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - Persistence: SQLite via `better-sqlite3`
 - ORM: Drizzle
 - Shared domain layer: TypeScript types and calculation engine in `shared/`
-- Compendium ingestion: versioned shared manifest synced idempotently into SQLite
-- Content packaging: shared source registry plus per-character enabled source profiles
+- Compendium ingestion: repo-managed content packs compiled into generated JSON and synced idempotently into SQLite
+- Content packaging: shared source registry plus repo-managed pack manifests and per-character enabled source profiles
 - IPC surface:
   - `characters.list/create/get/save/delete/exportJson/exportPdf`
   - `builder.createFromWizard`
@@ -61,6 +63,7 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - `M7`: spells, inventory, features, homebrew application
 - `M8`: print/PDF export, ornamental polish, QA, packaging verification
 - `M9`: release readiness, signing/notarization strategy, and publish handoff
+- `M10`: content-pack expansion plus a saved-sheet-first two-page redesign with bounded play-state and resource UX
 
 ## Acceptance Criteria
 
@@ -76,3 +79,5 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - Future books can be added as new content sources without changing the base character record shape.
 - The app can build for macOS and Windows from the same codebase.
 - A validated `v0.1.0` candidate can be traced to concrete build commands, expected artifacts, and a documented release/signing checklist.
+- Saved characters persist current spell slot state, and the editor, saved-sheet route, and exported sheet all show remaining versus maximum slots consistently.
+- Repo-managed content packs can regenerate the browser/Electron compendium dataset deterministically, and that dataset already includes richer spell metadata plus first-class creature/beast entries.

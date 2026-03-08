@@ -1,0 +1,123 @@
+[
+  {
+    "slug": "black-bear",
+    "name": "Black Bear",
+    "summary": "A sturdy beast that mauls nearby targets with tooth and claw.",
+    "tags": ["beast", "cr 1/2", "land", "melee", "druid form"],
+    "size": "Medium",
+    "creatureType": "Beast",
+    "challengeRating": "1/2",
+    "armorClass": "11",
+    "hitPoints": "19 (3d8 + 6)",
+    "speed": "40 ft., climb 30 ft.",
+    "abilityScores": {
+      "strength": 15,
+      "dexterity": 10,
+      "constitution": 14,
+      "intelligence": 2,
+      "wisdom": 12,
+      "charisma": 7
+    },
+    "skills": ["Perception +3"],
+    "senses": ["Passive Perception 13"],
+    "languages": [],
+    "features": ["Keen Smell"],
+    "actions": [
+      "Multiattack: make one bite attack and one claw attack.",
+      "Bite: a solid melee hit that deals piercing damage.",
+      "Claws: a heavier swipe that deals slashing damage."
+    ],
+    "environment": ["forest", "hill"],
+    "beastFormEligible": true
+  },
+  {
+    "slug": "giant-spider",
+    "name": "Giant Spider",
+    "summary": "An ambush predator that climbs with ease and threatens foes with webbing and venom.",
+    "tags": ["beast", "cr 1", "climb", "poison", "web", "druid form"],
+    "size": "Large",
+    "creatureType": "Beast",
+    "challengeRating": "1",
+    "armorClass": "14",
+    "hitPoints": "26 (4d10 + 4)",
+    "speed": "30 ft., climb 30 ft.",
+    "abilityScores": {
+      "strength": 14,
+      "dexterity": 16,
+      "constitution": 12,
+      "intelligence": 2,
+      "wisdom": 11,
+      "charisma": 4
+    },
+    "skills": ["Stealth +7"],
+    "senses": ["Blindsight 10 ft.", "Darkvision 60 ft.", "Passive Perception 10"],
+    "languages": [],
+    "features": ["Spider Climb", "Web Sense", "Web Walker"],
+    "actions": [
+      "Bite: a venomous melee strike that deals piercing damage plus poison.",
+      "Web: a ranged restraint option that can pin a target in place until it breaks free."
+    ],
+    "environment": ["forest", "underdark"],
+    "beastFormEligible": true,
+    "descriptionKey": "giant-spider"
+  },
+  {
+    "slug": "panther",
+    "name": "Panther",
+    "summary": "A stealthy pouncer built for rapid movement and sudden takedowns.",
+    "tags": ["beast", "cr 1/4", "stealth", "pounce", "druid form"],
+    "size": "Medium",
+    "creatureType": "Beast",
+    "challengeRating": "1/4",
+    "armorClass": "12",
+    "hitPoints": "13 (3d8)",
+    "speed": "50 ft., climb 40 ft.",
+    "abilityScores": {
+      "strength": 14,
+      "dexterity": 15,
+      "constitution": 10,
+      "intelligence": 3,
+      "wisdom": 14,
+      "charisma": 7
+    },
+    "skills": ["Perception +4", "Stealth +6"],
+    "senses": ["Passive Perception 14"],
+    "languages": [],
+    "features": ["Keen Smell", "Pounce"],
+    "actions": [
+      "Bite: a quick melee strike that becomes more dangerous after a successful pounce."
+    ],
+    "environment": ["forest", "jungle"],
+    "beastFormEligible": true
+  },
+  {
+    "slug": "wolf",
+    "name": "Wolf",
+    "summary": "A swift hunting beast with pack tactics and a punishing bite.",
+    "tags": ["beast", "cr 1/4", "pack tactics", "keen hearing", "keen smell", "druid form"],
+    "size": "Medium",
+    "creatureType": "Beast",
+    "challengeRating": "1/4",
+    "armorClass": "13",
+    "hitPoints": "11 (2d8 + 2)",
+    "speed": "40 ft.",
+    "abilityScores": {
+      "strength": 12,
+      "dexterity": 15,
+      "constitution": 12,
+      "intelligence": 3,
+      "wisdom": 12,
+      "charisma": 6
+    },
+    "skills": ["Perception +3", "Stealth +4"],
+    "senses": ["Passive Perception 13"],
+    "languages": [],
+    "features": ["Keen Hearing and Smell", "Pack Tactics"],
+    "actions": [
+      "Bite: a melee strike that deals piercing damage and can drag a smaller target to the ground."
+    ],
+    "environment": ["forest", "grassland", "tundra"],
+    "beastFormEligible": true,
+    "descriptionKey": "wolf"
+  }
+]

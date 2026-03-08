@@ -209,3 +209,38 @@
 - Context: The current embedded character workspace is functional, but the intended UX is roster-first launch plus a clearer separation between reading a finished sheet and editing a character, without adding native multi-window complexity.
 - Decision: Keep one Electron window and split the character workflow into routed pages: a roster home on app launch, a dedicated in-app character sheet page for existing characters, and a creator/editor page with a live preview at the bottom. Preserve existing edit capability by routing sheet-page edit actions back into the creator/editor flow instead of opening a second native window.
 - Consequences: The app's navigation will better match the intended player journey and stay simpler to manage than multiple BrowserWindows, but the current `/characters` page will need to be decomposed into smaller route-oriented pages/components before final sheet polish and packaging signoff.
+
+## DEC-031
+
+- Date: `2026-03-08`
+- Context: The app already persisted hit points, hit dice, death saves, and inspiration, but spell slots still existed only as derived maxima, which made the dedicated saved-sheet route weak for actual play and left exports unable to reflect current slot usage.
+- Decision: Persist remaining standard and pact spell slots on the character record, backfill legacy/imported records to the current maxima during parsing, and surface that tracked state in both the creator/editor route and the saved-sheet route while showing remaining/max values on the sheet preview/export.
+- Consequences: Saved sheets now support actual spell-slot tracking without leaving the main route flow, and older records upgrade safely without a database migration, but broader rest automation and generic limited-use resource support remain separate future work.
+
+## DEC-032
+
+- Date: `2026-03-08`
+- Context: The app now needs a much denser saved-sheet experience inspired by a two-page spreadsheet-style layout, but rewriting the builder and roster at the same time would blur the milestone and slow handoffs.
+- Decision: Keep the redesign saved-sheet-first on `/characters/:id`, and leave the existing builder/editor route in place until the new sheet data model and page structure settle.
+- Consequences: The next milestone slices can focus on the two-page read/play surface without reworking the whole app at once, but some sheet-only fields will need to be editable outside the current builder flow.
+
+## DEC-033
+
+- Date: `2026-03-08`
+- Context: The inline TypeScript spell seed had become the bottleneck for richer spell metadata, future book growth, and creature/beast support.
+- Decision: Move spells and creatures into repo-managed content packs under `content/packs`, validate them through `npm run content:build`, generate a merged JSON dataset for browser/Electron consumption, and keep SQLite sync/search pointed at that generated compendium data.
+- Consequences: Larger rules content now has a repeatable import path and can add keyed long-form descriptions without bloating character records, but pack authors must regenerate the merged dataset whenever canonical content changes.
+
+## DEC-034
+
+- Date: `2026-03-08`
+- Context: The target sheet needs room for manual edits and notes, but a persistent freehand annotation/highlight layer would add much more interaction and storage complexity than the current saved-sheet route can absorb safely.
+- Decision: Keep the first redesign pass bounded to structured sheet fields, inline text notes, and explicit trackable resources rather than freehand drawing/highlighting.
+- Consequences: The saved-sheet route can gain practical manual editing sooner and with less persistence risk, but exact spreadsheet-style markup remains a future enhancement instead of part of the first redesign cut.
+
+## DEC-035
+
+- Date: `2026-03-08`
+- Context: The new sheet should support short-rest / long-rest controls and charge tracking, but a broad 2024 automation engine would materially expand scope before the redesigned data model even exists.
+- Decision: Sequence `M10` as UI/data-model first: add generic tracked resources and only bounded rest/reset behavior for explicitly configured state before attempting universal class-feature automation.
+- Consequences: The redesigned sheet can support real at-table tracking sooner, but deeper rules automation remains intentionally deferred until after the two-page surface and persistence model are in place.

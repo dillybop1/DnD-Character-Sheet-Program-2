@@ -1,4 +1,14 @@
-import type { CompendiumEntry, CompendiumType, SearchInput, SpellRecord } from "../types";
+import contentPackBuild from "./generated/contentPackBuild.generated.json";
+import type {
+  CompendiumEntry,
+  CompendiumType,
+  CreatureCompendiumPayload,
+  CreatureRecord,
+  GeneratedContentPackBuild,
+  SearchInput,
+  SpellCompendiumPayload,
+  SpellRecord,
+} from "../types";
 import { CORE_OPEN_SOURCE_ID, DEFAULT_ENABLED_SOURCE_IDS, isSourceEnabled } from "./contentSources";
 import { FEATS, SUBCLASSES, getBackgroundTemplate, getClassTemplate, getFeatChoiceLabel, getFeatSupportLabel, getGearTemplate } from "./reference";
 
@@ -17,6 +27,9 @@ const OPEN_CONTENT_META = {
   license: "CC-BY-4.0 / Open Content",
   attribution: "Wizards of the Coast open rules content",
 } as const;
+
+const CONTENT_PACK_BUILD = contentPackBuild as GeneratedContentPackBuild;
+const CONTENT_PACK_COMPENDIUM_ENTRIES = CONTENT_PACK_BUILD.entries;
 
 const SUBCLASS_DRAFTS: CompendiumDraft[] = SUBCLASSES.map((subclass) => {
   const classTemplate = getClassTemplate(subclass.classId);
@@ -300,330 +313,6 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
       suggestedSkills: ["Athletics", "Intimidation"],
       featureSummary: getBackgroundTemplate("soldier").featureSummary,
       startingGear: backgroundStartingGearLabels("soldier"),
-    },
-  },
-  {
-    slug: "fire-bolt",
-    type: "spell",
-    name: "Fire Bolt",
-    summary: "A ranged attack cantrip that deals fire damage and scales with character level.",
-    tags: ["cantrip", "evocation", "attack", "wizard", "sorcerer", "arcane", "fire"],
-    payload: {
-      level: 0,
-      school: "Evocation",
-      classes: ["Sorcerer", "Wizard"],
-      castingTime: "Action",
-      range: "120 feet",
-      duration: "Instantaneous",
-      attackType: "spellAttack",
-      cantripDamage: "1d10 fire",
-    },
-  },
-  {
-    slug: "vicious-mockery",
-    type: "spell",
-    name: "Vicious Mockery",
-    summary: "A cutting insult that deals psychic damage and hinders the target's next attack.",
-    tags: ["cantrip", "enchantment", "bard", "psychic", "save"],
-    payload: {
-      level: 0,
-      school: "Enchantment",
-      classes: ["Bard"],
-      castingTime: "Action",
-      range: "60 feet",
-      duration: "Instantaneous",
-      attackType: "save",
-      saveAbility: "Wisdom",
-      cantripDamage: "1d6 psychic",
-    },
-  },
-  {
-    slug: "sacred-flame",
-    type: "spell",
-    name: "Sacred Flame",
-    summary: "A radiant cantrip that forces a saving throw instead of a spell attack roll.",
-    tags: ["cantrip", "radiant", "save", "cleric", "divine"],
-    payload: {
-      level: 0,
-      school: "Evocation",
-      classes: ["Cleric"],
-      castingTime: "Action",
-      range: "60 feet",
-      duration: "Instantaneous",
-      attackType: "save",
-      saveAbility: "Dexterity",
-      cantripDamage: "1d8 radiant",
-    },
-  },
-  {
-    slug: "druidcraft",
-    type: "spell",
-    name: "Druidcraft",
-    summary: "A primal utility cantrip for small natural omens and minor sensory effects.",
-    tags: ["cantrip", "transmutation", "druid", "primal", "utility"],
-    payload: {
-      level: 0,
-      school: "Transmutation",
-      classes: ["Druid"],
-      castingTime: "Action",
-      range: "30 feet",
-      duration: "Instantaneous",
-    },
-  },
-  {
-    slug: "guidance",
-    type: "spell",
-    name: "Guidance",
-    summary: "A support cantrip that boosts a future check with a small divine bonus.",
-    tags: ["cantrip", "support", "cleric", "druid", "divine", "primal", "check bonus"],
-    payload: {
-      level: 0,
-      school: "Divination",
-      classes: ["Cleric", "Druid"],
-      castingTime: "Action",
-      range: "Touch",
-      duration: "Concentration, up to 1 minute",
-      concentration: true,
-    },
-  },
-  {
-    slug: "mage-hand",
-    type: "spell",
-    name: "Mage Hand",
-    summary: "A utility cantrip that creates a spectral hand for simple remote manipulation.",
-    tags: ["cantrip", "utility", "bard", "warlock", "wizard", "arcane", "spectral hand"],
-    payload: {
-      level: 0,
-      school: "Conjuration",
-      classes: ["Bard", "Warlock", "Wizard"],
-      castingTime: "Action",
-      range: "30 feet",
-      duration: "1 minute",
-    },
-  },
-  {
-    slug: "eldritch-blast",
-    type: "spell",
-    name: "Eldritch Blast",
-    summary: "A force cantrip that fires a ranged beam and scales into multiple blasts with level.",
-    tags: ["cantrip", "evocation", "warlock", "force", "spell attack"],
-    payload: {
-      level: 0,
-      school: "Evocation",
-      classes: ["Warlock"],
-      castingTime: "Action",
-      range: "120 feet",
-      duration: "Instantaneous",
-      attackType: "spellAttack",
-      cantripDamage: "1d10 force",
-    },
-  },
-  {
-    slug: "light",
-    type: "spell",
-    name: "Light",
-    summary: "A utility cantrip that causes an object to emit bright light for an extended period.",
-    tags: ["cantrip", "utility", "bard", "cleric", "sorcerer", "wizard", "illumination"],
-    payload: {
-      level: 0,
-      school: "Evocation",
-      classes: ["Bard", "Cleric", "Sorcerer", "Wizard"],
-      castingTime: "Action",
-      range: "Touch",
-      duration: "1 hour",
-    },
-  },
-  {
-    slug: "magic-missile",
-    type: "spell",
-    name: "Magic Missile",
-    summary: "A dependable arcane spell that creates force darts which do not rely on an attack roll.",
-    tags: ["level 1", "evocation", "sorcerer", "wizard", "force", "reliable damage"],
-    payload: {
-      level: 1,
-      school: "Evocation",
-      classes: ["Sorcerer", "Wizard"],
-      castingTime: "Action",
-      range: "120 feet",
-      duration: "Instantaneous",
-      damage: "3 darts of force",
-    },
-  },
-  {
-    slug: "mage-armor",
-    type: "spell",
-    name: "Mage Armor",
-    summary: "A defensive spell that sets a stronger baseline AC for an unarmored target.",
-    tags: ["level 1", "abjuration", "sorcerer", "wizard", "armor class", "defense"],
-    payload: {
-      level: 1,
-      school: "Abjuration",
-      classes: ["Sorcerer", "Wizard"],
-      castingTime: "Action",
-      range: "Touch",
-      duration: "8 hours",
-      effect: "Base AC becomes 13 + Dexterity modifier while unarmored",
-    },
-  },
-  {
-    slug: "cure-wounds",
-    type: "spell",
-    name: "Cure Wounds",
-    summary: "A staple restorative spell that heals a creature through divine or primal magic.",
-    tags: ["level 1", "healing", "bard", "cleric", "druid", "paladin", "ranger", "support", "abjuration"],
-    payload: {
-      level: 1,
-      school: "Abjuration",
-      classes: ["Bard", "Cleric", "Druid", "Paladin", "Ranger"],
-      castingTime: "Action",
-      range: "Touch",
-      duration: "Instantaneous",
-      healing: "1d8 + spellcasting modifier",
-    },
-  },
-  {
-    slug: "healing-word",
-    type: "spell",
-    name: "Healing Word",
-    summary: "A fast healing spell that restores a smaller amount of hit points at range.",
-    tags: ["level 1", "healing", "bard", "cleric", "druid", "bonus action", "support"],
-    payload: {
-      level: 1,
-      school: "Abjuration",
-      classes: ["Bard", "Cleric", "Druid"],
-      castingTime: "Bonus Action",
-      range: "60 feet",
-      duration: "Instantaneous",
-      healing: "1d4 + spellcasting modifier",
-    },
-  },
-  {
-    slug: "guiding-bolt",
-    type: "spell",
-    name: "Guiding Bolt",
-    summary: "A ranged radiant spell attack that also helps the next allied attack land.",
-    tags: ["level 1", "radiant", "cleric", "spell attack", "support damage"],
-    payload: {
-      level: 1,
-      school: "Evocation",
-      classes: ["Cleric"],
-      castingTime: "Action",
-      range: "120 feet",
-      duration: "1 round rider",
-      attackType: "spellAttack",
-      damage: "4d6 radiant",
-    },
-  },
-  {
-    slug: "bless",
-    type: "spell",
-    name: "Bless",
-    summary: "A concentration spell that increases allies' attack rolls and saving throws.",
-    tags: ["level 1", "buff", "cleric", "paladin", "concentration", "support"],
-    payload: {
-      level: 1,
-      school: "Enchantment",
-      classes: ["Cleric", "Paladin"],
-      castingTime: "Action",
-      range: "30 feet",
-      duration: "Concentration, up to 1 minute",
-      concentration: true,
-    },
-  },
-  {
-    slug: "detect-magic",
-    type: "spell",
-    name: "Detect Magic",
-    summary: "A ritual-friendly utility spell for sensing the presence of magic nearby.",
-    tags: ["level 1", "divination", "bard", "cleric", "druid", "paladin", "ranger", "sorcerer", "warlock", "wizard", "ritual", "utility"],
-    payload: {
-      level: 1,
-      school: "Divination",
-      classes: ["Bard", "Cleric", "Druid", "Paladin", "Ranger", "Sorcerer", "Warlock", "Wizard"],
-      castingTime: "Action",
-      range: "Self",
-      duration: "Concentration, up to 10 minutes",
-      concentration: true,
-      ritual: true,
-    },
-  },
-  {
-    slug: "sleep",
-    type: "spell",
-    name: "Sleep",
-    summary: "An arcane control spell that can knock weaker creatures unconscious.",
-    tags: ["level 1", "enchantment", "bard", "sorcerer", "wizard", "control", "incapacitate"],
-    payload: {
-      level: 1,
-      school: "Enchantment",
-      classes: ["Bard", "Sorcerer", "Wizard"],
-      castingTime: "Action",
-      range: "90 feet",
-      duration: "1 minute",
-    },
-  },
-  {
-    slug: "hex",
-    type: "spell",
-    name: "Hex",
-    summary: "A curse that adds extra damage to attacks and hampers one chosen ability.",
-    tags: ["level 1", "enchantment", "warlock", "curse", "concentration"],
-    payload: {
-      level: 1,
-      school: "Enchantment",
-      classes: ["Warlock"],
-      castingTime: "Bonus Action",
-      range: "90 feet",
-      duration: "Concentration, up to 1 hour",
-      concentration: true,
-    },
-  },
-  {
-    slug: "hunters-mark",
-    type: "spell",
-    name: "Hunter's Mark",
-    summary: "A tracking-focused mark that boosts weapon pressure against one chosen target.",
-    tags: ["level 1", "divination", "ranger", "weapon damage", "concentration"],
-    payload: {
-      level: 1,
-      school: "Divination",
-      classes: ["Ranger"],
-      castingTime: "Bonus Action",
-      range: "90 feet",
-      duration: "Concentration, up to 1 hour",
-      concentration: true,
-    },
-  },
-  {
-    slug: "shield-of-faith",
-    type: "spell",
-    name: "Shield of Faith",
-    summary: "A protective ward that boosts a creature's Armor Class while concentration holds.",
-    tags: ["level 1", "abjuration", "cleric", "paladin", "armor class", "concentration"],
-    payload: {
-      level: 1,
-      school: "Abjuration",
-      classes: ["Cleric", "Paladin"],
-      castingTime: "Bonus Action",
-      range: "60 feet",
-      duration: "Concentration, up to 10 minutes",
-      concentration: true,
-      effect: "+2 bonus to Armor Class",
-    },
-  },
-  {
-    slug: "misty-step",
-    type: "spell",
-    name: "Misty Step",
-    summary: "A short-range teleport that provides rapid repositioning as a bonus action.",
-    tags: ["level 2", "conjuration", "sorcerer", "warlock", "wizard", "mobility", "teleport"],
-    payload: {
-      level: 2,
-      school: "Conjuration",
-      classes: ["Sorcerer", "Warlock", "Wizard"],
-      castingTime: "Bonus Action",
-      range: "Self",
-      duration: "Instantaneous",
     },
   },
   {
@@ -1257,9 +946,19 @@ function spellMatchesClassName(entry: CompendiumEntry, className?: string) {
   return readStringArray(entry.payload, "classes").includes(className);
 }
 
-export const COMPENDIUM_IMPORT_VERSION = "2026-03-07-open-starter-v13";
+function creatureMatchesBeastOnly(entry: CompendiumEntry, beastOnly: boolean) {
+  if (!beastOnly) {
+    return true;
+  }
 
-export const COMPENDIUM_SEED: CompendiumEntry[] = COMPENDIUM_DRAFTS.map(toCompendiumEntry).sort(compareEntries);
+  return Boolean(entry.payload.beastFormEligible) || readString(entry.payload, "creatureType") === "Beast";
+}
+
+export const CONTENT_PACK_IMPORT_VERSION = CONTENT_PACK_BUILD.buildVersion;
+export const COMPENDIUM_IMPORT_VERSION = `2026-03-08-open-starter-v14|${CONTENT_PACK_IMPORT_VERSION}`;
+
+export const COMPENDIUM_SEED: CompendiumEntry[] = [...COMPENDIUM_DRAFTS.map(toCompendiumEntry), ...CONTENT_PACK_COMPENDIUM_ENTRIES]
+  .sort(compareEntries);
 
 const COMPENDIUM_BY_SLUG = new Map(COMPENDIUM_SEED.map((entry) => [entry.slug, entry] as const));
 
@@ -1273,6 +972,17 @@ export function listCompendiumSpells(
   className?: string,
 ) {
   return listCompendiumEntries("spell", enabledSourceIds).filter((entry) => spellMatchesClassName(entry, className));
+}
+
+export function listCompendiumCreatures(
+  enabledSourceIds = DEFAULT_ENABLED_SOURCE_IDS,
+  options: {
+    beastOnly?: boolean;
+  } = {},
+) {
+  return listCompendiumEntries("creature", enabledSourceIds).filter((entry) =>
+    creatureMatchesBeastOnly(entry, options.beastOnly ?? false),
+  );
 }
 
 export function findCompendiumEntry(slug: string) {
@@ -1306,23 +1016,66 @@ export function spellRecordFromCompendium(slug: string): SpellRecord | null {
     return null;
   }
 
-  const attackTypeValue = entry.payload.attackType;
+  const payload = entry.payload as SpellCompendiumPayload;
+  const attackTypeValue = payload.attackType;
   const attackType = attackTypeValue === "spellAttack" || attackTypeValue === "save" ? attackTypeValue : undefined;
+  const saveAbility = payload.saveAbility;
 
   return {
     id: entry.slug,
     sourceId: entry.sourceId,
     name: entry.name,
-    level: readNumber(entry.payload, "level") ?? 0,
-    school: readString(entry.payload, "school") ?? "Unknown",
+    level: readNumber(payload, "level") ?? 0,
+    school: readString(payload, "school") ?? "Unknown",
     summary: entry.summary,
-    classes: readStringArray(entry.payload, "classes"),
-    castingTime: readString(entry.payload, "castingTime"),
-    range: readString(entry.payload, "range"),
-    duration: readString(entry.payload, "duration"),
-    concentration: Boolean(entry.payload.concentration),
-    ritual: Boolean(entry.payload.ritual),
+    classes: readStringArray(payload, "classes"),
+    castingTime: readString(payload, "castingTime"),
+    range: readString(payload, "range"),
+    duration: readString(payload, "duration"),
+    concentration: Boolean(payload.concentration),
+    ritual: Boolean(payload.ritual),
     attackType,
-    cantripDamage: readString(entry.payload, "cantripDamage"),
+    saveAbility,
+    cantripDamage: readString(payload, "cantripDamage"),
+    description: readString(payload, "description"),
+    higherLevel: readString(payload, "higherLevel"),
+  };
+}
+
+export function creatureRecordFromCompendium(slug: string): CreatureRecord | null {
+  const entry = findCompendiumEntry(slug);
+
+  if (!entry || entry.type !== "creature") {
+    return null;
+  }
+
+  const payload = entry.payload as CreatureCompendiumPayload;
+
+  return {
+    id: entry.slug,
+    sourceId: entry.sourceId,
+    name: entry.name,
+    size: payload.size,
+    creatureType: readString(payload, "creatureType") ?? "Creature",
+    challengeRating: readString(payload, "challengeRating") ?? "Unknown",
+    armorClass: readString(payload, "armorClass") ?? "Unknown",
+    hitPoints: readString(payload, "hitPoints") ?? "Unknown",
+    speed: readString(payload, "speed") ?? "Unknown",
+    abilityScores: (payload.abilityScores ?? {
+      strength: 10,
+      dexterity: 10,
+      constitution: 10,
+      intelligence: 10,
+      wisdom: 10,
+      charisma: 10,
+    }) as CreatureRecord["abilityScores"],
+    skills: readStringArray(payload, "skills"),
+    senses: readStringArray(payload, "senses"),
+    languages: readStringArray(payload, "languages"),
+    features: readStringArray(payload, "features"),
+    actions: readStringArray(payload, "actions"),
+    environment: readStringArray(payload, "environment"),
+    beastFormEligible: Boolean(payload.beastFormEligible),
+    description: readString(payload, "description"),
   };
 }

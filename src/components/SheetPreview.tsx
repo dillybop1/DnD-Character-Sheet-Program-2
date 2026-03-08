@@ -160,11 +160,13 @@ function formatSpellSlotSummary(derived: DerivedSheetState) {
       return "Pact slots pending";
     }
 
-    return `Pact L${derived.spellcasting.pactSlotLevel}:${derived.spellcasting.pactSlotsMax}`;
+    return `Pact L${derived.spellcasting.pactSlotLevel}:${derived.spellcasting.pactSlotsRemaining}/${derived.spellcasting.pactSlotsMax}`;
   }
 
   if (derived.spellcasting.spellSlotsMax.length > 0) {
-    return derived.spellcasting.spellSlotsMax.map((value, index) => `L${index + 1}:${value}`).join(" ");
+    return derived.spellcasting.spellSlotsMax
+      .map((value, index) => `L${index + 1}:${derived.spellcasting.spellSlotsRemaining[index] ?? value}/${value}`)
+      .join(" ");
   }
 
   return "None";

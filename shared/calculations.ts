@@ -16,6 +16,7 @@ import {
 import { spellRecordFromCompendium } from "./data/compendiumSeed";
 import { CORE_OPEN_SOURCE_ID } from "./data/contentSources";
 import { deriveLegacyLoadout, listInventoryEntries, normalizeInventory } from "./inventory";
+import { normalizePactSlotsRemaining, normalizeSpellSlotsRemaining } from "./spellSlots";
 import type {
   AbilityName,
   AbilityScores,
@@ -344,6 +345,8 @@ export function calculateDerivedState(record: CharacterRecord, homebrewEntries: 
   );
   const knownSpells = buildSpellSummaries(record, effects);
   const slotProgression = deriveSpellSlots(level, classTemplate.casterType);
+  const spellSlotsRemaining = normalizeSpellSlotsRemaining(record.spellSlotsRemaining, slotProgression.spellSlotsMax);
+  const pactSlotsRemaining = normalizePactSlotsRemaining(record.pactSlotsRemaining, slotProgression.pactSlotsMax);
 
   const weaponEntries = legacyLoadout.weaponIds
     .map((weaponId) => getWeaponTemplate(weaponId))
@@ -389,6 +392,8 @@ export function calculateDerivedState(record: CharacterRecord, homebrewEntries: 
       spellSaveDC: spellAbilityModifier === null ? null : 8 + profBonus + spellAbilityModifier,
       bonusSpellcasting,
       knownSpells,
+      spellSlotsRemaining,
+      pactSlotsRemaining,
       preparedSpells: knownSpells.filter(
         (spell) => spell.level > 0 && (record.preparedSpellIds.includes(spell.id) || record.bonusSpellIds.includes(spell.id)),
       ),
