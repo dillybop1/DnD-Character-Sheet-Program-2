@@ -1,16 +1,16 @@
 # Status Snapshot
 
-- Last updated: `2026-03-08 03:16 America/New_York`
+- Last updated: `2026-03-08 13:32 America/New_York`
 - Active branch: `main` (tracking `origin/main` at `https://github.com/dillybop1/DnD-Character-Sheet-Program-2.git`)
-- Current milestone: `M10`
-- Current task ID: `M10-07`
-- Last completed task: `M10-06`
+- Current milestone: `unassigned`
+- Current task ID: `unassigned`
+- Last completed task: `M12-04`
 
 ## Next 3 Actions
 
-1. Implement the page-2 spell table and spell inspector using the richer content-pack spell metadata that already ships in the compendium.
-2. Add generic tracked-resource rows plus manual short-rest / long-rest controls on top of the new two-page shell.
-3. Tighten print/mobile behavior after the spell table lands so both saved-sheet pages still export and collapse cleanly.
+1. Manually spot-check PDF/print output once after the latest `M12-04` correction so export preserves the same desktop grid layout the saved-sheet route uses in-app.
+2. Record any remaining print-specific regressions before opening another milestone.
+3. Scope the next milestone only after deciding whether the next gap is additional visual parity work or a return to content/product expansion.
 
 ## Blockers / Open Questions
 
@@ -28,6 +28,18 @@
 - `M10-04` is now complete: `CharacterRecord` and `BuilderInput` both persist `sheetProfile` plus `trackedResources`, defaults/backfills normalize older saves safely, builder round-trips preserve those values even before the saved-sheet UI edits them, and regression coverage now proves language/currency/resource normalization works.
 - `M10-05` is now complete: the saved-sheet route renders a dedicated two-page shell through `SavedSheetBook`, desktop keeps both pages visible, narrow widths switch through explicit page navigation, and print/PDF output now forces page-one/page-two separation while leaving the builder preview untouched.
 - `M10-06` is now complete: page 1 has a real saved-sheet overview shell around the core preview, the saved-sheet route supports inline `Edit Sheet` mode for `sheetProfile` plus bounded `trackedResources`, and page-two summary cards preview unsaved field edits before they are persisted.
+- `M10-07` is now complete: page 2 renders a real spell table with level/range/save-casting-duration-concentration data, the spell inspector previews full pack-provided text on hover/focus and click-to-pin, and the old generic notes-style spell placeholder is gone.
+- `M10-08` is now complete: saved sheets now expose live tracked-resource controls, bounded short-rest and long-rest buttons, inline play-state fields for hit points / temp HP / hit dice / death saves / inspiration, and rest actions reset only the explicitly supported state instead of pretending to implement every 2024 class feature.
+- `M11-01` is now complete: the saved-sheet route opens a dedicated polish milestone, the handoff docs now point to manual QA next, narrow-width resource and action controls stack more cleanly, and print output strips saved-sheet action chrome while preserving the current tracked values as static sheet data.
+- `M11-02` now has an automated smoke test in `tests/savedSheetRoute.smoke.test.tsx` that renders the real saved-sheet route through the browser localStorage API, covering route load, page navigation state, spell inspector pinning, and bounded short-rest persistence before the remaining manual packaged/print checks.
+- `M11-02` is now complete: the saved-sheet route passed the manual browser-dev and packaged-build checks, and the one QA adjustment from that pass removed the previous 0-HP rest-button gate so rest actions remain player-controlled even when a character is at 0 hit points.
+- `M11-03` is now complete: the QA feedback was resolved, the handoff docs now open the next visual milestone instead of stalling on post-QA cleanup, and the saved-sheet route keeps the automated smoke test plus manual packaged/print checks as its regression gate.
+- `M12-01` is now complete: the on-screen saved-sheet workspace no longer renders as translucent dark app chrome and instead uses a dedicated light paper canvas for the sheet card, nav tabs, pages, panels, rows, and edit controls while leaving the underlying route behavior untouched.
+- `M12-02` is now complete: page 2 now renders as a worksheet-style spellbook surface with a dedicated spellcasting header, spell-slot ledger, lined spell table, and tighter right-rail detail/profile blocks instead of generic summary cards.
+- `M12-03` is now complete: page 1 once again leads with the reference-style `SheetPreview` body as the main core sheet surface, the extra quick-overview block above it is gone, and the saved-sheet-specific controls now sit below the sheet instead of replacing it.
+- `M12-04` is now complete: print/PDF output now preserves the saved-sheet route's desktop grid layout instead of collapsing into the narrow stacked fallback, the Electron PDF export explicitly honors CSS page sizing, and longer page-two spell tables can still paginate without flattening the whole page into one mobile-style column.
+- Product direction is now explicit: page 1 should keep the reference-style sheet as the main saved-sheet body, while page 2 continues to use the worksheet-style spellbook layout. The unwanted extra page-one "Core Sheet" overview layer should not return.
+- `M12` is now complete from the implementation side; the remaining recommendation before opening `M13` is one manual export spot-check on the latest build rather than another planned code slice inside this milestone.
 - The rules engine now covers full casters, half casters, pact magic, homebrew-granted spells, and a broader equipment catalog, but the compendium content is still smaller than the eventual v1 surface.
 - The sheet now follows the reference page's structure, renders persistent vitals, and has completed the `M6-02` readability/print-tuning pass that the packaged export flow now relies on.
 - The latest `M6-02` pass tightened the masthead into a dedicated emblem column, added stronger section-header/banner hierarchy, and reduced print density so the exported sheet is closer to a deliberate one-page layout.
@@ -76,17 +88,15 @@
 - `docs/RELEASE.md` now also records the chosen private-beta distribution strategy: unsigned macOS + unsigned Windows, with expected trust warnings for testers.
 - `package.json` now includes `npm run release:verify-local`, but this Windows shell still relies on the explicit local validation commands when the default build path runs into `winCodeSign` symlink privileges.
 - `M10-01` is now complete: saved characters persist spell slot usage across the editor, the saved-sheet route, imports, and sheet/export output.
+- The exact 2024 rest-rule surface is still intentionally bounded: the app now resets pact slots, standard slots, hit points, hit point dice, death saves, temp HP, and configured short-rest / long-rest resources where appropriate, but it does not automate class-specific recovery beyond those shared tracked fields and does not hard-block rests at 0 HP on the saved-sheet route.
+- The corrected `M12-03` page-one direction and the follow-up `M12-04` PDF-layout fix were re-verified on `2026-03-08` with `typecheck`, `test`, `lint`, and `build:win-local` under temporary Node `22.x`.
 
 ## Files Expected To Change Next
 
 - `docs/STATUS.md`
 - `docs/CHECKLIST.md`
-- `src/components/SavedSheetBook.tsx`
-- `src/pages/CharacterSheetPage.tsx`
-- `src/styles/app.css`
-- `src/lib/savedSheetBook.ts`
-- `src/components/CompendiumEntryDetail.tsx`
-- `tests/*`
+- `docs/PLAN.md`
+- `docs/DECISIONS.md`
 
 ## Commands To Run First
 

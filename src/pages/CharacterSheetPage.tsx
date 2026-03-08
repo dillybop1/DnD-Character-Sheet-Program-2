@@ -204,15 +204,8 @@ export function CharacterSheetPage() {
     );
   }
 
-  async function handleSaveSheetFields(updates: Pick<CharacterRecord, "sheetProfile" | "trackedResources">) {
-    await saveTrackedCharacter(
-      {
-        ...activeCharacter,
-        sheetProfile: updates.sheetProfile,
-        trackedResources: updates.trackedResources,
-      },
-      "Saved sheet fields.",
-    );
+  async function handleSaveCharacterFromSheet(nextCharacter: CharacterRecord, successMessage: string) {
+    await saveTrackedCharacter(nextCharacter, successMessage);
   }
 
   return (
@@ -230,7 +223,8 @@ export function CharacterSheetPage() {
                 <span>{subclassLabel ?? `${selectedSpecies.name} adventurer`}</span>
               </div>
               <p className="muted-copy">
-                This route is the read/export surface for a finished record. Editing still reuses the separate creator
+                This route is now the read/play surface for a finished record. Bounded sheet fields and play-state
+                tracking can be updated inline here, while full rules construction still reuses the separate creator
                 workflow in the same Electron window.
               </p>
               <div className="sheet-route-overview__meta">
@@ -444,7 +438,7 @@ export function CharacterSheetPage() {
           character={character}
           derived={derived}
           onOpenReference={openReferenceSafe}
-          onSaveSheetFields={handleSaveSheetFields}
+          onSaveCharacter={handleSaveCharacterFromSheet}
         />
       </SectionCard>
 

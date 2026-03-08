@@ -102,3 +102,42 @@ export function normalizeTrackedResources(resources?: Array<Partial<TrackedResou
 
   return normalizedResources;
 }
+
+export function updateTrackedResourceCurrent(
+  resources: TrackedResource[],
+  resourceId: string,
+  nextCurrent: number,
+): TrackedResource[] {
+  return normalizeTrackedResources(
+    resources.map((resource) => (
+      resource.id === resourceId
+        ? {
+            ...resource,
+            current: Math.max(0, Math.min(resource.max, Math.floor(Number.isFinite(nextCurrent) ? nextCurrent : resource.current))),
+          }
+        : resource
+    )),
+  );
+}
+
+export function recoverTrackedResourcesForRest(
+  resources: TrackedResource[],
+  restKind: "shortRest" | "longRest",
+): TrackedResource[] {
+  return normalizeTrackedResources(
+    resources.map((resource) => {
+      if (restKind === "shortRest" && resource.recovery !== "shortRest") {
+        return resource;
+      }
+
+      if (restKind === "longRest" && resource.recovery === "manual") {
+        return resource;
+      }
+
+      return {
+        ...resource,
+        current: resource.max,
+      };
+    }),
+  );
+}

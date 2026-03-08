@@ -64,6 +64,8 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - `M8`: print/PDF export, ornamental polish, QA, packaging verification
 - `M9`: release readiness, signing/notarization strategy, and publish handoff
 - `M10`: content-pack expansion plus a saved-sheet-first two-page redesign with bounded play-state and resource UX
+- `M11`: saved-sheet polish, manual QA follow-through, and next-milestone handoff after the M10 redesign
+- `M12`: saved-sheet visual parity pass focused on a lighter worksheet-like on-screen presentation while keeping the reference-style page-one sheet as the main core body and removing the extra top-of-page overview layer
 
 ## Acceptance Criteria
 
@@ -74,6 +76,7 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - Creating a new character navigates to a dedicated creator/editor page with a live sheet preview at the bottom.
 - Derived values update immediately when level, ability scores, armor, weapons, or spellcasting fields change.
 - The main sheet mirrors the approved reference page's major section layout while using original art treatment.
+- The final saved-sheet route keeps the reference-style page-one sheet as the main core body, removes the extra page-one overview layer above it, and pairs that with the worksheet-style page-two spellbook layout.
 - Sheet entries can deep-link into the compendium.
 - Homebrew entries can be created and stored locally.
 - Future books can be added as new content sources without changing the base character record shape.

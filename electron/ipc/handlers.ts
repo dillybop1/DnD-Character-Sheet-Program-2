@@ -108,6 +108,7 @@ async function exportCharacterPdf(context: DatabaseContext, getWindow: () => Bro
   const pdf = await window.webContents.printToPDF({
     printBackground: true,
     landscape: false,
+    preferCSSPageSize: true,
   });
 
   await writeFile(result.filePath, pdf);

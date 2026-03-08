@@ -244,3 +244,66 @@
 - Context: The new sheet should support short-rest / long-rest controls and charge tracking, but a broad 2024 automation engine would materially expand scope before the redesigned data model even exists.
 - Decision: Sequence `M10` as UI/data-model first: add generic tracked resources and only bounded rest/reset behavior for explicitly configured state before attempting universal class-feature automation.
 - Consequences: The redesigned sheet can support real at-table tracking sooner, but deeper rules automation remains intentionally deferred until after the two-page surface and persistence model are in place.
+
+## DEC-036
+
+- Date: `2026-03-08`
+- Context: The saved-sheet route now has enough persisted play-state to support manual rests, but fully encoding every 2024 recovery edge case would exceed the intended scope of `M10-08`.
+- Decision: Keep rest behavior bounded to shared tracked state only: `Short Rest` resets pact slots, short-rest resources, and stale death saves when the character has at least 1 HP; `Long Rest` restores HP to max, clears temp HP, restores all hit point dice and spell slots, clears death saves, and resets all non-manual tracked resources. Spending hit point dice during a short rest remains a manual player action.
+- Consequences: The app now supports useful at-table recovery flows without a universal feature engine, but class-specific recovery exceptions and automated short-rest healing remain explicit future work rather than hidden assumptions.
+
+## DEC-037
+
+- Date: `2026-03-08`
+- Context: `M10` completed the two-page saved-sheet redesign, but the route still needed a polish pass for print/mobile behavior and a clear QA handoff before more feature work could start responsibly.
+- Decision: Open `M11` as a short saved-sheet polish and validation milestone, starting with print/mobile cleanup for the saved-sheet interaction chrome and treating manual route validation as the explicit next task before new features.
+- Consequences: A future machine now lands on concrete QA work instead of an unassigned post-redesign state, but additional feature expansion waits until the saved-sheet route is manually signed off.
+
+## DEC-038
+
+- Date: `2026-03-08`
+- Context: `M11-02` needed repeatable regression coverage for the new saved-sheet route, but adding a heavier browser automation stack before the route was manually signed off would have added tool churn on top of the actual QA work.
+- Decision: Start automated QA with a Vitest + `jsdom` smoke test that renders the real saved-sheet route through the browser localStorage API and covers route load, page navigation state, spell inspector pinning, and bounded short-rest persistence. Leave print/PDF output and true packaged-window behavior as explicit manual checks for the same task.
+- Consequences: The repo now has a cheap saved-sheet regression guard without adding a second test framework, but packaged-Electron behavior and print fidelity still require human validation before `M11-02` can close.
+
+## DEC-039
+
+- Date: `2026-03-08`
+- Context: The first saved-sheet QA pass passed cleanly except for one UX request: the route's short-rest / long-rest buttons should stay available even when the tracked current HP is `0`, instead of encoding an extra rules gate in the sheet UI.
+- Decision: Remove the saved-sheet route's 0-HP rest-button gate and treat rest actions as player-controlled sheet operations. The bounded reset logic stays the same; only the availability gate and explanatory copy were removed.
+- Consequences: The sheet no longer blocks a player from applying a rest while the character is at `0` HP, which matches the intended low-friction tracking UX, but the app continues to avoid claiming full 2024 rules automation.
+
+## DEC-040
+
+- Date: `2026-03-08`
+- Context: The saved-sheet route is now functionally complete and manually validated, but the live on-screen experience still lagged the reference because page 1 and page 2 were being framed through the app's dark translucent panel language instead of a dedicated sheet canvas.
+- Decision: Open `M12` as a visual parity milestone and start by moving the saved-sheet route itself onto a light paper workspace before attempting finer worksheet-style restructuring inside page 1 and page 2.
+- Consequences: The route now reads more like a sheet and less like a generic dashboard on screen, which makes the next parity work more incremental, but the page interiors still need deeper worksheet-style layout passes to match the reference more closely.
+
+## DEC-041
+
+- Date: `2026-03-08`
+- Context: The saved-sheet route had both the reference-style page-one sheet and an added quick-overview layer above it, which blurred which surface was supposed to be the real main sheet.
+- Decision: Treat the reference-style page-one `SheetPreview` layout as the actual main core sheet and remove the extra top-of-page overview layer instead of replacing the sheet itself.
+- Consequences: Page 1 fidelity now anchors on the existing reference-style sheet body, while saved-sheet-only controls have to live adjacent to or below that body rather than displacing it.
+
+## DEC-042
+
+- Date: `2026-03-08`
+- Context: Page 2 already had the right saved-sheet behaviors, but its layout still read like a set of generic dashboard cards rather than the spellbook worksheet shown in the reference.
+- Decision: Rebuild page 2 around worksheet-style primitives: a spellcasting header, explicit spell-slot ledger, lined spell table, and tighter right-rail detail/profile blocks, while keeping the existing hover/pin inspector and tracked-resource behavior intact.
+- Consequences: The spellbook page now reads much closer to the spreadsheet reference without needing a rules-model rewrite, and the remaining visual work shifts to keeping page 1 faithful to the reference-style sheet while retuning print around the lighter two-page shell.
+
+## DEC-043
+
+- Date: `2026-03-08`
+- Context: A prior `M12-03` pass started replacing page 1 with custom worksheet sections, but that diverged from the requested layout because the user actually wants the reference-style page-one sheet back as the main body.
+- Decision: Reverse that replacement, restore the reference-style `SheetPreview` body as the primary page-one layout, and keep the page-one edit/rest/resource surfaces outside the sheet instead of inserting a separate summary layer above it.
+- Consequences: The saved-sheet route intentionally stays mixed: page 1 is the direct reference-style sheet body, page 2 is the worksheet-style spellbook surface, and the remaining `M12` work is now about print/PDF tuning around that corrected combination.
+
+## DEC-044
+
+- Date: `2026-03-08`
+- Context: The previous print pass still let the export path pick up the app's responsive collapse rules, so the PDF switched to a narrow stacked/mobile-style layout even when the live saved-sheet route was rendering in its full desktop grid.
+- Decision: In print/PDF output, disable the saved-sheet container-query collapse, explicitly restore the desktop grid templates for the reference sheet and worksheet spellbook, and set Electron PDF export to honor the CSS page size directly.
+- Consequences: PDF export now tracks the in-app sheet layout much more closely instead of reflowing into stacked cards and one-column tables, while the remaining verification step is a manual visual export spot-check rather than another structural CSS rewrite.
