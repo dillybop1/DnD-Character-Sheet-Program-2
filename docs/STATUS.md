@@ -1,23 +1,61 @@
 # Status Snapshot
 
-- Last updated: `2026-03-08 13:32 America/New_York`
+- Last updated: `2026-03-09 14:59 America/New_York`
 - Active branch: `main` (tracking `origin/main` at `https://github.com/dillybop1/DnD-Character-Sheet-Program-2.git`)
-- Current milestone: `unassigned`
-- Current task ID: `unassigned`
-- Last completed task: `M12-04`
+- Current milestone: `M13`
+- Current task ID: `M13-35`
+- Last completed task: `M13-34`
 
 ## Next 3 Actions
 
-1. Manually spot-check PDF/print output once after the latest `M12-04` correction so export preserves the same desktop grid layout the saved-sheet route uses in-app.
-2. Record any remaining print-specific regressions before opening another milestone.
-3. Scope the next milestone only after deciding whether the next gap is additional visual parity work or a return to content/product expansion.
+1. Decide whether to stay on spells for another level 5 slice or pause spell expansion now that the first level 5 tranche is in place.
+2. Keep the exact-text work additive and bounded, and leave any remaining exceptions explicit/documented unless a verified open source is available.
+3. Keep PDF/print work deferred unless a future final-release pass explicitly reopens it.
 
 ## Blockers / Open Questions
 
 - A direct Electron-shell hot-run path is still blocked by Electron 35 resolving `require("electron")` to the installed binary path during local CLI runs, so the supported live workflow is browser-backed Vite dev.
+- On `2026-03-08`, the post-`M12-04` automated regression was resolved by guarding `LockedSheetViewport` against missing `ResizeObserver`, so the `savedSheetRoute` smoke test no longer crashes under `jsdom` and the Node `22.x` `typecheck` / `test` / `lint` / `build:win-local` baseline is green again.
+- On `2026-03-08`, a packaged manual PDF spot-check still looked janky enough that the project direction changed: further print/PDF iteration is now deferred until a final-release go/no-go pass instead of blocking the active roadmap.
+- On `2026-03-08`, the repo added an explicit source-text policy plus non-verbatim inventory: [docs/CONTENT_TEXT_POLICY.md](./CONTENT_TEXT_POLICY.md), [docs/NON_VERBATIM_TEXT.md](./NON_VERBATIM_TEXT.md), and [content/packs/srd-5.2.1/textAudit.json](../content/packs/srd-5.2.1/textAudit.json) now make SRD browse versus exact-source text explicit instead of implicit.
+- `M13-23` is now complete: after a user-reported mismatch on `Chill Touch`, the roadmap explicitly chose to interrupt the next breadth decision long enough to retrofit the current spell-pack exact-text coverage instead of silently treating that cleanup as out-of-band work.
+- `M13-24` is now complete: the repo-managed SRD spell pack now carries joined exact open description text for `63` of the current `64` spell entries, the generated content build version is now `srd-5.2.1@2026-03-09-m13-v10`, and inspect surfaces no longer lead with the shorter non-verbatim spell summary/effect copy when long-form text exists.
+- `M13-25` is now complete: after the spell exact-text retrofit, the roadmap explicitly stays on spells instead of swinging back to creatures because the pack still had no level 4 coverage and spell breadth remains the more visible player-facing gap.
+- `M13-26` is now complete: the repo-managed SRD spell pack grew from `64` to `75` spells by adding a first bounded level 4 tranche (`aura-of-life`, `banishment`, `charm-monster`, `conjure-woodland-beings`, `death-ward`, `dimension-door`, `freedom-of-movement`, `greater-invisibility`, `locate-creature`, `polymorph`, `stoneskin`), the generated content build version is now `srd-5.2.1@2026-03-09-m13-v11`, the exact joined spell-description baseline is now `74` of `75` current spells, and the class-filtered spell baseline is now `Bard 30`, `Cleric 29`, `Druid 36`, `Paladin 18`, `Ranger 24`, `Sorcerer 30`, `Warlock 21`, `Wizard 34`.
+- `M13-27` is now complete: after the first level 4 tranche, the roadmap explicitly stays on spells for one more bounded level 4 pass instead of swinging back to creatures immediately because spell breadth remains the more visible player-facing gap and the level 4 baseline was still materially thinner than the current low-level creature baseline.
+- `M13-28` is now complete: the repo-managed SRD spell pack grew from `75` to `85` spells by adding a second bounded level 4 tranche (`blight`, `confusion`, `control-water`, `divination`, `dominate-beast`, `guardian-of-faith`, `hallucinatory-terrain`, `ice-storm`, `otilukes-resilient-sphere`, `wall-of-fire`), the generated content build version is now `srd-5.2.1@2026-03-09-m13-v12`, the exact joined spell-description baseline is now `84` of `85` current spells, and the class-filtered spell baseline is now `Bard 32`, `Cleric 33`, `Druid 44`, `Paladin 19`, `Ranger 25`, `Sorcerer 35`, `Warlock 23`, `Wizard 42`.
+- `M13-29` is now complete: after the second level 4 tranche, the roadmap explicitly stays on spells for one more bounded pass because the remaining shared or iconic open level 4 pool still offered more immediate player-facing value than another creature pivot, while the only documented exact-text exception remained the already-bounded `thorn-whip` note.
+- `M13-30` is now complete: the repo-managed SRD spell pack grew from `85` to `95` spells by adding a third bounded level 4 tranche (`arcane-eye`, `compulsion`, `conjure-minor-elementals`, `evards-black-tentacles`, `fire-shield`, `giant-insect`, `mordenkainens-faithful-hound`, `phantasmal-killer`, `stone-shape`, `vitriolic-sphere`), the generated content build version is now `srd-5.2.1@2026-03-09-m13-v13`, the exact joined spell-description baseline is now `94` of `95` current spells, and the class-filtered spell baseline is now `Bard 34`, `Cleric 34`, `Druid 48`, `Paladin 19`, `Ranger 25`, `Sorcerer 38`, `Warlock 23`, `Wizard 50`.
+- `M13-31` is now complete: after the third level 4 tranche, the roadmap explicitly stays on spells because creatures remain lower priority and only a small niche trio of open level 4 utility or warding spells remained before the spell pack could claim a complete current open level 4 baseline.
+- `M13-32` is now complete: the repo-managed SRD spell pack grew from `95` to `98` spells by adding the final level 4 cleanup trio (`fabricate`, `leomunds-secret-chest`, `mordenkainens-private-sanctum`), the generated content build version is now `srd-5.2.1@2026-03-09-m13-v14`, the exact joined spell-description baseline is now `97` of `98` current spells, and the class-filtered spell baseline is now `Bard 34`, `Cleric 35`, `Druid 48`, `Paladin 19`, `Ranger 25`, `Sorcerer 38`, `Warlock 23`, `Wizard 53`.
+- `M13-33` is now complete: after the open level 4 baseline closed, the roadmap explicitly opens level 5 next because the user wants to keep investing in spells while treating creatures as lower priority.
+- `M13-34` is now complete: the repo-managed SRD spell pack grew from `98` to `108` spells by adding a first bounded level 5 tranche (`bigbys-hand`, `cone-of-cold`, `greater-restoration`, `hold-monster`, `mass-cure-wounds`, `raise-dead`, `scrying`, `teleportation-circle`, `wall-of-force`, `wall-of-stone`), the generated content build version is now `srd-5.2.1@2026-03-09-m13-v15`, the exact joined spell-description baseline is now `107` of `108` current spells, and the class-filtered spell baseline is now `Bard 40`, `Cleric 39`, `Druid 53`, `Paladin 21`, `Ranger 26`, `Sorcerer 43`, `Warlock 27`, `Wizard 60`.
+- `thorn-whip` remains the only documented current spell-pack exception: as of `2026-03-09`, the verified official D&D Beyond Free Rules spell-description page did not expose a matching open description block for that spell, so it still falls back to the documented non-verbatim summary/effect layer until a verified exact open source is available.
+- `M13-09` is now complete: the repo direction is to keep compact seeded `summary` / support-copy fields as documented non-verbatim browse text, add exact open wording only through separate detail surfaces when needed, and prioritize open equipment next instead of trying to make every feat/background/rule summary verbatim.
+- `M13-10` is now complete: `20` starter `armor` / `weapon` / `gear` entries now carry dedicated exact open `officialText` payloads sourced from `shared/data/openEquipmentOfficialText.ts`, the compendium detail view now renders long-form exact text in its own sections instead of flattening it into the metadata grid, and the compendium import version is now `2026-03-09-open-starter-v15|...`.
+- `M13-11` is now complete: the broader seeded equipment pass increased dedicated exact open `officialText` coverage from `20` to `32` starter `armor` / `weapon` / `gear` entries, including more core armor table rows, more melee/ranged weapon rows plus mastery/property text, and more high-traffic packs/rope entries, and the compendium import version is now `2026-03-09-open-starter-v16|...`.
+- `M13-12` is now complete: the next exact-text direction after the broader equipment pass is explicit, and the repo chose to move the same additive `officialText` pattern to seeded core `rule` entries before reopening equipment again or pivoting to feats/backgrounds.
+- `M13-13` is now complete: the current seeded `rule` glossary entries now carry dedicated exact open SRD `officialText` payloads sourced from `shared/data/openRuleOfficialText.ts`, the compendium import version is now `2026-03-09-open-starter-v17|...`, and the existing detail panel continues to render the new long-form rules text without replacing the shorter browse-summary layer.
+- `M13-14` is now complete: after the core-rule pass, the repo chose open backgrounds as the next exact-text surface instead of feats because backgrounds are structurally simpler and less entangled with automation/support messaging.
+- `M13-15` is now complete: the current seeded `background` entries now carry dedicated exact open SRD `officialText` payloads sourced from `shared/data/openBackgroundOfficialText.ts`, the compendium import version is now `2026-03-09-open-starter-v18|...`, and the existing detail panel continues to render the new long-form background text without replacing the shorter browse-summary/theme layer.
+- `M13-16` is now complete: open feats are explicitly deferred as the next exact-text target because the current feat payloads mix support-level labels, automation-status messaging, and bounded choice summaries that should stay separate from any future canonical feat wording until a broader feat-data pass exists.
+- `M13-17` is now complete: the exact-text initiative is explicitly paused after the bounded equipment / rules / background passes, and active roadmap work has shifted back to compendium breadth and product value instead of widening `officialText` to every remaining seeded surface.
+- `M13-18` is now complete: the repo-managed SRD creature pack grew from `16` to `22` entries by adding `Dragon 1`, `Fey 1`, `Fiend 1`, `Monstrosity 1`, `Ooze 1`, and `Undead 1` low-level non-beast references (`pseudodragon`, `rust-monster`, `sahuagin-warrior`, `satyr`, `shadow`, `gelatinous-cube`), the generated content build version is now `srd-5.2.1@2026-03-09-m13-v7`, and regression coverage now asserts the broader creature search baseline.
+- `M13-19` is now complete: the roadmap explicitly returns to spells as the next breadth target after the bounded creature pass instead of drifting between more creatures, more exact-text work, and more spell content.
+- `M13-20` is now complete: the repo-managed SRD spell pack grew from `45` to `54` spells by adding a first tranche of common level 3 staples (`call-lightning`, `counterspell`, `dispel-magic`, `fireball`, `fly`, `hypnotic-pattern`, `plant-growth`, `revivify`, `spirit-guardians`), the generated content build version is now `srd-5.2.1@2026-03-09-m13-v8`, and the class-filtered spell baseline is now `Bard 21`, `Cleric 17`, `Druid 25`, `Paladin 10`, `Ranger 14`, `Sorcerer 22`, `Warlock 16`, `Wizard 23`.
+- `M13-21` is now complete: after the first level 3 spell tranche, the roadmap explicitly stays on spells for one more bounded utility/support pass instead of immediately swinging back to creatures or reopening exact-text scope.
+- `M13-22` is now complete: the repo-managed SRD spell pack grew from `54` to `64` spells by adding a second level 3 utility/support tranche (`create-food-and-water`, `daylight`, `magic-circle`, `meld-into-stone`, `nondetection`, `remove-curse`, `sending`, `speak-with-plants`, `water-walk`, `wind-wall`), the generated content build version is now `srd-5.2.1@2026-03-09-m13-v9`, and the class-filtered spell baseline is now `Bard 24`, `Cleric 24`, `Druid 30`, `Paladin 14`, `Ranger 20`, `Sorcerer 24`, `Warlock 18`, `Wizard 27`.
+- `M13-02` is now complete: the repo-managed SRD spell pack grew from `20` to `36` spells (`Druid 19`, `Ranger 11`, `Paladin 8`, `Cleric 13`, `Bard 12`, `Warlock 6`, `Sorcerer 8`, `Wizard 9`), the generated content build version is now `srd-5.2.1@2026-03-08-m13-v1`, and the builder/compendium regression tests now assert the broader class-filtered spell availability.
+- `M13-03` is now complete: the repo-managed SRD creature pack grew from `4` to `10` beast entries spanning land, swim, and fly coverage, the generated content build version is now `srd-5.2.1@2026-03-08-m13-v2`, and the builder/compendium regression tests now assert the new `giant-owl` / `crocodile` search and lookup coverage.
+- `M13-04` is now complete: the repo-managed SRD spell pack grew again from `36` to `45` spells (`Bard 18`, `Cleric 14`, `Druid 21`, `Paladin 8`, `Ranger 11`, `Sorcerer 17`, `Warlock 12`, `Wizard 18`), the generated content build version is now `srd-5.2.1@2026-03-08-m13-v3`, and the builder/compendium regression tests now assert the broader low-level arcane/control spell availability.
+- `M13-05` is now complete: the repo-managed SRD creature pack grew again from `10` to `16` entries, adding `Elemental 1`, `Fey (Goblinoid) 1`, `Giant 1`, `Monstrosity 1`, and `Undead 2` on top of the `10` beasts, the generated content build version is now `srd-5.2.1@2026-03-08-m13-v4`, and the builder/compendium regression tests now assert non-beast creature search and lookup for `ghoul` and `goblin-warrior`.
+- `M13-06` is now complete: the repo-managed SRD pack's joined description coverage grew to `10` spell description files and `6` creature description files, the generated content build version is now `srd-5.2.1@2026-03-08-m13-v5`, and the regression tests now assert the new long-form description / higher-level joins for entries such as `burning-hands`, `invisibility`, `ghoul`, and `goblin-warrior`.
+- `M13-07` is now complete: the repo now has a source-text policy, a repo-visible inventory for shipped non-verbatim rules/reference prose, and a pack-level `textAudit.json` file that `npm run content:build` validates against every joined spell/creature description key.
+- `M13-08` is now complete: the current `10` joined spell descriptions and `6` joined creature descriptions now use exact SRD 5.2.1 wording, the pack audit marks those files `verbatim`, the generated content build version is now `srd-5.2.1@2026-03-09-m13-v6`, and the regression tests now assert the official wording instead of the earlier paraphrases.
 - Product direction is now explicit: keep character navigation inside one Electron window and do not add a second native BrowserWindow for the sheet view.
 - The routed workflow split is now in place: app launch lands on `/characters`, saved characters open a dedicated `/characters/:id` sheet route, and edits/new drafts use `/characters/new` plus `/characters/:id/edit`.
 - Fresh `npm install` under global Node `24.13.0` + Python `3.14` still fails because `better-sqlite3` falls back to `node-gyp`, but `npx -y -p node@22 -p npm@10 npm run <script>` remains a working fallback without changing the global install.
+- On this Windows PowerShell shell, `npx.ps1` is blocked by execution policy, so the reliable fallback is `cmd /c npx -y -p node@22 -p npm@10 npm run <script>`.
 - The published release path is now explicit: `v0.1.0` is a private beta that ships unsigned on macOS and Windows.
 - This shell can still run the release verification flow without changing the global Node install by using `npx -y -p node@22 -p npm@10 npm run <script>`.
 - The clean release commit (`7ffcbfd`) and tag (`v0.1.0`) are already on `origin/main`.
@@ -39,7 +77,13 @@
 - `M12-03` is now complete: page 1 once again leads with the reference-style `SheetPreview` body as the main core sheet surface, the extra quick-overview block above it is gone, and the saved-sheet-specific controls now sit below the sheet instead of replacing it.
 - `M12-04` is now complete: print/PDF output now preserves the saved-sheet route's desktop grid layout instead of collapsing into the narrow stacked fallback, the Electron PDF export explicitly honors CSS page sizing, and longer page-two spell tables can still paginate without flattening the whole page into one mobile-style column.
 - Product direction is now explicit: page 1 should keep the reference-style sheet as the main saved-sheet body, while page 2 continues to use the worksheet-style spellbook layout. The unwanted extra page-one "Core Sheet" overview layer should not return.
-- `M12` is now complete from the implementation side; the remaining recommendation before opening `M13` is one manual export spot-check on the latest build rather than another planned code slice inside this milestone.
+- `M12-05` is now explicitly deferred after the latest packaged PDF spot-check looked too janky to justify more near-term iteration, so `M12` no longer blocks roadmap progress.
+- `M13-01` is now complete: the roadmap has been reopened around non-print content/product expansion, and further print/PDF-system work is deferred until the final-release gate.
+- `M13-02` is now complete: starter open spell coverage is materially broader for under-served class lists, `npm run content:build` regenerated the canonical pack build, and `typecheck` / `test` / `lint` / `build:win-local` all re-passed on this machine under temporary Node `22.x`.
+- `M13-03` is now complete: starter open beast coverage is materially broader for druid-form and creature browsing, `npm run content:build` regenerated the canonical pack build again, and `typecheck` / `test` / `lint` / `build:win-local` all re-passed on this machine under temporary Node `22.x`.
+- `M13-04` is now complete: starter low-level arcane/control spell coverage is materially broader for Bard / Sorcerer / Warlock / Wizard while staying inside the existing pack schema, `npm run content:build` regenerated the canonical pack build again, and `typecheck` / `test` / `lint` / `build:win-local` all re-passed on this machine under temporary Node `22.x`.
+- `M13-05` is now complete: starter creature browsing is no longer beast-only in practice, `npm run content:build` regenerated the canonical pack build again, and `typecheck` / `test` / `lint` / `build:win-local` all re-passed on this machine under temporary Node `22.x`.
+- `M13-06` is now complete: common spell inspector and creature detail entries now have denser joined long-form text without any schema change, `npm run content:build` regenerated the canonical pack build again, and `typecheck` / `test` / `lint` / `build:win-local` all re-passed on this machine under temporary Node `22.x`.
 - The rules engine now covers full casters, half casters, pact magic, homebrew-granted spells, and a broader equipment catalog, but the compendium content is still smaller than the eventual v1 surface.
 - The sheet now follows the reference page's structure, renders persistent vitals, and has completed the `M6-02` readability/print-tuning pass that the packaged export flow now relies on.
 - The latest `M6-02` pass tightened the masthead into a dedicated emblem column, added stronger section-header/banner hierarchy, and reduced print density so the exported sheet is closer to a deliberate one-page layout.
@@ -95,17 +139,21 @@
 
 - `docs/STATUS.md`
 - `docs/CHECKLIST.md`
-- `docs/PLAN.md`
 - `docs/DECISIONS.md`
+- `docs/NON_VERBATIM_TEXT.md`
+- `docs/CONTENT_TEXT_POLICY.md`
+- `docs/PLAN.md`
+- `content/packs/srd-5.2.1/creatures.json`
+- `tests/compendiumSeed.test.ts`
 
 ## Commands To Run First
 
-```bash
-cat .nvmrc
-npx -y node@22 -v
-npx -y -p node@22 -p npm@10 npm run content:build
-npx -y -p node@22 -p npm@10 npm run typecheck
-npx -y -p node@22 -p npm@10 npm run test
-npx -y -p node@22 -p npm@10 npm run lint
-npx -y -p node@22 -p npm@10 npm run build:win-local
+```powershell
+Get-Content .nvmrc
+cmd /c npx -y node@22 -v
+cmd /c npx -y -p node@22 -p npm@10 npm run content:build
+cmd /c npx -y -p node@22 -p npm@10 npm run typecheck
+cmd /c npx -y -p node@22 -p npm@10 npm run test
+cmd /c npx -y -p node@22 -p npm@10 npm run lint
+cmd /c npx -y -p node@22 -p npm@10 npm run build:win-local
 ```

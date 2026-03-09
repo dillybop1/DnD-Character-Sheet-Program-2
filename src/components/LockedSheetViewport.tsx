@@ -79,6 +79,10 @@ export function LockedSheetViewport({ children, minWidth }: LockedSheetViewportP
 
     updateScale();
 
+    if (typeof ResizeObserver === "undefined") {
+      return;
+    }
+
     const observer = new ResizeObserver(updateScale);
     observer.observe(viewportElement);
 
@@ -133,6 +137,18 @@ export function LockedSheetViewport({ children, minWidth }: LockedSheetViewportP
     };
 
     scheduleScrollStateUpdate();
+
+    if (typeof ResizeObserver === "undefined") {
+      viewportElement.addEventListener("scroll", scheduleScrollStateUpdate, { passive: true });
+
+      return () => {
+        if (frameId) {
+          window.cancelAnimationFrame(frameId);
+        }
+
+        viewportElement.removeEventListener("scroll", scheduleScrollStateUpdate);
+      };
+    }
 
     const observer = new ResizeObserver(scheduleScrollStateUpdate);
     observer.observe(viewportElement);

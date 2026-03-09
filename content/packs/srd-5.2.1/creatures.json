@@ -31,6 +31,303 @@
     "beastFormEligible": true
   },
   {
+    "slug": "boar",
+    "name": "Boar",
+    "summary": "A low-CR charger that hits hardest when it can rush straight into a target.",
+    "tags": ["beast", "cr 1/4", "charge", "land", "druid form"],
+    "size": "Medium",
+    "creatureType": "Beast",
+    "challengeRating": "1/4",
+    "armorClass": "11",
+    "hitPoints": "11 (2d8 + 2)",
+    "speed": "40 ft.",
+    "abilityScores": {
+      "strength": 13,
+      "dexterity": 11,
+      "constitution": 12,
+      "intelligence": 2,
+      "wisdom": 9,
+      "charisma": 5
+    },
+    "skills": [],
+    "senses": ["Passive Perception 9"],
+    "languages": [],
+    "features": ["Charge", "Relentless"],
+    "actions": [
+      "Tusk: a solid melee strike that becomes stronger after a successful charge."
+    ],
+    "environment": ["forest", "grassland", "hill"],
+    "beastFormEligible": true
+  },
+  {
+    "slug": "brown-bear",
+    "name": "Brown Bear",
+    "summary": "A heavy-hitting beast form with strong melee pressure and multiattack.",
+    "tags": ["beast", "cr 1", "land", "multiattack", "druid form"],
+    "size": "Large",
+    "creatureType": "Beast",
+    "challengeRating": "1",
+    "armorClass": "11",
+    "hitPoints": "34 (4d10 + 12)",
+    "speed": "40 ft., climb 30 ft.",
+    "abilityScores": {
+      "strength": 19,
+      "dexterity": 10,
+      "constitution": 16,
+      "intelligence": 2,
+      "wisdom": 13,
+      "charisma": 7
+    },
+    "skills": ["Perception +3"],
+    "senses": ["Passive Perception 13"],
+    "languages": [],
+    "features": ["Keen Smell"],
+    "actions": [
+      "Multiattack: make one bite attack and one claw attack.",
+      "Bite: a heavy melee hit that deals piercing damage.",
+      "Claws: a stronger melee swipe that deals slashing damage."
+    ],
+    "environment": ["forest", "hill", "mountain"],
+    "beastFormEligible": true
+  },
+  {
+    "slug": "gargoyle",
+    "name": "Gargoyle",
+    "summary": "A durable stone predator that flies well and stays threatening while circling over melee range.",
+    "tags": ["elemental", "cr 2", "fly", "flyby", "urban", "underdark"],
+    "size": "Medium",
+    "creatureType": "Elemental",
+    "challengeRating": "2",
+    "armorClass": "15",
+    "hitPoints": "67 (9d8 + 27)",
+    "speed": "30 ft., fly 60 ft.",
+    "abilityScores": {
+      "strength": 15,
+      "dexterity": 11,
+      "constitution": 16,
+      "intelligence": 6,
+      "wisdom": 11,
+      "charisma": 7
+    },
+    "skills": ["Stealth +4"],
+    "senses": ["Darkvision 60 ft.", "Passive Perception 10"],
+    "languages": ["Primordial (Terran)"],
+    "features": ["Flyby"],
+    "actions": [
+      "Multiattack: make two claw attacks.",
+      "Claw: a reliable melee slash from a fast-moving stone body."
+    ],
+    "environment": ["underdark", "urban"]
+  },
+  {
+    "slug": "crocodile",
+    "name": "Crocodile",
+    "summary": "An aquatic ambusher that controls one target well once its bite connects.",
+    "tags": ["beast", "cr 1/2", "swim", "grapple", "druid form"],
+    "size": "Large",
+    "creatureType": "Beast",
+    "challengeRating": "1/2",
+    "armorClass": "12",
+    "hitPoints": "19 (3d10 + 3)",
+    "speed": "20 ft., swim 30 ft.",
+    "abilityScores": {
+      "strength": 15,
+      "dexterity": 10,
+      "constitution": 13,
+      "intelligence": 2,
+      "wisdom": 10,
+      "charisma": 5
+    },
+    "skills": ["Stealth +2"],
+    "senses": ["Passive Perception 10"],
+    "languages": [],
+    "features": ["Hold Breath"],
+    "actions": [
+      "Bite: a melee strike that can latch onto a target and hold it in place."
+    ],
+    "environment": ["swamp", "river", "coast"],
+    "beastFormEligible": true
+  },
+  {
+    "slug": "ghoul",
+    "name": "Ghoul",
+    "summary": "A fast undead skirmisher that threatens paralysis and punishes isolated targets in melee.",
+    "tags": ["undead", "cr 1", "paralyze", "necrotic", "urban", "underdark"],
+    "size": "Medium",
+    "creatureType": "Undead",
+    "challengeRating": "1",
+    "armorClass": "12",
+    "hitPoints": "22 (5d8)",
+    "speed": "30 ft.",
+    "abilityScores": {
+      "strength": 13,
+      "dexterity": 15,
+      "constitution": 10,
+      "intelligence": 7,
+      "wisdom": 10,
+      "charisma": 6
+    },
+    "skills": [],
+    "senses": ["Darkvision 60 ft.", "Passive Perception 10"],
+    "languages": ["Common"],
+    "features": ["Poison Immunity", "Condition Immunities: Charmed, Exhaustion, Poisoned"],
+    "actions": [
+      "Multiattack: make two bite attacks.",
+      "Bite: a melee attack that deals piercing plus necrotic damage.",
+      "Claw: a slashing attack that can paralyze a living target that fails a Constitution save."
+    ],
+    "environment": ["swamp", "underdark", "urban"],
+    "descriptionKey": "ghoul"
+  },
+  {
+    "slug": "goblin-warrior",
+    "name": "Goblin Warrior",
+    "summary": "A slippery skirmisher that combines stealth, ranged pressure, and nimble disengage or hide play.",
+    "tags": ["fey", "goblinoid", "cr 1/4", "stealth", "shortbow", "nimble escape"],
+    "size": "Small",
+    "creatureType": "Fey (Goblinoid)",
+    "challengeRating": "1/4",
+    "armorClass": "15",
+    "hitPoints": "10 (3d6)",
+    "speed": "30 ft.",
+    "abilityScores": {
+      "strength": 8,
+      "dexterity": 15,
+      "constitution": 10,
+      "intelligence": 10,
+      "wisdom": 8,
+      "charisma": 8
+    },
+    "skills": ["Stealth +6"],
+    "senses": ["Darkvision 60 ft.", "Passive Perception 9"],
+    "languages": ["Common", "Goblin"],
+    "features": ["Nimble Escape"],
+    "actions": [
+      "Scimitar: a melee attack that deals extra slashing damage when the attack has advantage.",
+      "Shortbow: a ranged attack that deals extra piercing damage when the attack has advantage."
+    ],
+    "environment": ["forest", "grassland", "hill", "underdark"],
+    "descriptionKey": "goblin-warrior"
+  },
+  {
+    "slug": "giant-eagle",
+    "name": "Giant Eagle",
+    "summary": "A fast, hard-hitting flyer that expands beast coverage into stronger aerial forms.",
+    "tags": ["beast", "cr 1", "fly", "aerial", "druid form"],
+    "size": "Large",
+    "creatureType": "Beast",
+    "challengeRating": "1",
+    "armorClass": "13",
+    "hitPoints": "26 (4d10 + 4)",
+    "speed": "10 ft., fly 80 ft.",
+    "abilityScores": {
+      "strength": 16,
+      "dexterity": 17,
+      "constitution": 13,
+      "intelligence": 8,
+      "wisdom": 14,
+      "charisma": 10
+    },
+    "skills": ["Perception +4"],
+    "senses": ["Passive Perception 14"],
+    "languages": [],
+    "features": ["Keen Sight"],
+    "actions": [
+      "Multiattack: make one beak attack and one talons attack.",
+      "Beak: a sharp melee strike that deals piercing damage.",
+      "Talons: a slashing melee strike from the eagle's claws."
+    ],
+    "environment": ["mountain", "coast", "grassland"],
+    "beastFormEligible": true
+  },
+  {
+    "slug": "giant-goat",
+    "name": "Giant Goat",
+    "summary": "A sure-footed charger that is useful on rough ground and steep terrain.",
+    "tags": ["beast", "cr 1/2", "charge", "mountain", "druid form"],
+    "size": "Large",
+    "creatureType": "Beast",
+    "challengeRating": "1/2",
+    "armorClass": "11",
+    "hitPoints": "19 (3d10 + 3)",
+    "speed": "40 ft.",
+    "abilityScores": {
+      "strength": 17,
+      "dexterity": 11,
+      "constitution": 12,
+      "intelligence": 3,
+      "wisdom": 12,
+      "charisma": 6
+    },
+    "skills": [],
+    "senses": ["Passive Perception 11"],
+    "languages": [],
+    "features": ["Charge", "Sure-Footed"],
+    "actions": [
+      "Ram: a solid melee strike that can knock a target around after a charge."
+    ],
+    "environment": ["hill", "mountain"],
+    "beastFormEligible": true
+  },
+  {
+    "slug": "giant-owl",
+    "name": "Giant Owl",
+    "summary": "A stealth-friendly flying scout with excellent senses and safe hit-and-run movement.",
+    "tags": ["beast", "cr 1/4", "fly", "flyby", "stealth", "druid form"],
+    "size": "Large",
+    "creatureType": "Beast",
+    "challengeRating": "1/4",
+    "armorClass": "12",
+    "hitPoints": "19 (3d10 + 3)",
+    "speed": "5 ft., fly 60 ft.",
+    "abilityScores": {
+      "strength": 13,
+      "dexterity": 15,
+      "constitution": 12,
+      "intelligence": 8,
+      "wisdom": 13,
+      "charisma": 10
+    },
+    "skills": ["Perception +5", "Stealth +4"],
+    "senses": ["Darkvision 120 ft.", "Passive Perception 15"],
+    "languages": [],
+    "features": ["Flyby", "Keen Hearing and Sight"],
+    "actions": [
+      "Talons: a quick melee strike that deals slashing damage."
+    ],
+    "environment": ["forest", "hill", "arctic"],
+    "beastFormEligible": true
+  },
+  {
+    "slug": "harpy",
+    "name": "Harpy",
+    "summary": "A flying lure creature that can break formations by charming foes into walking toward it.",
+    "tags": ["monstrosity", "cr 1", "fly", "charm", "luring song", "coastal"],
+    "size": "Medium",
+    "creatureType": "Monstrosity",
+    "challengeRating": "1",
+    "armorClass": "11",
+    "hitPoints": "38 (7d8 + 7)",
+    "speed": "20 ft., fly 40 ft.",
+    "abilityScores": {
+      "strength": 12,
+      "dexterity": 13,
+      "constitution": 12,
+      "intelligence": 7,
+      "wisdom": 10,
+      "charisma": 13
+    },
+    "skills": [],
+    "senses": ["Passive Perception 10"],
+    "languages": ["Common"],
+    "features": ["Luring Song"],
+    "actions": [
+      "Claw: a melee slash with modest damage.",
+      "Luring Song: a charm effect that can incapacitate Humanoids and Giants and pull them toward the harpy."
+    ],
+    "environment": ["coast", "forest", "hill", "mountain"]
+  },
+  {
     "slug": "giant-spider",
     "name": "Giant Spider",
     "summary": "An ambush predator that climbs with ease and threatens foes with webbing and venom.",
@@ -62,6 +359,36 @@
     "descriptionKey": "giant-spider"
   },
   {
+    "slug": "ogre",
+    "name": "Ogre",
+    "summary": "A straightforward giant bruiser with heavy club damage and a solid thrown weapon option.",
+    "tags": ["giant", "cr 2", "brute", "greatclub", "javelin", "large"],
+    "size": "Large",
+    "creatureType": "Giant",
+    "challengeRating": "2",
+    "armorClass": "11",
+    "hitPoints": "68 (8d10 + 24)",
+    "speed": "40 ft.",
+    "abilityScores": {
+      "strength": 19,
+      "dexterity": 8,
+      "constitution": 16,
+      "intelligence": 5,
+      "wisdom": 7,
+      "charisma": 7
+    },
+    "skills": [],
+    "senses": ["Darkvision 60 ft.", "Passive Perception 8"],
+    "languages": ["Common", "Giant"],
+    "features": [],
+    "actions": [
+      "Greatclub: a heavy melee hit that deals strong bludgeoning damage.",
+      "Javelin: a melee or ranged attack that keeps pressure at short distance."
+    ],
+    "environment": ["arctic", "desert", "forest", "grassland", "hill", "mountain", "swamp", "underdark"],
+    "descriptionKey": "ogre"
+  },
+  {
     "slug": "panther",
     "name": "Panther",
     "summary": "A stealthy pouncer built for rapid movement and sudden takedowns.",
@@ -89,6 +416,226 @@
     ],
     "environment": ["forest", "jungle"],
     "beastFormEligible": true
+  },
+  {
+    "slug": "pseudodragon",
+    "name": "Pseudodragon",
+    "summary": "A tiny dragon with strong senses, magic resistance, and a dangerous stinger despite its size.",
+    "tags": ["dragon", "cr 1/4", "fly", "poison", "magic resistance", "tiny"],
+    "size": "Tiny",
+    "creatureType": "Dragon",
+    "challengeRating": "1/4",
+    "armorClass": "14",
+    "hitPoints": "10 (3d4 + 3)",
+    "speed": "15 ft., fly 60 ft.",
+    "abilityScores": {
+      "strength": 6,
+      "dexterity": 15,
+      "constitution": 13,
+      "intelligence": 10,
+      "wisdom": 12,
+      "charisma": 10
+    },
+    "skills": ["Perception +5", "Stealth +4"],
+    "senses": ["Blindsight 10 ft.", "Darkvision 60 ft.", "Passive Perception 15"],
+    "languages": ["Understands Common and Draconic but can't speak"],
+    "features": ["Magic Resistance"],
+    "actions": [
+      "Multiattack: make two bite attacks.",
+      "Bite: a quick piercing melee strike.",
+      "Sting: a poisonous sting that can also knock a target unconscious on a particularly bad failure."
+    ],
+    "environment": ["forest", "hill", "urban"]
+  },
+  {
+    "slug": "rust-monster",
+    "name": "Rust Monster",
+    "summary": "A metal-eating monstrosity that punishes weapon and armor users as soon as it gets close.",
+    "tags": ["monstrosity", "cr 1/2", "metal", "corrosion", "antennae", "dungeon"],
+    "size": "Medium",
+    "creatureType": "Monstrosity",
+    "challengeRating": "1/2",
+    "armorClass": "14",
+    "hitPoints": "33 (6d8 + 6)",
+    "speed": "40 ft.",
+    "abilityScores": {
+      "strength": 13,
+      "dexterity": 12,
+      "constitution": 13,
+      "intelligence": 2,
+      "wisdom": 13,
+      "charisma": 6
+    },
+    "skills": [],
+    "senses": ["Darkvision 60 ft.", "Passive Perception 11"],
+    "languages": [],
+    "features": ["Iron Scent"],
+    "actions": [
+      "Multiattack: make one bite attack and use Antennae twice.",
+      "Bite: a basic piercing melee attack.",
+      "Antennae: corrode a nonmagical metal weapon or suit of armor worn or carried by a nearby creature.",
+      "Destroy Metal: ruin an unattended nonmagical metal object with a touch."
+    ],
+    "environment": ["dungeon", "underdark"]
+  },
+  {
+    "slug": "sahuagin-warrior",
+    "name": "Sahuagin Warrior",
+    "summary": "An aquatic raider that becomes much more dangerous once a wounded target starts bleeding.",
+    "tags": ["fiend", "cr 1/2", "swim", "blood frenzy", "aquatic", "coast"],
+    "size": "Medium",
+    "creatureType": "Fiend",
+    "challengeRating": "1/2",
+    "armorClass": "12",
+    "hitPoints": "22 (4d8 + 4)",
+    "speed": "30 ft., swim 40 ft.",
+    "abilityScores": {
+      "strength": 13,
+      "dexterity": 11,
+      "constitution": 12,
+      "intelligence": 12,
+      "wisdom": 13,
+      "charisma": 9
+    },
+    "skills": ["Perception +5"],
+    "senses": ["Darkvision 120 ft.", "Passive Perception 15"],
+    "languages": ["Sahuagin"],
+    "features": ["Blood Frenzy", "Limited Amphibiousness", "Shark Telepathy", "Resistances: Acid, Cold"],
+    "actions": [
+      "Multiattack: make two claw attacks.",
+      "Claw: a simple melee slash.",
+      "Aquatic Charge: swim straight toward an enemy as a bonus action."
+    ],
+    "environment": ["coast", "ocean"]
+  },
+  {
+    "slug": "satyr",
+    "name": "Satyr",
+    "summary": "A quick fey skirmisher that mixes shove pressure, mockery, and strong defenses against magic.",
+    "tags": ["fey", "cr 1/2", "magic resistance", "psychic", "performance", "forest"],
+    "size": "Medium",
+    "creatureType": "Fey",
+    "challengeRating": "1/2",
+    "armorClass": "13",
+    "hitPoints": "31 (7d8)",
+    "speed": "40 ft.",
+    "abilityScores": {
+      "strength": 12,
+      "dexterity": 16,
+      "constitution": 11,
+      "intelligence": 12,
+      "wisdom": 10,
+      "charisma": 14
+    },
+    "skills": ["Perception +2", "Performance +6", "Stealth +5"],
+    "senses": ["Passive Perception 12"],
+    "languages": ["Common", "Elvish", "Sylvan"],
+    "features": ["Magic Resistance"],
+    "actions": [
+      "Hooves: a melee strike that can also push a smaller target away.",
+      "Mockery: a ranged Wisdom save attack that deals psychic damage."
+    ],
+    "environment": ["forest", "hill"]
+  },
+  {
+    "slug": "shadow",
+    "name": "Shadow",
+    "summary": "A stealthy undead ambusher that drains Strength and becomes much safer to fight outside darkness.",
+    "tags": ["undead", "cr 1/2", "necrotic", "stealth", "strength drain", "shadowfell"],
+    "size": "Medium",
+    "creatureType": "Undead",
+    "challengeRating": "1/2",
+    "armorClass": "12",
+    "hitPoints": "27 (5d8 + 5)",
+    "speed": "40 ft.",
+    "abilityScores": {
+      "strength": 6,
+      "dexterity": 14,
+      "constitution": 13,
+      "intelligence": 6,
+      "wisdom": 10,
+      "charisma": 8
+    },
+    "skills": ["Stealth +6"],
+    "senses": ["Darkvision 60 ft.", "Passive Perception 10"],
+    "languages": [],
+    "features": [
+      "Amorphous",
+      "Sunlight Weakness",
+      "Vulnerabilities: Radiant",
+      "Resistances: Acid, Cold, Fire, Lightning, Thunder",
+      "Immunities: Necrotic, Poison",
+      "Condition Immunities: Exhaustion, Frightened, Grappled, Paralyzed, Petrified, Poisoned, Prone, Restrained, Unconscious"
+    ],
+    "actions": [
+      "Draining Swipe: a necrotic melee hit that also reduces the target's Strength score.",
+      "Shadow Stealth: hide as a bonus action while in Dim Light or Darkness."
+    ],
+    "environment": ["shadowfell", "underdark", "urban"]
+  },
+  {
+    "slug": "gelatinous-cube",
+    "name": "Gelatinous Cube",
+    "summary": "A slow dungeon ooze that engulfs creatures, dissolves them over time, and is easy to miss until it moves.",
+    "tags": ["ooze", "cr 2", "engulf", "acid", "transparent", "dungeon"],
+    "size": "Large",
+    "creatureType": "Ooze",
+    "challengeRating": "2",
+    "armorClass": "6",
+    "hitPoints": "63 (6d10 + 30)",
+    "speed": "15 ft.",
+    "abilityScores": {
+      "strength": 14,
+      "dexterity": 3,
+      "constitution": 20,
+      "intelligence": 1,
+      "wisdom": 6,
+      "charisma": 1
+    },
+    "skills": [],
+    "senses": ["Blindsight 60 ft.", "Passive Perception 8"],
+    "languages": [],
+    "features": [
+      "Ooze Cube",
+      "Transparent",
+      "Immunities: Acid",
+      "Condition Immunities: Blinded, Charmed, Deafened, Exhaustion, Frightened, Prone"
+    ],
+    "actions": [
+      "Pseudopod: a melee attack that deals heavy acid damage.",
+      "Engulf: move through smaller creatures to engulf them, restrain them, and deal recurring acid damage until they escape."
+    ],
+    "environment": ["dungeon", "underdark"]
+  },
+  {
+    "slug": "skeleton",
+    "name": "Skeleton",
+    "summary": "A cheap undead ranged attacker that stays relevant with solid Dexterity and weapon use.",
+    "tags": ["undead", "cr 1/4", "ranged", "shortbow", "bludgeoning vulnerability", "urban"],
+    "size": "Medium",
+    "creatureType": "Undead",
+    "challengeRating": "1/4",
+    "armorClass": "14",
+    "hitPoints": "13 (2d8 + 4)",
+    "speed": "30 ft.",
+    "abilityScores": {
+      "strength": 10,
+      "dexterity": 16,
+      "constitution": 15,
+      "intelligence": 6,
+      "wisdom": 8,
+      "charisma": 5
+    },
+    "skills": [],
+    "senses": ["Darkvision 60 ft.", "Passive Perception 9"],
+    "languages": ["Understands Common plus one other language but can't speak"],
+    "features": ["Bludgeoning Vulnerability", "Poison Immunity", "Condition Immunities: Exhaustion, Poisoned"],
+    "actions": [
+      "Shortsword: a basic melee weapon attack.",
+      "Shortbow: a basic ranged weapon attack with strong accuracy for its challenge rating."
+    ],
+    "environment": ["shadowfell", "underdark", "urban"],
+    "descriptionKey": "skeleton"
   },
   {
     "slug": "wolf",

@@ -208,7 +208,7 @@ describe("saved sheet book helpers", () => {
     expect(rows[2]).toMatchObject({
       name: "Sleep",
       prepared: true,
-      higherLevel: expect.stringContaining("higher-level slot"),
+      higherLevel: undefined,
     });
     expect(getSavedSheetDefaultSpellId(rows)).toBe("magic-missile");
   });

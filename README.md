@@ -12,6 +12,10 @@ Offline-first `Electron + React + TypeScript` desktop app for building, storing,
   - Core derived sheet math
   - A structural sheet preview that follows the reference page's layout hierarchy
   - A larger versioned compendium for classes, subclasses, species, backgrounds, spells, weapons, armor, feats, and rules
+  - Broader starter open spell coverage across under-served divine, primal, and arcane class lists through the repo-managed pack pipeline
+  - Broader starter open beast and creature coverage for land, swim, fly, undead, giant, monstrosity, and goblinoid references through the same repo-managed pack pipeline
+  - Exact open SRD spell, creature, and bounded starter-equipment detail text flowing directly into the compendium detail view where the repo has dedicated open-text surfaces
+  - An explicit source-text policy plus a repo-visible non-verbatim inventory so app-authored rules summaries/paraphrases are tracked instead of being mistaken for exact book text
   - Structured feat selection plus background feature support on saved characters and the sheet preview
   - Starter feat mechanics for `Alert` and `Tough`, plus bounded `Magic Initiate` support across native and non-caster classes with a separate feat spellcasting line when needed
   - Configurable feat choices for starter feats such as `Skilled`, `Resilient`, and multi-group `Skill Expert`
@@ -22,7 +26,7 @@ Offline-first `Electron + React + TypeScript` desktop app for building, storing,
   - Source-aware content architecture for future rulebook packages
   - In-context reference links from the character workspace into the compendium
   - A bounded homebrew effect editor and storage path, including passive skills, initiative bonuses, and per-level hit point bonuses
-  - JSON import/export for per-character backup and cross-machine transfer, plus window-based PDF export
+  - JSON import/export for per-character backup and cross-machine transfer, plus a current best-effort window-based PDF export path
 - `npm run dev` now provides a stable browser-backed HMR workflow using a localStorage mock of the preload API when Electron is not present.
 - Verified commands currently passing on this Windows machine:
   - `npm run dev`
@@ -33,6 +37,7 @@ Offline-first `Electron + React + TypeScript` desktop app for building, storing,
   - `npm run build:win-local`
 - Manual packaged macOS and Windows checks now pass for install/launch, create/save/reopen, JSON export/import, PDF export, and reinstall-over-existing-data behavior.
 - The current `v0.1.0` release is a published private beta: the app is functionally validated, but the shipped macOS and Windows installers are intentionally unsigned. See [`docs/RELEASE.md`](docs/RELEASE.md).
+- Further print/PDF polish is explicitly deferred from the active roadmap until a final-release go/no-go pass because the current export path is still too rough to justify more near-term iteration.
 
 ## Setup
 
@@ -61,7 +66,7 @@ npm run release:verify-local
 
 `npm run dev` starts Vite on `http://localhost:5173` and uses a browser-backed mock of `window.dndApi`. Character data and homebrew entries persist in browser `localStorage`, so you can live-edit the UI and rules logic without waiting on Electron startup.
 
-The current sheet preview has completed the structural, readability, and print-tuning milestones needed for the first packaged release candidate.
+The current sheet preview has completed the structural and readability milestones needed for the current product baseline. Further print/PDF-system work is intentionally deferred until a later final-release pass.
 
 The content model is also source-aware now: characters persist an enabled source profile, and templates plus compendium entries carry source metadata so later books can be added as separate packages.
 

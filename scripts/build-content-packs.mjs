@@ -70,6 +70,34 @@ const creatureRowSchema = z
   })
   .passthrough();
 
+const textUsageSchema = z.object({
+  mode: z.enum(["verbatim", "non-verbatim"]),
+  source: z.string().min(1),
+  notes: z.string().min(1),
+});
+
+const textAuditSchema = z.object({
+  fieldDefaults: z.object({
+    spell: z
+      .object({
+        summary: textUsageSchema,
+        effect: textUsageSchema,
+      })
+      .optional(),
+    creature: z
+      .object({
+        summary: textUsageSchema,
+        features: textUsageSchema,
+        actions: textUsageSchema,
+      })
+      .optional(),
+  }),
+  descriptions: z.object({
+    spells: z.record(textUsageSchema).default({}),
+    creatures: z.record(textUsageSchema).default({}),
+  }),
+});
+
 function readArg(flag, fallback) {
   const index = process.argv.indexOf(flag);
   return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback;
@@ -149,6 +177,46 @@ async function loadDescriptionPayload(packDir, folderName, descriptionKey) {
   );
 }
 
+async function loadPackTextAudit(packDir) {
+  const auditPath = join(packDir, "textAudit.json");
+
+  if (!(await exists(auditPath))) {
+    throw new Error(`Missing text audit file: ${relative(process.cwd(), auditPath)}`);
+  }
+
+  return textAuditSchema.parse(await readJson(auditPath));
+}
+
+function validateFieldDefaultCoverage(packDir, textAudit, { hasSpells, hasCreatures }) {
+  const auditPath = relative(process.cwd(), join(packDir, "textAudit.json"));
+
+  if (hasSpells && !textAudit.fieldDefaults.spell) {
+    throw new Error(`Missing spell field defaults in ${auditPath}`);
+  }
+
+  if (hasCreatures && !textAudit.fieldDefaults.creature) {
+    throw new Error(`Missing creature field defaults in ${auditPath}`);
+  }
+}
+
+function validateDescriptionAuditCoverage(packDir, folderName, rows, textAudit) {
+  const auditPath = relative(process.cwd(), join(packDir, "textAudit.json"));
+  const descriptionAudit = folderName === "spells" ? textAudit.descriptions.spells : textAudit.descriptions.creatures;
+  const referencedKeys = new Set(rows.map((row) => row.descriptionKey).filter(Boolean));
+
+  for (const descriptionKey of referencedKeys) {
+    if (!descriptionAudit[descriptionKey]) {
+      throw new Error(`Missing text audit entry for description key "${descriptionKey}" in ${auditPath}`);
+    }
+  }
+
+  for (const descriptionKey of Object.keys(descriptionAudit)) {
+    if (!referencedKeys.has(descriptionKey)) {
+      throw new Error(`Orphan text audit entry for description key "${descriptionKey}" in ${auditPath}`);
+    }
+  }
+}
+
 function buildEntry(manifest, type, row, payload, tags) {
   return {
     slug: row.slug,
@@ -177,9 +245,21 @@ async function readPackEntries(packDir) {
   const entries = [];
 
   const spellsPath = join(packDir, "spells.json");
+  const creaturesPath = join(packDir, "creatures.json");
+  const hasSpells = await exists(spellsPath);
+  const hasCreatures = await exists(creaturesPath);
+  const textAudit = hasSpells || hasCreatures ? await loadPackTextAudit(packDir) : null;
 
-  if (await exists(spellsPath)) {
+  if (textAudit) {
+    validateFieldDefaultCoverage(packDir, textAudit, {
+      hasSpells,
+      hasCreatures,
+    });
+  }
+
+  if (hasSpells) {
     const spellRows = z.array(spellRowSchema).parse(await readJson(spellsPath));
+    validateDescriptionAuditCoverage(packDir, "spells", spellRows, textAudit);
 
     for (const row of spellRows) {
       const { slug: _slug, name: _name, summary: _summary, tags = [], descriptionKey, ...payload } = row;
@@ -188,10 +268,9 @@ async function readPackEntries(packDir) {
     }
   }
 
-  const creaturesPath = join(packDir, "creatures.json");
-
-  if (await exists(creaturesPath)) {
+  if (hasCreatures) {
     const creatureRows = z.array(creatureRowSchema).parse(await readJson(creaturesPath));
+    validateDescriptionAuditCoverage(packDir, "creatures", creatureRows, textAudit);
 
     for (const row of creatureRows) {
       const { slug: _slug, name: _name, summary: _summary, tags = [], descriptionKey, ...payload } = row;

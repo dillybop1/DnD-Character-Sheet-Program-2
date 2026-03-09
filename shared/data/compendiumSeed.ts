@@ -10,6 +10,9 @@ import type {
   SpellRecord,
 } from "../types";
 import { CORE_OPEN_SOURCE_ID, DEFAULT_ENABLED_SOURCE_IDS, isSourceEnabled } from "./contentSources";
+import { OPEN_BACKGROUND_OFFICIAL_TEXT } from "./openBackgroundOfficialText";
+import { OPEN_EQUIPMENT_OFFICIAL_TEXT } from "./openEquipmentOfficialText";
+import { OPEN_RULE_OFFICIAL_TEXT } from "./openRuleOfficialText";
 import { FEATS, SUBCLASSES, getBackgroundTemplate, getClassTemplate, getFeatChoiceLabel, getFeatSupportLabel, getGearTemplate } from "./reference";
 
 interface CompendiumDraft {
@@ -76,6 +79,17 @@ function backgroundStartingGearLabels(backgroundId: string) {
     const label = getGearTemplate(entry.templateId)?.name ?? entry.templateId;
     return entry.quantity && entry.quantity > 1 ? `${label} x${entry.quantity}` : label;
   });
+}
+
+const OPEN_OFFICIAL_TEXT = {
+  ...OPEN_BACKGROUND_OFFICIAL_TEXT,
+  ...OPEN_EQUIPMENT_OFFICIAL_TEXT,
+  ...OPEN_RULE_OFFICIAL_TEXT,
+} as const;
+
+function withOfficialText<T extends Record<string, unknown>>(slug: string, payload: T): T & { officialText?: string[] } {
+  const officialText = OPEN_OFFICIAL_TEXT[slug];
+  return officialText ? { ...payload, officialText: [...officialText] } : payload;
 }
 
 const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
@@ -282,12 +296,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Acolyte",
     summary: "A religious or scholarly origin shaped by service, ritual, and temple life.",
     tags: ["temple", "religion", "service", "wisdom", "study"],
-    payload: {
+    payload: withOfficialText("acolyte", {
       theme: getBackgroundTemplate("acolyte").theme,
       suggestedSkills: ["Insight", "Religion"],
       featureSummary: getBackgroundTemplate("acolyte").featureSummary,
       startingGear: backgroundStartingGearLabels("acolyte"),
-    },
+    }),
   },
   {
     slug: "sage",
@@ -295,12 +309,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Sage",
     summary: "A research-driven background suited to lorekeepers, scribes, and learned travelers.",
     tags: ["research", "lore", "study", "intelligence", "books"],
-    payload: {
+    payload: withOfficialText("sage", {
       theme: getBackgroundTemplate("sage").theme,
       suggestedSkills: ["Arcana", "History"],
       featureSummary: getBackgroundTemplate("sage").featureSummary,
       startingGear: backgroundStartingGearLabels("sage"),
-    },
+    }),
   },
   {
     slug: "soldier",
@@ -308,12 +322,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Soldier",
     summary: "A martial upbringing centered on drills, chain of command, and battlefield discipline.",
     tags: ["battle", "military", "discipline", "strength", "war"],
-    payload: {
+    payload: withOfficialText("soldier", {
       theme: getBackgroundTemplate("soldier").theme,
       suggestedSkills: ["Athletics", "Intimidation"],
       featureSummary: getBackgroundTemplate("soldier").featureSummary,
       startingGear: backgroundStartingGearLabels("soldier"),
-    },
+    }),
   },
   {
     slug: "unarmored",
@@ -334,12 +348,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Leather Armor",
     summary: "Light armor that fully adds Dexterity to Armor Class.",
     tags: ["light armor", "armor class", "dexterity"],
-    payload: {
+    payload: withOfficialText("leather", {
       category: "Light",
       baseArmorClass: 11,
       dexterityCap: null,
       notes: "11 + Dexterity modifier",
-    },
+    }),
   },
   {
     slug: "studded-leather",
@@ -347,12 +361,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Studded Leather Armor",
     summary: "A stronger light armor option that still fully rewards high Dexterity.",
     tags: ["light armor", "armor class", "dexterity"],
-    payload: {
+    payload: withOfficialText("studded-leather", {
       category: "Light",
       baseArmorClass: 12,
       dexterityCap: null,
       notes: "12 + Dexterity modifier",
-    },
+    }),
   },
   {
     slug: "scale-mail",
@@ -360,12 +374,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Scale Mail",
     summary: "Medium armor that keeps some Dexterity contribution while favoring protection.",
     tags: ["medium armor", "armor class", "dexterity cap"],
-    payload: {
+    payload: withOfficialText("scale-mail", {
       category: "Medium",
       baseArmorClass: 14,
       dexterityCap: 2,
       notes: "14 + Dexterity modifier (max 2)",
-    },
+    }),
   },
   {
     slug: "breastplate",
@@ -373,12 +387,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Breastplate",
     summary: "A medium armor choice that balances protection with some Dexterity contribution.",
     tags: ["medium armor", "armor class", "dexterity cap"],
-    payload: {
+    payload: withOfficialText("breastplate", {
       category: "Medium",
       baseArmorClass: 14,
       dexterityCap: 2,
       notes: "14 + Dexterity modifier (max 2)",
-    },
+    }),
   },
   {
     slug: "chain-mail",
@@ -386,13 +400,13 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Chain Mail",
     summary: "Heavy armor that provides a flat baseline Armor Class.",
     tags: ["heavy armor", "armor class", "flat ac"],
-    payload: {
+    payload: withOfficialText("chain-mail", {
       category: "Heavy",
       baseArmorClass: 16,
       dexterityCap: 0,
       ignoresDexterity: true,
       notes: "Flat AC 16",
-    },
+    }),
   },
   {
     slug: "plate",
@@ -400,13 +414,13 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Plate Armor",
     summary: "A premier heavy armor option with a strong fixed Armor Class.",
     tags: ["heavy armor", "armor class", "flat ac"],
-    payload: {
+    payload: withOfficialText("plate", {
       category: "Heavy",
       baseArmorClass: 18,
       dexterityCap: 0,
       ignoresDexterity: true,
       notes: "Flat AC 18",
-    },
+    }),
   },
   {
     slug: "shield",
@@ -414,11 +428,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Shield",
     summary: "A hand-held defensive item that adds a direct bonus to Armor Class.",
     tags: ["shield", "armor class bonus", "defense"],
-    payload: {
+    payload: withOfficialText("shield", {
       category: "Shield",
       armorClassBonus: 2,
       notes: "+2 AC while equipped",
-    },
+    }),
   },
   {
     slug: "longsword",
@@ -426,12 +440,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Longsword",
     summary: "A dependable martial melee weapon with versatile damage.",
     tags: ["martial weapon", "melee", "slashing", "versatile"],
-    payload: {
+    payload: withOfficialText("longsword", {
       damage: "1d8",
       damageType: "slashing",
       properties: ["Versatile (1d10)"],
       range: "Melee",
-    },
+    }),
   },
   {
     slug: "dagger",
@@ -439,12 +453,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Dagger",
     summary: "A light finesse weapon that also works well as a thrown backup option.",
     tags: ["simple weapon", "finesse", "light", "thrown", "piercing"],
-    payload: {
+    payload: withOfficialText("dagger", {
       damage: "1d4",
       damageType: "piercing",
       properties: ["Finesse", "Light", "Thrown"],
       range: "20/60",
-    },
+    }),
   },
   {
     slug: "rapier",
@@ -452,12 +466,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Rapier",
     summary: "A precise finesse weapon for Dexterity-focused melee attacks.",
     tags: ["martial weapon", "melee", "piercing", "finesse"],
-    payload: {
+    payload: withOfficialText("rapier", {
       damage: "1d8",
       damageType: "piercing",
       properties: ["Finesse"],
       range: "Melee",
-    },
+    }),
   },
   {
     slug: "shortbow",
@@ -465,12 +479,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Shortbow",
     summary: "A straightforward ranged weapon for Dexterity-based attacks.",
     tags: ["simple weapon", "ranged", "piercing", "ammunition"],
-    payload: {
+    payload: withOfficialText("shortbow", {
       damage: "1d6",
       damageType: "piercing",
       properties: ["Ammunition", "Two-Handed"],
       range: "80/320",
-    },
+    }),
   },
   {
     slug: "light-crossbow",
@@ -478,12 +492,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Light Crossbow",
     summary: "A ranged weapon with solid damage and slower reload cadence.",
     tags: ["simple weapon", "ranged", "piercing", "ammunition", "loading"],
-    payload: {
+    payload: withOfficialText("light-crossbow", {
       damage: "1d8",
       damageType: "piercing",
       properties: ["Ammunition", "Loading", "Two-Handed"],
       range: "80/320",
-    },
+    }),
   },
   {
     slug: "quarterstaff",
@@ -491,12 +505,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Quarterstaff",
     summary: "A classic simple weapon with versatile bludgeoning damage.",
     tags: ["simple weapon", "melee", "bludgeoning", "versatile"],
-    payload: {
+    payload: withOfficialText("quarterstaff", {
       damage: "1d6",
       damageType: "bludgeoning",
       properties: ["Versatile (1d8)"],
       range: "Melee",
-    },
+    }),
   },
   {
     slug: "mace",
@@ -504,12 +518,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Mace",
     summary: "A simple melee weapon with reliable bludgeoning damage.",
     tags: ["simple weapon", "melee", "bludgeoning"],
-    payload: {
+    payload: withOfficialText("mace", {
       damage: "1d6",
       damageType: "bludgeoning",
       properties: [],
       range: "Melee",
-    },
+    }),
   },
   {
     slug: "spear",
@@ -517,12 +531,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Spear",
     summary: "A simple weapon that works in melee and as a thrown backup.",
     tags: ["simple weapon", "melee", "piercing", "thrown", "versatile"],
-    payload: {
+    payload: withOfficialText("spear", {
       damage: "1d6",
       damageType: "piercing",
       properties: ["Thrown", "Versatile (1d8)"],
       range: "20/60",
-    },
+    }),
   },
   {
     slug: "warhammer",
@@ -530,12 +544,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Warhammer",
     summary: "A dependable martial bludgeoning weapon with versatile damage.",
     tags: ["martial weapon", "melee", "bludgeoning", "versatile"],
-    payload: {
+    payload: withOfficialText("warhammer", {
       damage: "1d8",
       damageType: "bludgeoning",
       properties: ["Versatile (1d10)"],
       range: "Melee",
-    },
+    }),
   },
   {
     slug: "greatsword",
@@ -556,11 +570,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Explorer's Pack",
     summary: "A travel-ready bundle of common adventuring supplies for overland or dungeon use.",
     tags: ["pack", "gear", "travel", "adventuring"],
-    payload: {
+    payload: withOfficialText("explorers-pack", {
       category: "Pack",
       contents: ["Bedroll", "Mess kit", "Tinderbox", "Torches", "Rations", "Waterskin", "Hempen Rope"],
       notes: "Starter travel supplies and utility basics.",
-    },
+    }),
   },
   {
     slug: "burglars-pack",
@@ -568,11 +582,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Burglar's Pack",
     summary: "A compact kit aimed at infiltration, careful scouting, and urban utility.",
     tags: ["pack", "gear", "stealth", "utility", "infiltration"],
-    payload: {
+    payload: withOfficialText("burglars-pack", {
       category: "Pack",
       contents: ["Ball bearings", "String", "Bell", "Candles", "Crowbar", "Hammer", "Piton"],
       notes: "Compact infiltration supplies with string, candles, and utility tools.",
-    },
+    }),
   },
   {
     slug: "dungeoneers-pack",
@@ -580,11 +594,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Dungeoneer's Pack",
     summary: "A subterranean exploration kit that leans into rope, light, and simple survival gear.",
     tags: ["pack", "gear", "dungeon", "rope", "torches", "rations"],
-    payload: {
+    payload: withOfficialText("dungeoneers-pack", {
       category: "Pack",
       contents: ["Crowbar", "Hammer", "Piton", "Torches", "Tinderbox", "Rations", "Waterskin", "Hempen Rope"],
       notes: "Underground exploration basics with rope, torches, and rations.",
-    },
+    }),
   },
   {
     slug: "priests-pack",
@@ -592,11 +606,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Priest's Pack",
     summary: "A devotional travel pack built around ritual supplies and everyday camp basics.",
     tags: ["pack", "gear", "divine", "ritual", "travel"],
-    payload: {
+    payload: withOfficialText("priests-pack", {
       category: "Pack",
       contents: ["Blanket", "Candles", "Tinderbox", "Alms box", "Incense", "Vestments", "Rations", "Waterskin"],
       notes: "Religious travel kit with blanket, candles, incense, and vestments.",
-    },
+    }),
   },
   {
     slug: "thieves-tools",
@@ -604,11 +618,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Thieves' Tools",
     summary: "A precision toolkit for manipulating locks, traps, and similar mechanisms.",
     tags: ["tool", "gear", "locks", "traps", "utility"],
-    payload: {
+    payload: withOfficialText("thieves-tools", {
       category: "Tool",
       use: "Lockpicking and trap work",
       notes: "A common precision toolkit for locks and traps.",
-    },
+    }),
   },
   {
     slug: "holy-symbol",
@@ -616,12 +630,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Holy Symbol",
     summary: "A divine emblem that can serve as a spellcasting focus for faith-based casters.",
     tags: ["focus", "divine", "cleric", "paladin", "gear"],
-    payload: {
+    payload: withOfficialText("holy-symbol", {
       category: "Focus",
       equipable: true,
       use: "Divine spellcasting focus",
       notes: "Divine spellcasting focus.",
-    },
+    }),
   },
   {
     slug: "arcane-focus",
@@ -629,12 +643,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Arcane Focus",
     summary: "A wand, staff, crystal, orb, or similar item used to channel arcane magic.",
     tags: ["focus", "arcane", "wizard", "sorcerer", "warlock", "gear"],
-    payload: {
+    payload: withOfficialText("arcane-focus", {
       category: "Focus",
       equipable: true,
       forms: ["Crystal", "Orb", "Rod", "Staff", "Wand"],
       notes: "Arcane focus such as a wand, orb, rod, staff, or crystal.",
-    },
+    }),
   },
   {
     slug: "component-pouch",
@@ -642,12 +656,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Component Pouch",
     summary: "A pouch of common spell components that stands in for many material needs.",
     tags: ["focus", "spellcasting", "arcane", "primal", "divine", "gear"],
-    payload: {
+    payload: withOfficialText("component-pouch", {
       category: "Focus",
       equipable: true,
       use: "General spell component storage",
       notes: "Arcane or general spell components.",
-    },
+    }),
   },
   {
     slug: "spellbook",
@@ -668,12 +682,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Druidic Focus",
     summary: "A primal focus such as mistletoe, a totem, or a carved wooden staff.",
     tags: ["focus", "druid", "primal", "gear"],
-    payload: {
+    payload: withOfficialText("druidic-focus", {
       category: "Focus",
       equipable: true,
       forms: ["Sprig of mistletoe", "Totem", "Wooden staff", "Yew wand"],
       notes: "Primal focus such as mistletoe, a totem, or a wooden staff.",
-    },
+    }),
   },
   {
     slug: "musical-instrument",
@@ -681,12 +695,12 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Musical Instrument",
     summary: "A performance instrument that can also anchor bardic spellcasting.",
     tags: ["focus", "bard", "performance", "gear"],
-    payload: {
+    payload: withOfficialText("musical-instrument", {
       category: "Focus",
       equipable: true,
       use: "Bardic performance and spellcasting focus",
       notes: "A performance instrument that can also serve as a bardic focus.",
-    },
+    }),
   },
   {
     slug: "healers-kit",
@@ -694,11 +708,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Healer's Kit",
     summary: "A field-treatment pouch with bandages and salves for emergency stabilization.",
     tags: ["tool", "gear", "healing", "stabilize"],
-    payload: {
+    payload: withOfficialText("healers-kit", {
       category: "Tool",
       use: "Emergency field treatment",
       notes: "Bandages and salves used to stabilize a dying creature.",
-    },
+    }),
   },
   {
     slug: "herbalism-kit",
@@ -706,11 +720,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Herbalism Kit",
     summary: "A set of tools for gathering herbs and preparing natural remedies.",
     tags: ["tool", "gear", "herbs", "remedies"],
-    payload: {
+    payload: withOfficialText("herbalism-kit", {
       category: "Tool",
       use: "Gathering herbs and preparing remedies",
       notes: "Tools for collecting herbs and preparing remedies.",
-    },
+    }),
   },
   {
     slug: "rope-hempen",
@@ -718,11 +732,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Hempen Rope",
     summary: "A standard 50-foot rope used for climbing, hauling, and general travel utility.",
     tags: ["gear", "rope", "climbing", "travel"],
-    payload: {
+    payload: withOfficialText("rope-hempen", {
       category: "Adventuring Gear",
       quantity: "50 feet",
       notes: "50 feet of rope for climbing and travel.",
-    },
+    }),
   },
   {
     slug: "torch",
@@ -730,11 +744,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Torch",
     summary: "A basic handheld flame source for lighting dark corridors and campsites.",
     tags: ["gear", "light", "exploration", "travel"],
-    payload: {
+    payload: withOfficialText("torch", {
       category: "Adventuring Gear",
       use: "Portable light source",
       notes: "A simple portable light source for dark environments.",
-    },
+    }),
   },
   {
     slug: "rations",
@@ -742,11 +756,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Rations",
     summary: "Compact preserved food carried to support travel away from settlements.",
     tags: ["gear", "food", "travel", "survival"],
-    payload: {
+    payload: withOfficialText("rations", {
       category: "Adventuring Gear",
       use: "Travel food",
       notes: "Trail food meant to support a day of travel.",
-    },
+    }),
   },
   {
     slug: "waterskin",
@@ -754,11 +768,11 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Waterskin",
     summary: "A simple container for carrying drinking water on the road or in the wilds.",
     tags: ["gear", "travel", "survival", "water"],
-    payload: {
+    payload: withOfficialText("waterskin", {
       category: "Adventuring Gear",
       use: "Portable water storage",
       notes: "Portable water storage for travel and camp.",
-    },
+    }),
   },
   {
     slug: "armor-class",
@@ -766,10 +780,10 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Armor Class",
     summary: "Armor Class measures how difficult a creature is to hit with attacks.",
     tags: ["combat", "defense", "armor", "shield", "dexterity"],
-    payload: {
+    payload: withOfficialText("armor-class", {
       category: "Combat",
       relatedEntries: ["chain-mail", "shield", "mage-armor"],
-    },
+    }),
   },
   {
     slug: "proficiency-bonus",
@@ -777,10 +791,10 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Proficiency Bonus",
     summary: "A level-based bonus applied to trained attacks, checks, spell attacks, and saves.",
     tags: ["core", "level scaling", "skills", "saving throws", "attacks"],
-    payload: {
+    payload: withOfficialText("proficiency-bonus", {
       category: "Core Math",
       relatedEntries: ["saving-throws", "skills", "spell-attack-bonus"],
-    },
+    }),
   },
   {
     slug: "initiative",
@@ -788,10 +802,10 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Initiative",
     summary: "Initiative usually starts with Dexterity and determines turn order in combat.",
     tags: ["combat", "dexterity", "turn order"],
-    payload: {
+    payload: withOfficialText("initiative", {
       category: "Combat",
       relatedEntries: ["armor-class", "weapon-attacks"],
-    },
+    }),
   },
   {
     slug: "saving-throws",
@@ -799,10 +813,10 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Saving Throws",
     summary: "Saving throws resist harmful effects and can add proficiency when a class grants training.",
     tags: ["core", "defense", "abilities", "proficiency"],
-    payload: {
+    payload: withOfficialText("saving-throws", {
       category: "Core Math",
       relatedEntries: ["proficiency-bonus", "skills"],
-    },
+    }),
   },
   {
     slug: "skills",
@@ -810,10 +824,10 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Skills",
     summary: "Skills combine an ability modifier with proficiency or expertise when trained.",
     tags: ["checks", "proficiency", "expertise", "abilities"],
-    payload: {
+    payload: withOfficialText("skills", {
       category: "Core Math",
       relatedEntries: ["proficiency-bonus", "saving-throws"],
-    },
+    }),
   },
   {
     slug: "spell-attack-bonus",
@@ -821,10 +835,10 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Spell Attack Bonus",
     summary: "Spell attack bonus combines proficiency with the class's spellcasting ability modifier.",
     tags: ["spellcasting", "combat", "proficiency", "caster math"],
-    payload: {
+    payload: withOfficialText("spell-attack-bonus", {
       category: "Spellcasting",
       relatedEntries: ["spell-save-dc", "proficiency-bonus"],
-    },
+    }),
   },
   {
     slug: "spell-save-dc",
@@ -832,10 +846,10 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Spell Save DC",
     summary: "Spell save DC sets the target number for creatures resisting a caster's spells.",
     tags: ["spellcasting", "save", "dc", "caster math"],
-    payload: {
+    payload: withOfficialText("spell-save-dc", {
       category: "Spellcasting",
       relatedEntries: ["spell-attack-bonus", "saving-throws"],
-    },
+    }),
   },
   {
     slug: "hit-dice",
@@ -843,10 +857,10 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Hit Dice",
     summary: "Hit Dice are tied to class level and fuel healing during short-rest recovery.",
     tags: ["rest", "healing", "class", "durability"],
-    payload: {
+    payload: withOfficialText("hit-dice", {
       category: "Survivability",
       relatedEntries: ["rests"],
-    },
+    }),
   },
   {
     slug: "rests",
@@ -854,10 +868,10 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Rests",
     summary: "Rest rules manage recovery for hit points, hit dice, spell slots, and limited-use features.",
     tags: ["recovery", "short rest", "long rest", "resources"],
-    payload: {
+    payload: withOfficialText("rests", {
       category: "Survivability",
       relatedEntries: ["hit-dice", "spell-save-dc"],
-    },
+    }),
   },
   {
     slug: "weapon-attacks",
@@ -865,10 +879,10 @@ const COMPENDIUM_DRAFTS: CompendiumDraft[] = [
     name: "Weapon Attacks",
     summary: "Weapon attacks combine the relevant ability modifier with proficiency when trained.",
     tags: ["combat", "strength", "dexterity", "proficiency", "damage"],
-    payload: {
+    payload: withOfficialText("weapon-attacks", {
       category: "Combat",
       relatedEntries: ["proficiency-bonus", "armor-class", "initiative"],
-    },
+    }),
   },
   ...FEAT_DRAFTS,
 ];
@@ -955,7 +969,7 @@ function creatureMatchesBeastOnly(entry: CompendiumEntry, beastOnly: boolean) {
 }
 
 export const CONTENT_PACK_IMPORT_VERSION = CONTENT_PACK_BUILD.buildVersion;
-export const COMPENDIUM_IMPORT_VERSION = `2026-03-08-open-starter-v14|${CONTENT_PACK_IMPORT_VERSION}`;
+export const COMPENDIUM_IMPORT_VERSION = `2026-03-09-open-starter-v18|${CONTENT_PACK_IMPORT_VERSION}`;
 
 export const COMPENDIUM_SEED: CompendiumEntry[] = [...COMPENDIUM_DRAFTS.map(toCompendiumEntry), ...CONTENT_PACK_COMPENDIUM_ENTRIES]
   .sort(compareEntries);

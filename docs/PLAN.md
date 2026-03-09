@@ -11,9 +11,14 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - Dynamic calculations for AC, modifiers, saves, skills, HP, spell attack, spell DC, hit dice, and spell slots
 - Structural sheet layout that matches the approved reference page's information hierarchy before final art polish
 - Linked SRD/open compendium with search and detail views
-- Source-aware content architecture so later books can be added as repo-managed content packs instead of rewriting core models
+- Source-aware content architecture so later books can be added as repo-managed content packs instead of rewriting core models, with explicit provenance between exact open/licensed text and app-authored summary copy
+- Compact compendium browse summaries can remain app-authored, while exact open/licensed wording should flow through dedicated detail text surfaces when the app intends to present canonical source text
+- Inspect surfaces that have exact open/licensed long-form text should prefer that text over shorter app-authored summary/effect copy, and any remaining summary-only exceptions should stay explicitly documented
+- Feat support/automation copy should remain separate from any future exact-source feat wording, and exact feat detail should wait until a broader feat-data pass instead of being forced into the current bounded summary model
+- The exact-text foundation is now broad enough for the current milestone, so active roadmap work should favor compendium breadth and product value over expanding `officialText` to every remaining seeded surface
+- With level 4 now materially covered, treat creatures as lower priority and keep spell breadth moving through bounded level 5 SRD slices that prioritize high-traffic recovery, travel, divination, battlefield control, and other broadly useful staples before opening another content surface
 - Basic homebrew entries with bounded effects
-- JSON backup/export and print/PDF export
+- JSON backup/export and a provisional print/PDF export path, with further print polish deferred until a final-release go/no-go pass
 - Persistent saved-character play-state tracking for spell slots and vitals
 - Repo-managed spell and creature/beast packs that compile into the shared compendium dataset before SQLite sync
 - Original fantasy art direction inspired by the reference sheet
@@ -24,7 +29,7 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - Multiclassing in v1
 - External imports from third-party tools
 - DM/campaign management
-- Proprietary D&D book text or copied branding/assets
+- Bundled verbatim proprietary D&D book text without explicit license, or copied branding/assets
 - Deep gameplay automation such as every timed effect or rest rule edge case
 
 ## Architecture
@@ -66,6 +71,7 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - `M10`: content-pack expansion plus a saved-sheet-first two-page redesign with bounded play-state and resource UX
 - `M11`: saved-sheet polish, manual QA follow-through, and next-milestone handoff after the M10 redesign
 - `M12`: saved-sheet visual parity pass focused on a lighter worksheet-like on-screen presentation while keeping the reference-style page-one sheet as the main core body and removing the extra top-of-page overview layer
+- `M13`: non-print content/product expansion while further print/PDF-system work is deferred until the final-release gate
 
 ## Acceptance Criteria
 
@@ -84,3 +90,4 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - A validated `v0.1.0` candidate can be traced to concrete build commands, expected artifacts, and a documented release/signing checklist.
 - Saved characters persist current spell slot state, and the editor, saved-sheet route, and exported sheet all show remaining versus maximum slots consistently.
 - Repo-managed content packs can regenerate the browser/Electron compendium dataset deterministically, and that dataset already includes richer spell metadata plus first-class creature/beast entries.
+- The repo documents which shipped rules/reference prose is non-verbatim, repo-managed pack descriptions cannot be added without a matching audit entry, and compact browse summaries remain distinct from any exact-source detail surfaces.

@@ -307,3 +307,228 @@
 - Context: The previous print pass still let the export path pick up the app's responsive collapse rules, so the PDF switched to a narrow stacked/mobile-style layout even when the live saved-sheet route was rendering in its full desktop grid.
 - Decision: In print/PDF output, disable the saved-sheet container-query collapse, explicitly restore the desktop grid templates for the reference sheet and worksheet spellbook, and set Electron PDF export to honor the CSS page size directly.
 - Consequences: PDF export now tracks the in-app sheet layout much more closely instead of reflowing into stacked cards and one-column tables, while the remaining verification step is a manual visual export spot-check rather than another structural CSS rewrite.
+
+## DEC-045
+
+- Date: `2026-03-08`
+- Context: The latest packaged PDF spot-check still looked janky enough that continued print-system iteration would pull focus away from higher-value content and product work.
+- Decision: Stop treating print/PDF polish as an active milestone gate. Keep the current PDF export as a best-effort utility for now, defer further print-system work until a final-release go/no-go pass, and leave open the option to simplify or drop that export path if it still is not worth the complexity then.
+- Consequences: `M12-05` is no longer the task that blocks the roadmap, `M13` can return to non-print content/product expansion immediately, and current docs should stop presenting PDF fidelity as the near-term focus. Interim builds may still have a rough PDF export experience, and that roughness is now an accepted tradeoff instead of a current blocker.
+
+## DEC-046
+
+- Date: `2026-03-08`
+- Context: With print work deferred, the first `M13` slice needed to increase day-to-day value quickly without reopening a larger schema rewrite or licensing-sensitive sourcebook plan.
+- Decision: Start `M13` with a bounded expansion of the existing open SRD spell pack, focusing first on under-served class-filtered spell lists such as Druid, Ranger, and Paladin while staying inside the current repo-managed pack pipeline.
+- Consequences: The builder and compendium now get a more useful class-spell baseline immediately, the content-pack workflow proves it can keep broadening canonical data without code-model churn, and the next content decision can focus on whether to keep deepening spell/creature breadth or extend pack management to more compendium types.
+
+## DEC-047
+
+- Date: `2026-03-08`
+- Context: After `M13-02`, the creature/beast pack still had only a minimal handful of entries, which limited druid-form-style browsing and left the current repo-managed pack workflow underused on the creature side.
+- Decision: Keep the next `M13` slice inside the same repo-managed content-pack pipeline and broaden the open creature pack with a denser starter beast baseline spanning land, swim, and fly options before taking on a wider compendium-type migration.
+- Consequences: Creature browsing now has a more useful beast baseline without a schema change, the content-pack workflow is now exercised on both spell and creature breadth, and the next roadmap decision can focus on whether to keep expanding pack breadth or move more compendium types into repo-managed sources.
+
+## DEC-048
+
+- Date: `2026-03-08`
+- Context: After the first `M13` spell expansion, the divine/primal lists were healthier, but the current pack still left Bard / Sorcerer / Warlock / Wizard noticeably thinner than the rest of the builder's spell surface.
+- Decision: Keep `M13-04` inside the existing spell pack schema and add another bounded round of low-level arcane/control staples rather than opening a new pack type immediately.
+- Consequences: The current repo-managed spell pack now feels more balanced across caster families without any schema churn, but the next roadmap choice remains open between more current-pack breadth and a broader pack-type migration.
+
+## DEC-049
+
+- Date: `2026-03-08`
+- Context: After the beast expansion, creature browsing was still effectively a druid-form-only surface because the pack had no starter non-beast opponents or reference creatures.
+- Decision: Keep the next `M13` slice inside the current `creatures.json` schema and add a small non-beast baseline across multiple creature types instead of designing a separate enemy/reference subsystem first.
+- Consequences: The compendium now has a more useful starter creature baseline for browsing and lookup without any schema churn, but richer encounter-facing creature coverage still depends on future content breadth rather than a new model.
+
+## DEC-050
+
+- Date: `2026-03-08`
+- Context: After the recent breadth passes, the current pack had far more entries than long-form descriptions, which made the compendium detail panel and saved-sheet spell inspector feel thinner than the content counts implied.
+- Decision: Keep `M13-06` inside the existing pack schema and deepen joined description coverage for the most-used current spell and creature entries before opening another architectural milestone.
+- Consequences: The current pack pipeline now proves it can add richer detail text as well as raw entry counts, and the next roadmap choice can stay pragmatic: either keep densifying the current packs or move on to a broader pack-type migration.
+
+## DEC-051
+
+- Date: `2026-03-08`
+- Context: The app now ships more rules/reference prose from both static seed files and repo-managed content packs, and the user wants exact official wording whenever the product claims to show source text.
+- Decision: Treat verbatim official text as allowed only for open or otherwise explicitly licensed sources, keep a repo-visible inventory of every shipped non-verbatim rules/reference text surface, and require repo-managed pack descriptions to carry a matching `textAudit.json` entry so paraphrases cannot be added silently.
+- Consequences: The repo now distinguishes exact-source text from app-authored browse/support copy more honestly, current SRD joined descriptions are explicitly documented as paraphrases until replaced, and future content additions must update both the audit/inventory docs and the pack metadata instead of slipping in undocumented non-verbatim text.
+
+## DEC-052
+
+- Date: `2026-03-09`
+- Context: The source-text policy was in place, but the current joined SRD spell and creature descriptions were still paraphrases even though those are the surfaces where the app most directly presents rules text to the user.
+- Decision: Replace the current joined SRD 5.2.1 spell and creature description files with exact official SRD wording, and treat the remaining static summaries/effects/features/actions as documented browse copy rather than pretending they are the canonical rules text.
+- Consequences: The saved-sheet spell inspector and compendium detail view now present exact open SRD wording for the joined spell/creature description surfaces, the pack audit can mark those files as `verbatim`, and the next architecture decision shifts to whether other open static compendium types need their own exact-text detail surfaces instead of more summary strings.
+
+## DEC-053
+
+- Date: `2026-03-09`
+- Context: `M13-08` proved the exact-text policy on the spell/creature description surfaces, but most remaining open compendium types still rely on compact `summary` and support-copy fields that drive search results, browse cards, and builder-facing reference copy.
+- Decision: Keep those compact summary/support fields as documented non-verbatim browse copy, and add exact open text only through separate detail surfaces when the product needs canonical wording. Prioritize `armor`, `weapon`, and `gear` next because equipment is less coupled to rules automation than feats, backgrounds, or broader rules text.
+- Consequences: The repo no longer treats "make it exact" as a blanket instruction to rewrite every summary string, the non-verbatim inventory remains honest for browse/support surfaces, and the next implementation slice is a bounded open-equipment exact-detail path rather than a repo-wide summary replacement.
+
+## DEC-054
+
+- Date: `2026-03-09`
+- Context: The compendium already had a generic payload model and detail panel, but seeded equipment entries still exposed only compact browse summaries even after `DEC-053` chose separate exact-detail surfaces as the next path.
+- Decision: Add a bounded starter set of exact open SRD equipment text through separate `officialText` payload fields sourced from a dedicated `shared/data/openEquipmentOfficialText.ts` file, and update the compendium detail view to render long-form `officialText` / `description` fields as their own sections instead of flattening them into the generic detail grid.
+- Consequences: The compendium can now show exact open wording for starter `armor`, `weapon`, and `gear` entries without sacrificing the shorter browse-summary layer, seeded exact-source equipment text now has a dedicated home in the repo, and the next slice can broaden that bounded equipment coverage rather than reopening the architecture again immediately.
+
+## DEC-055
+
+- Date: `2026-03-09`
+- Context: After the broader starter-equipment pass, the remaining equipment gaps were less important than proving whether the same additive exact-text model works for another static seed type.
+- Decision: Close the equipment-only branch point by moving the next exact-text slice to seeded core `rule` entries rather than continuing to widen starter equipment indefinitely.
+- Consequences: The roadmap is no longer ambiguous after `M13-11`, the additive `officialText` pattern is now validated beyond equipment, and the next decision can narrow to other open static seed types such as backgrounds or feats instead of circling back to more armor/weapon/gear rows by default.
+
+## DEC-056
+
+- Date: `2026-03-09`
+- Context: The repo already had seeded rules glossary entries for common math and combat references, but those entries still exposed only compact non-verbatim summaries even after the source-text policy and equipment exact-text work landed.
+- Decision: Add a bounded exact open SRD rules-glossary layer through a dedicated `shared/data/openRuleOfficialText.ts` file and attach those `officialText` payloads to the current seeded `rule` entries without rewriting their browse-summary fields.
+- Consequences: The compendium can now show exact open wording for `Armor Class`, `Proficiency Bonus`, `Initiative`, `Saving Throws`, `Skills`, `Spell Attack Bonus`, `Spell Save DC`, `Hit Dice`, `Rests`, and `Weapon Attacks`, the non-verbatim inventory stays honest for the shorter summaries, and the next exact-text roadmap choice can focus on whether open backgrounds or open feats deserve the same treatment.
+
+## DEC-057
+
+- Date: `2026-03-09`
+- Context: After the rules-glossary pass, the next open seeded surfaces still under discussion were backgrounds and feats, but feats remain more tightly coupled to automation messaging, support-level labels, and bounded choice UX than backgrounds do.
+- Decision: Choose open backgrounds as the next additive exact-text surface before touching feats.
+- Consequences: The roadmap keeps moving on a structurally simpler seed type first, the additive `officialText` pattern now covers another descriptive surface beyond equipment and rules, and the remaining feats question can be evaluated separately instead of being bundled into this pass.
+
+## DEC-058
+
+- Date: `2026-03-09`
+- Context: The repo already had seeded `Acolyte`, `Sage`, and `Soldier` background entries, but they still exposed only compact browse summaries plus app-authored theme/support fields even though all three backgrounds are open SRD content.
+- Decision: Add a bounded exact open SRD background layer through a dedicated `shared/data/openBackgroundOfficialText.ts` file and attach those `officialText` payloads to the current seeded background entries without rewriting their browse-summary or theme/support fields.
+- Consequences: The compendium can now show exact open wording for the current seeded backgrounds, the non-verbatim inventory remains honest for the shorter browse/theme fields, and the next exact-text decision can narrow to whether feats deserve the same additive treatment or should wait for a broader feat-data pass.
+
+## DEC-059
+
+- Date: `2026-03-09`
+- Context: After the backgrounds pass, feats were the most obvious remaining seeded open surface, but the current feat payloads are dominated by app-authored support-level labels, automation-status messaging, prerequisite shorthand, and bounded choice summaries rather than simple descriptive browse text.
+- Decision: Defer additive exact-source feat text until a broader feat-data / automation pass can give canonical feat wording its own clean surface without colliding with the current support-copy model.
+- Consequences: The repo now has an explicit reason not to make feats the next exact-text slice, the non-verbatim inventory remains honest for current feat summaries/support copy, and the next roadmap choice can focus on whether to keep expanding exact-text coverage at all or return to broader content/product scope.
+
+## DEC-060
+
+- Date: `2026-03-09`
+- Context: After the bounded equipment, rules, and background passes, the repo had already proven the additive exact-text model on the main open static seed surfaces that are easiest to support cleanly.
+- Decision: Pause further exact-text expansion for now and shift the active roadmap back to broader compendium breadth and product value.
+- Consequences: The exact-text initiative now has an explicit stop point instead of sprawling into every remaining seed type, feat exact text stays deferred until a broader feat-data pass exists, and the next implementation slices can prioritize more useful spell/creature/reference coverage again.
+
+## DEC-061
+
+- Date: `2026-03-09`
+- Context: Once the roadmap shifted back to breadth, the creature pack was still much thinner than the spell pack and still lacked several common low-level non-beast encounter/reference types.
+- Decision: Use the next bounded `M13` breadth pass on another creature-pack expansion, specifically adding single-size low-level SRD encounter entries across missing non-beast creature types instead of reopening a schema discussion for variable-size Humanoids.
+- Consequences: The creature pack now covers a broader cross-section of encounter browsing use cases without changing schemas, the pack summary/build metadata now reflects general creature content rather than only beasts, and the next roadmap choice can be a clean creatures-versus-spells breadth decision rather than another exact-text debate.
+
+## DEC-062
+
+- Date: `2026-03-09`
+- Context: After the latest creature expansion, the creature pack was materially healthier, but the spell pack still stopped at level 2 and remained the more visible day-to-day gap for builder and compendium use.
+- Decision: Return the next bounded breadth pass to spells rather than continuing straight into another creature batch.
+- Consequences: The roadmap now has an explicit post-creature target, spell breadth can open higher-level utility/control/damage coverage instead of staying capped at low levels, and the next implementation slice can stay inside the existing pack workflow without reopening exact-text scope.
+
+## DEC-063
+
+- Date: `2026-03-09`
+- Context: Once the roadmap returned to spells, the highest-value gap was not more cantrips or more level 1/2 filler but the lack of any common level 3 staples across arcane, divine, and primal lists.
+- Decision: Use the next spell slice on a bounded first tranche of common SRD level 3 spells: `call-lightning`, `counterspell`, `dispel-magic`, `fireball`, `fly`, `hypnotic-pattern`, `plant-growth`, `revivify`, and `spirit-guardians`.
+- Consequences: The repo-managed spell pack now opens level 3 coverage without changing schemas, class-filtered spell browsing is materially broader across every supported caster family, and the next roadmap choice can be a clean decision between another spell tranche and a swing back to creatures.
+
+## DEC-064
+
+- Date: `2026-03-09`
+- Context: After the first level 3 spell tranche landed, the spell pack was much healthier, but weaker Paladin, Ranger, Cleric, and some shared utility lists still lagged more than the creature pack's remaining marginal gaps.
+- Decision: Stay on spells for one more bounded pass rather than switching straight back to creatures.
+- Consequences: The roadmap now has an explicit second spell-breadth decision, the next slice can target utility/support coverage instead of repeating damage/control picks, and the repo avoids oscillating between pack types without closing the clearest remaining spell gap first.
+
+## DEC-065
+
+- Date: `2026-03-09`
+- Context: Once the roadmap stayed on spells, the best follow-up was not another arcane blaster pass but a level 3 utility/support tranche that materially lifts weaker divine, primal, and shared lists.
+- Decision: Use the next spell slice on `create-food-and-water`, `daylight`, `magic-circle`, `meld-into-stone`, `nondetection`, `remove-curse`, `sending`, `speak-with-plants`, `water-walk`, and `wind-wall`.
+- Consequences: The repo-managed spell pack now covers a much broader cross-section of exploration, communication, warding, travel, and terrain-control use cases without any schema change, Paladin and Ranger lists are materially less thin, and the next roadmap choice can be a clean decision between a third spell slice and a swing back to creatures.
+
+## DEC-066
+
+- Date: `2026-03-09`
+- Context: After the second level 3 spell pass, a user-reported `Chill Touch` mismatch showed that the spell pack's exact-text retrofit had not kept up with the pack's later spell-growth work, and the inspect UI still led with shorter app-authored summary/effect copy even when exact long-form text existed.
+- Decision: Temporarily reopen spell exact-text cleanup before the next breadth decision, retrofit every current spell-pack entry that can be matched to verified official open spell text, and make inspect surfaces prefer that long-form text over the shorter non-verbatim summary/effect/features/actions layer whenever it exists. Keep any unmatched spell explicitly documented rather than fabricating or silently paraphrasing exact text.
+- Consequences: The current spell pack now carries joined exact open description text for nearly every shipped spell entry instead of only the earlier small subset, the compendium detail view and saved-sheet spell inspection path are less likely to present paraphrase as canonical text, and the remaining exception (`thorn-whip`) stays visible in repo policy/inventory docs until a verified open exact source is found.
+
+## DEC-067
+
+- Date: `2026-03-09`
+- Context: Once the spell exact-text retrofit was closed, the roadmap still needed to choose between immediately returning to creatures or continuing on spells. The current pack still had no level 4 coverage at all, while the only remaining spell exact-text exception was already explicit and bounded.
+- Decision: Stay on spells for the next breadth slice rather than swinging back to creatures immediately.
+- Consequences: The roadmap now treats the documented `thorn-whip` exception as a bounded note instead of a blocker, spell breadth keeps moving into more player-visible territory, and the next slice can open level 4 coverage without reopening schema or policy questions.
+
+## DEC-068
+
+- Date: `2026-03-09`
+- Context: After two level 3 passes, the most useful next spell expansion was not another low-level fill-in but a first bounded level 4 tranche that improves weaker Paladin, Ranger, and Warlock lists while also adding high-traffic mobility, warding, tracking, and transformation staples.
+- Decision: Use the next spell slice on `aura-of-life`, `banishment`, `charm-monster`, `conjure-woodland-beings`, `death-ward`, `dimension-door`, `freedom-of-movement`, `greater-invisibility`, `locate-creature`, `polymorph`, and `stoneskin`.
+- Consequences: The repo-managed spell pack now opens level 4 coverage with a defensible first tranche that broadens multiple class lists at once, the generated content build and verbatim spell-description coverage both expand in the same pass, and the next roadmap choice can cleanly decide between another level 4 spell pass and a swing back to creatures.
+
+## DEC-069
+
+- Date: `2026-03-09`
+- Context: After the first level 4 spell tranche landed, the spell pack finally had level 4 coverage, but it was still materially thinner than the lower-level spell baseline and still the more visible player-facing content gap compared with adding another bounded creature slice immediately.
+- Decision: Stay on spells for one more bounded level 4 pass rather than swinging straight back to creatures.
+- Consequences: The roadmap now treats the second level 4 spell slice as an intentional follow-through instead of open-ended drift, the remaining documented `thorn-whip` exception stays a bounded note rather than a blocker, and the next spell pass can target battlefield control, divination, and area-shaping utility that the first tranche did not cover.
+
+## DEC-070
+
+- Date: `2026-03-09`
+- Context: Once the roadmap stayed on spells, the highest-value follow-up was not another movement/defense tranche but a complementary level 4 slice that broadens battlefield control, divination, terrain shaping, and cleanup options across Bard, Cleric, Druid, Sorcerer, Warlock, and Wizard lists.
+- Decision: Use the next spell slice on `blight`, `confusion`, `control-water`, `divination`, `dominate-beast`, `guardian-of-faith`, `hallucinatory-terrain`, `ice-storm`, `otilukes-resilient-sphere`, and `wall-of-fire`.
+- Consequences: The repo-managed spell pack now reaches a healthier level 4 baseline without changing schemas, exact joined spell-description coverage expands in the same pass to `84` of `85` current spell-pack entries, and the next roadmap choice can more cleanly decide between a third level 4 spell pass and a deliberate swing back to creatures.
+
+## DEC-071
+
+- Date: `2026-03-09`
+- Context: After the second level 4 spell tranche landed, the spell pack was materially stronger, but the remaining open level 4 pool still contained several shared or iconic scouting, summoning, control, and damage spells that offered more day-to-day player value than switching back to creatures immediately.
+- Decision: Stay on spells for one more bounded level 4 pass rather than swinging back to creatures after the second tranche.
+- Consequences: The roadmap now treats the third level 4 spell slice as a deliberate follow-through on the remaining high-value open spell pool, the only documented exact-text exception stays a bounded `thorn-whip` note instead of a blocker, and the next pass can narrow the leftover spell gap down to a small niche cleanup set instead of another broad baseline hole.
+
+## DEC-072
+
+- Date: `2026-03-09`
+- Context: Once the roadmap stayed on spells again, the best next slice was not to spend effort on the remaining niche storage or sanctum spells first, but to cover the remaining shared or iconic level 4 entries that still matter in live play and compendium inspection.
+- Decision: Use the next spell slice on `arcane-eye`, `compulsion`, `conjure-minor-elementals`, `evards-black-tentacles`, `fire-shield`, `giant-insect`, `mordenkainens-faithful-hound`, `phantasmal-killer`, `stone-shape`, and `vitriolic-sphere`.
+- Consequences: The repo-managed spell pack now reaches `95` spells without any schema change, exact joined spell-description coverage expands in the same pass to `94` of `95` current spell-pack entries, and the next roadmap choice is cleaner: either finish the small remaining niche level 4 cleanup (`fabricate`, `leomunds-secret-chest`, `mordenkainens-private-sanctum`) or swing back to creatures.
+
+## DEC-073
+
+- Date: `2026-03-09`
+- Context: After the third level 4 spell tranche landed, only three open level 4 spells remained. The user explicitly stated that creatures are a low priority, so the post-tranche choice was no longer between equal breadth targets.
+- Decision: Finish the remaining niche level 4 spell cleanup rather than pivoting to creatures.
+- Consequences: The roadmap now treats a complete open level 4 spell baseline as the immediate goal, creature work stays deprioritized by user preference, and the next decision point can move up a level instead of bouncing back to incomplete level 4 coverage later.
+
+## DEC-074
+
+- Date: `2026-03-09`
+- Context: Once the roadmap stayed on spells again, the remaining level 4 gap was narrow and clearly defined: `fabricate`, `leomunds-secret-chest`, and `mordenkainens-private-sanctum`.
+- Decision: Use the next spell slice on `fabricate`, `leomunds-secret-chest`, and `mordenkainens-private-sanctum`.
+- Consequences: The repo-managed spell pack now closes its current open level 4 baseline at `98` spells, exact joined spell-description coverage expands to `97` of `98` current spell-pack entries, and the next roadmap choice is no longer "finish level 4 or not" but "open level 5 or stop expanding spells for now."
+
+## DEC-075
+
+- Date: `2026-03-09`
+- Context: With the open level 4 baseline complete, the next choice was whether to pause spell expansion or open level 5. The user explicitly wants to continue on spells and keeps creatures as a lower-priority surface.
+- Decision: Open level 5 instead of pausing spell expansion or pivoting back to creatures.
+- Consequences: The roadmap now treats level 5 as the active bounded spell-breadth target, creature work remains deprioritized by user preference, and the next slice can focus on the highest-traffic shared level 5 staples rather than reopening lower-level cleanup.
+
+## DEC-076
+
+- Date: `2026-03-09`
+- Context: Once level 5 was chosen, the first slice needed to favor broad player-facing value rather than niche narrative spells. The strongest first tranche was a mix of recovery, divination, travel, battlefield control, and iconic finishers spread across Bard, Cleric, Druid, Paladin, Ranger, Sorcerer, Warlock, and Wizard lists.
+- Decision: Use the first level 5 spell slice on `bigbys-hand`, `cone-of-cold`, `greater-restoration`, `hold-monster`, `mass-cure-wounds`, `raise-dead`, `scrying`, `teleportation-circle`, `wall-of-force`, and `wall-of-stone`.
+- Consequences: The repo-managed spell pack now reaches `108` spells, exact joined spell-description coverage expands to `107` of `108` current spell-pack entries, the generated content build version advances to `srd-5.2.1@2026-03-09-m13-v15`, and the next roadmap choice becomes "stay on spells for another level 5 slice or pause spell expansion after the first level 5 tranche."
+

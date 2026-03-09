@@ -1,4 +1,3 @@
 {
-  "description": "You release a wave of drowsy magic centered on a point in range. The spell affects creatures with the lowest current hit points first until its pool is spent.",
-  "higherLevel": "Casting with a higher-level slot expands the total hit points that can be put to sleep."
+  "description": "Each creature of your choice in a 5-foot-radius Sphere centered on a point within range must succeed on a Wisdom saving throw or have the Incapacitated condition until the end of its next turn, at which point it must repeat the save. If the target fails the second save, the target has the Unconscious condition for the duration. The spell ends on a target if it takes damage or someone within 5 feet of it takes an action to shake it out of the spell's effect.\n\nCreatures that don't sleep, such as elves, or that have Immunity to the Exhaustion condition automatically succeed on saves against this spell."
 }
