@@ -196,7 +196,7 @@ export const SAVED_SHEET_PAGES: Array<{
     id: "page-2",
     label: "Page 2",
     title: "Spellbook Worksheet",
-    description: "Spellcasting header, spell table, detail rail, and saved page-two fields.",
+    description: "Spellcasting header, slot and recovery controls, spell table, and spell detail.",
   },
 ];
 

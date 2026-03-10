@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import {
   buildTrackedResourcesForCharacter,
@@ -49,6 +50,8 @@ interface SavedSheetBookProps {
   derived: DerivedSheetState;
   onOpenReference?: (slug: string) => void;
   onSaveCharacter?: (nextCharacter: CharacterRecord, successMessage: string) => Promise<void>;
+  pageOneActions?: ReactNode;
+  routeStatus?: string;
 }
 
 function scrollToSavedSheetPage(pageId: SavedSheetPageId) {
@@ -109,7 +112,14 @@ function supportsTirelessTempHitPoints(resource: TrackedResource) {
   return resource.display === "counter" && resource.id === AUTOMATED_RANGER_TIRELESS_ID;
 }
 
-export function SavedSheetBook({ character, derived, onOpenReference, onSaveCharacter }: SavedSheetBookProps) {
+export function SavedSheetBook({
+  character,
+  derived,
+  onOpenReference,
+  onSaveCharacter,
+  pageOneActions,
+  routeStatus,
+}: SavedSheetBookProps) {
   const [activePage, setActivePage] = useState<SavedSheetPageId>("page-1");
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -139,7 +149,8 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
     : character;
   const trackedResources = buildTrackedResourcesForCharacter(character, undefined, derived.abilityModifiers);
   const pageTwoSummary = buildSavedSheetPageTwoSummary(previewCharacter, derived);
-  const trackedResourceSections = buildSavedSheetTrackedResourceSections(pageTwoSummary.trackedResources);
+  const livePageTwoSummary = buildSavedSheetPageTwoSummary(character, derived);
+  const trackedResourceSections = buildSavedSheetTrackedResourceSections(livePageTwoSummary.trackedResources);
   const attentionTrackedResources = trackedResourceSections.needsAttention;
   const readyTrackedResources = trackedResourceSections.ready;
   const spellcastingHeader = buildSavedSheetSpellcastingHeader(derived);
@@ -722,17 +733,245 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
     );
   }
 
-  function renderSummaryTrackedResourceRow(resource: TrackedResource) {
-    return (
-      <div key={resource.id} className="saved-sheet-book__resource-row saved-sheet-book__resource-row--summary">
-        <div>
-          <strong>{resource.label}</strong>
-          <small>{formatResourceMeta(resource)}</small>
+  const worksheetFooter = (
+    <div className="saved-sheet-book__worksheet-footer">
+      <article className="saved-sheet-book__panel">
+        <header className="saved-sheet-book__panel-header">
+          <span>Play State &amp; Rest</span>
+          <strong>{isSavingPlayState ? "Saving..." : "Live"}</strong>
+        </header>
+        <div className="action-row saved-sheet-book__rest-actions">
+          <button
+            className="action-button"
+            disabled={isSavingPlayState}
+            onClick={() => handleRest("shortRest")}
+            type="button"
+          >
+            Short Rest
+          </button>
+          <button
+            className="action-button action-button--secondary"
+            disabled={isSavingPlayState}
+            onClick={() => handleRest("longRest")}
+            type="button"
+          >
+            Long Rest
+          </button>
         </div>
-        <span>{resource.current}/{resource.max}</span>
-      </div>
-    );
-  }
+        <p className="muted-copy">
+          Short Rest refreshes pact slots, short-rest resources, and clears stale death saves. Long Rest restores hit
+          points, clears temp HP, refreshes spell slots, restores hit point dice, and resets all rest-based
+          resources. Hit Dice can be spent directly here; use Average Heal as a fast shortcut, or roll at the table
+          and update HP manually if you want the exact die result.
+        </p>
+        <p className="muted-copy">{playStateStatus}</p>
+        {recoveryActions.length > 0 ? (
+          <div className="saved-sheet-book__recovery-overview">
+            <div className="saved-sheet-book__recovery-overview-copy">
+              <strong>Recovery Highlights</strong>
+              <small>{recoveryOverviewStatus}</small>
+              {activeSpellSlotRecovery ? (
+                <small>
+                  Pending: {pendingSpellSlotRecoverySummary || "none selected"} ({pendingSpellSlotRecoveryLevelTotal}/
+                  {activeSpellSlotRecovery.slotBudget} slot levels)
+                </small>
+              ) : blockedRecoveryActions.length > 0 && readyRecoveryActions.length === 0 ? (
+                <small>
+                  {blockedRecoveryActions[0]?.label}: {blockedRecoveryActions[0]?.disabledReason}
+                </small>
+              ) : null}
+            </div>
+            <div className="saved-sheet-book__chip-list">
+              {readyRecoveryActions.map((action) => (
+                <span
+                  key={action.resourceId}
+                  className="saved-sheet-book__resource-summary-pill saved-sheet-book__resource-summary-pill--attention"
+                >
+                  {action.label}
+                </span>
+              ))}
+              {blockedRecoveryActions.length > 0 && readyRecoveryActions.length === 0 ? (
+                blockedRecoveryActions.map((action) => (
+                  <span key={action.resourceId} className="saved-sheet-book__resource-summary-pill">
+                    {action.label}
+                  </span>
+                ))
+              ) : null}
+            </div>
+            <button className="inline-link-button" onClick={() => selectPage("page-2")} type="button">
+              {recoveryOverviewButtonLabel}
+            </button>
+          </div>
+        ) : null}
+        <div className="saved-sheet-book__play-state-grid">
+          <label className="saved-sheet-book__form-field">
+            <span>Current HP</span>
+            <input
+              max={derived.hitPointsMax}
+              min={0}
+              onChange={(event) => handlePlayStateNumberChange("currentHitPoints", event.target.value)}
+              type="number"
+              value={character.currentHitPoints}
+            />
+          </label>
+          <label className="saved-sheet-book__form-field">
+            <span>Temp HP</span>
+            <input
+              min={0}
+              onChange={(event) => handlePlayStateNumberChange("tempHitPoints", event.target.value)}
+              type="number"
+              value={character.tempHitPoints}
+            />
+          </label>
+          <label className="saved-sheet-book__form-field">
+            <span>Hit Dice Spent</span>
+            <input
+              max={derived.hitDiceMax}
+              min={0}
+              onChange={(event) => handlePlayStateNumberChange("hitDiceSpent", event.target.value)}
+              type="number"
+              value={character.hitDiceSpent}
+            />
+          </label>
+          <label className="saved-sheet-book__form-field">
+            <span>Inspiration</span>
+            <button
+              className={`action-button saved-sheet-book__play-state-toggle ${character.inspiration ? "action-button--secondary" : ""}`.trim()}
+              disabled={isSavingPlayState}
+              onClick={handleInspirationToggle}
+              type="button"
+            >
+              {character.inspiration ? "Marked" : "Open"}
+            </button>
+          </label>
+          <label className="saved-sheet-book__form-field">
+            <span>Death Save Successes</span>
+            <input
+              max={3}
+              min={0}
+              onChange={(event) => handleDeathSaveChange("successes", event.target.value)}
+              type="number"
+              value={character.deathSaves.successes}
+            />
+          </label>
+          <label className="saved-sheet-book__form-field">
+            <span>Death Save Failures</span>
+            <input
+              max={3}
+              min={0}
+              onChange={(event) => handleDeathSaveChange("failures", event.target.value)}
+              type="number"
+              value={character.deathSaves.failures}
+            />
+          </label>
+        </div>
+        <div className="saved-sheet-book__hit-dice-actions">
+          <div className="saved-sheet-book__hit-dice-copy">
+            <strong>Hit Dice Actions</strong>
+            <small>
+              {hitDiceSummary.available}/{hitDiceSummary.max} available • {hitDiceSummary.hitDieLabel} • Average{" "}
+              {hitDiceSummary.averageHealingPerDie} HP per die
+            </small>
+            <small>Spend Only keeps healing manual. Average Heal applies a bounded average shortcut and still respects max HP.</small>
+          </div>
+          <label className="saved-sheet-book__resource-adjuster-field">
+            <span>Amount</span>
+            <input
+              aria-label="Hit Dice amount"
+              max={Math.max(1, hitDiceSummary.available)}
+              min={1}
+              onChange={(event) => setHitDiceAdjustmentDraft(event.target.value)}
+              type="number"
+              value={hitDiceAdjustmentDraft}
+            />
+          </label>
+          <button
+            className="inline-link-button"
+            disabled={isSavingPlayState || hitDiceSummary.available <= 0 || clampPositiveInteger(hitDiceAdjustmentDraft, 1) > hitDiceSummary.available}
+            onClick={() => void handleHitDiceAction("spendOnly")}
+            type="button"
+          >
+            Spend Only
+          </button>
+          <button
+            className="inline-link-button"
+            disabled={
+              isSavingPlayState ||
+              hitDiceSummary.available <= 0 ||
+              character.currentHitPoints >= derived.hitPointsMax ||
+              clampPositiveInteger(hitDiceAdjustmentDraft, 1) > hitDiceSummary.available
+            }
+            onClick={() => void handleHitDiceAction("averageHeal")}
+            type="button"
+          >
+            Average Heal
+          </button>
+        </div>
+      </article>
+
+      <article className="saved-sheet-book__panel">
+        <header className="saved-sheet-book__panel-header">
+          <span>Tracked Resources</span>
+          <strong>{livePageTwoSummary.trackedResources.length} configured</strong>
+        </header>
+        {isEditing ? (
+          <p className="muted-copy">
+            Live resource rows stay wired to the saved character while worksheet setup edits remain in draft until you
+            save them below.
+          </p>
+        ) : null}
+        {livePageTwoSummary.trackedResources.length > 0 ? (
+          <div className="saved-sheet-book__resource-sections">
+            <div className="saved-sheet-book__resource-summary">
+              <span
+                className={`saved-sheet-book__resource-summary-pill ${attentionTrackedResources.length > 0 ? "saved-sheet-book__resource-summary-pill--attention" : ""}`.trim()}
+              >
+                Needs Attention {attentionTrackedResources.length}
+              </span>
+              <span className="saved-sheet-book__resource-summary-pill">Ready {readyTrackedResources.length}</span>
+              {attentionTrackedResources.length > 0 && readyTrackedResources.length > 0 ? (
+                <button
+                  className="inline-link-button"
+                  onClick={() => setShowReadyTrackedResources((current) => !current)}
+                  type="button"
+                >
+                  {showReadyTrackedResources
+                    ? `Hide Ready Resources (${readyTrackedResources.length})`
+                    : `Show Ready Resources (${readyTrackedResources.length})`}
+                </button>
+              ) : null}
+            </div>
+            {attentionTrackedResources.length > 0 ? (
+              <section className="saved-sheet-book__resource-section">
+                <header className="saved-sheet-book__resource-section-header">
+                  <strong>Needs Attention</strong>
+                  <small>Spent, partially used, or otherwise not at full capacity.</small>
+                </header>
+                <div className="saved-sheet-book__resource-list">
+                  {attentionTrackedResources.map((resource) => renderInteractiveTrackedResourceRow(resource))}
+                </div>
+              </section>
+            ) : null}
+            {readyTrackedResources.length > 0 && (showReadyTrackedResources || attentionTrackedResources.length === 0) ? (
+              <section className="saved-sheet-book__resource-section">
+                <header className="saved-sheet-book__resource-section-header">
+                  <strong>Ready Resources</strong>
+                  <small>Currently full or unused and available when the table needs them.</small>
+                </header>
+                <div className="saved-sheet-book__resource-list">
+                  {readyTrackedResources.map((resource) => renderInteractiveTrackedResourceRow(resource))}
+                </div>
+              </section>
+            ) : attentionTrackedResources.length > 0 && readyTrackedResources.length > 0 ? (
+              <p className="muted-copy">Ready resources are collapsed while attention items are present.</p>
+            ) : null}
+          </div>
+        ) : (
+          <p className="muted-copy">No bounded resource rows are configured yet.</p>
+        )}
+      </article>
+    </div>
+  );
 
   return (
     <div className={`saved-sheet-book saved-sheet-book--${activePage}`.trim()}>
@@ -753,213 +992,51 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
       </div>
 
       <section className="saved-sheet-book__page saved-sheet-book__page--page-1" id="saved-sheet-book-page-1">
-        <article className="saved-sheet-book__preview-shell saved-sheet-book__preview-shell--primary">
-          <SheetPreview character={previewCharacter} derived={derived} onOpenReference={onOpenReference} />
-        </article>
+        <header className="saved-sheet-book__page-header saved-sheet-book__page-header--compact">
+          <div className="saved-sheet-book__page-copy">
+            <span>Page 1</span>
+            <strong>Character Worksheet</strong>
+          </div>
+        </header>
+        {pageOneActions || routeStatus ? (
+          <div className="saved-sheet-book__route-toolbar">
+            {pageOneActions ? <div className="action-row saved-sheet-book__page-action-row">{pageOneActions}</div> : null}
+            {routeStatus ? <small>{routeStatus}</small> : null}
+          </div>
+        ) : null}
 
-        <div className="saved-sheet-book__page-one-toolbar">
-          <div className="saved-sheet-book__page-one-toolbar-copy">
-            <span>{isEditing ? "Edit mode" : "Sheet mode"}</span>
-            <small>{editorStatus}</small>
-          </div>
-          <div className="action-row saved-sheet-book__page-action-row">
-            {isEditing ? (
-              <>
-                <button className="action-button" disabled={isSaving} onClick={() => void handleEditSave()} type="button">
-                  {isSaving ? "Saving..." : "Save Sheet"}
-                </button>
-                <button className="action-button action-button--secondary" disabled={isSaving} onClick={handleEditCancel} type="button">
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <button className="action-button" onClick={handleEditStart} type="button">
-                Edit Sheet
-              </button>
-            )}
-          </div>
-        </div>
+        <article className="saved-sheet-book__preview-shell saved-sheet-book__preview-shell--primary">
+          <SheetPreview
+            character={previewCharacter}
+            derived={derived}
+            onOpenReference={onOpenReference}
+            worksheetFooter={worksheetFooter}
+          />
+        </article>
 
         <div className="saved-sheet-book__page-one-support">
           <article className="saved-sheet-book__panel saved-sheet-book__panel--wide">
             <header className="saved-sheet-book__panel-header">
-              <span>Rest & Recovery</span>
-              <strong>{isSavingPlayState ? "Saving..." : "Ready"}</strong>
-            </header>
-            <div className="action-row saved-sheet-book__rest-actions">
-              <button
-                className="action-button"
-                disabled={isSavingPlayState}
-                onClick={() => handleRest("shortRest")}
-                type="button"
-              >
-                Short Rest
-              </button>
-              <button
-                className="action-button action-button--secondary"
-                disabled={isSavingPlayState}
-                onClick={() => handleRest("longRest")}
-                type="button"
-              >
-                Long Rest
-              </button>
-            </div>
-            <p className="muted-copy">
-              Short Rest refreshes pact slots, short-rest resources, and clears stale death saves. Long Rest restores hit
-              points, clears temp HP, refreshes spell slots, restores hit point dice, and resets all rest-based
-              resources. Hit Dice can be spent directly here; use Average Heal as a fast shortcut, or roll at the table
-              and update HP manually if you want the exact die result.
-            </p>
-            <p className="muted-copy">{playStateStatus}</p>
-            {recoveryActions.length > 0 ? (
-              <div className="saved-sheet-book__recovery-overview">
-                <div className="saved-sheet-book__recovery-overview-copy">
-                  <strong>Recovery Highlights</strong>
-                  <small>{recoveryOverviewStatus}</small>
-                  {activeSpellSlotRecovery ? (
-                    <small>
-                      Pending: {pendingSpellSlotRecoverySummary || "none selected"} ({pendingSpellSlotRecoveryLevelTotal}/
-                      {activeSpellSlotRecovery.slotBudget} slot levels)
-                    </small>
-                  ) : blockedRecoveryActions.length > 0 && readyRecoveryActions.length === 0 ? (
-                    <small>
-                      {blockedRecoveryActions[0]?.label}: {blockedRecoveryActions[0]?.disabledReason}
-                    </small>
-                  ) : null}
-                </div>
-                <div className="saved-sheet-book__chip-list">
-                  {readyRecoveryActions.map((action) => (
-                    <span
-                      key={action.resourceId}
-                      className="saved-sheet-book__resource-summary-pill saved-sheet-book__resource-summary-pill--attention"
-                    >
-                      {action.label}
-                    </span>
-                  ))}
-                  {blockedRecoveryActions.length > 0 && readyRecoveryActions.length === 0 ? (
-                    blockedRecoveryActions.map((action) => (
-                      <span key={action.resourceId} className="saved-sheet-book__resource-summary-pill">
-                        {action.label}
-                      </span>
-                    ))
-                  ) : null}
-                </div>
-                <button className="inline-link-button" onClick={() => selectPage("page-2")} type="button">
-                  {recoveryOverviewButtonLabel}
-                </button>
-              </div>
-            ) : null}
-            <div className="saved-sheet-book__play-state-grid">
-              <label className="saved-sheet-book__form-field">
-                <span>Current HP</span>
-                <input
-                  max={derived.hitPointsMax}
-                  min={0}
-                  onChange={(event) => handlePlayStateNumberChange("currentHitPoints", event.target.value)}
-                  type="number"
-                  value={character.currentHitPoints}
-                />
-              </label>
-              <label className="saved-sheet-book__form-field">
-                <span>Temp HP</span>
-                <input
-                  min={0}
-                  onChange={(event) => handlePlayStateNumberChange("tempHitPoints", event.target.value)}
-                  type="number"
-                  value={character.tempHitPoints}
-                />
-              </label>
-              <label className="saved-sheet-book__form-field">
-                <span>Hit Dice Spent</span>
-                <input
-                  max={derived.hitDiceMax}
-                  min={0}
-                  onChange={(event) => handlePlayStateNumberChange("hitDiceSpent", event.target.value)}
-                  type="number"
-                  value={character.hitDiceSpent}
-                />
-              </label>
-              <label className="saved-sheet-book__form-field">
-                <span>Inspiration</span>
-                <button
-                  className={`action-button saved-sheet-book__play-state-toggle ${character.inspiration ? "action-button--secondary" : ""}`.trim()}
-                  disabled={isSavingPlayState}
-                  onClick={handleInspirationToggle}
-                  type="button"
-                >
-                  {character.inspiration ? "Marked" : "Open"}
-                </button>
-              </label>
-              <label className="saved-sheet-book__form-field">
-                <span>Death Save Successes</span>
-                <input
-                  max={3}
-                  min={0}
-                  onChange={(event) => handleDeathSaveChange("successes", event.target.value)}
-                  type="number"
-                  value={character.deathSaves.successes}
-                />
-              </label>
-              <label className="saved-sheet-book__form-field">
-                <span>Death Save Failures</span>
-                <input
-                  max={3}
-                  min={0}
-                  onChange={(event) => handleDeathSaveChange("failures", event.target.value)}
-                  type="number"
-                  value={character.deathSaves.failures}
-                />
-              </label>
-            </div>
-            <div className="saved-sheet-book__hit-dice-actions">
-              <div className="saved-sheet-book__hit-dice-copy">
-                <strong>Hit Dice Actions</strong>
-                <small>
-                  {hitDiceSummary.available}/{hitDiceSummary.max} available • {hitDiceSummary.hitDieLabel} • Average{" "}
-                  {hitDiceSummary.averageHealingPerDie} HP per die
-                </small>
-                <small>Spend Only keeps healing manual. Average Heal applies a bounded average shortcut and still respects max HP.</small>
-              </div>
-              <label className="saved-sheet-book__resource-adjuster-field">
-                <span>Amount</span>
-                <input
-                  aria-label="Hit Dice amount"
-                  max={Math.max(1, hitDiceSummary.available)}
-                  min={1}
-                  onChange={(event) => setHitDiceAdjustmentDraft(event.target.value)}
-                  type="number"
-                  value={hitDiceAdjustmentDraft}
-                />
-              </label>
-              <button
-                className="inline-link-button"
-                disabled={isSavingPlayState || hitDiceSummary.available <= 0 || clampPositiveInteger(hitDiceAdjustmentDraft, 1) > hitDiceSummary.available}
-                onClick={() => void handleHitDiceAction("spendOnly")}
-                type="button"
-              >
-                Spend Only
-              </button>
-              <button
-                className="inline-link-button"
-                disabled={
-                  isSavingPlayState ||
-                  hitDiceSummary.available <= 0 ||
-                  character.currentHitPoints >= derived.hitPointsMax ||
-                  clampPositiveInteger(hitDiceAdjustmentDraft, 1) > hitDiceSummary.available
-                }
-                onClick={() => void handleHitDiceAction("averageHeal")}
-                type="button"
-              >
-                Average Heal
-              </button>
-            </div>
-          </article>
-
-          <article className="saved-sheet-book__panel">
-            <header className="saved-sheet-book__panel-header">
               <span>Field Notebook</span>
-              <strong>{isEditing ? "Inline edits" : "Saved profile"}</strong>
+              <strong>{isEditing ? "Editing" : "Saved profile"}</strong>
             </header>
+            <div className="action-row saved-sheet-book__page-action-row">
+              {isEditing ? (
+                <>
+                  <button className="action-button" disabled={isSaving} onClick={() => void handleEditSave()} type="button">
+                    {isSaving ? "Saving..." : "Save Sheet"}
+                  </button>
+                  <button className="action-button action-button--secondary" disabled={isSaving} onClick={handleEditCancel} type="button">
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button className="action-button" onClick={handleEditStart} type="button">
+                  Edit Sheet
+                </button>
+              )}
+            </div>
+            <p className="muted-copy">{editorStatus}</p>
             {isEditing ? (
               <div className="saved-sheet-book__edit-grid">
                 <label className="saved-sheet-book__form-field">
@@ -1027,12 +1104,12 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
             )}
           </article>
 
-          <article className="saved-sheet-book__panel">
-            <header className="saved-sheet-book__panel-header">
-              <span>Tracked Resources</span>
-              <strong>{pageTwoSummary.trackedResources.length} configured</strong>
-            </header>
-            {isEditing ? (
+          {isEditing ? (
+            <article className="saved-sheet-book__panel saved-sheet-book__panel--wide">
+              <header className="saved-sheet-book__panel-header">
+                <span>Resource Setup</span>
+                <strong>{draft.trackedResources.length} draft row{draft.trackedResources.length === 1 ? "" : "s"}</strong>
+              </header>
               <div className="saved-sheet-book__resource-editor">
                 {draft.trackedResources.map((resource) => (
                   <article key={resource.id} className="saved-sheet-book__resource-editor-card">
@@ -1120,69 +1197,24 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
                   Supported class-driven resources are added automatically on the live sheet when the character qualifies.
                 </p>
               </div>
-            ) : pageTwoSummary.trackedResources.length > 0 ? (
-              <div className="saved-sheet-book__resource-sections">
-                <div className="saved-sheet-book__resource-summary">
-                  <span
-                    className={`saved-sheet-book__resource-summary-pill ${attentionTrackedResources.length > 0 ? "saved-sheet-book__resource-summary-pill--attention" : ""}`.trim()}
-                  >
-                    Needs Attention {attentionTrackedResources.length}
-                  </span>
-                  <span className="saved-sheet-book__resource-summary-pill">Ready {readyTrackedResources.length}</span>
-                  {attentionTrackedResources.length > 0 && readyTrackedResources.length > 0 ? (
-                    <button
-                      className="inline-link-button"
-                      onClick={() => setShowReadyTrackedResources((current) => !current)}
-                      type="button"
-                    >
-                      {showReadyTrackedResources
-                        ? `Hide Ready Resources (${readyTrackedResources.length})`
-                        : `Show Ready Resources (${readyTrackedResources.length})`}
-                    </button>
-                  ) : null}
-                </div>
-                {attentionTrackedResources.length > 0 ? (
-                  <section className="saved-sheet-book__resource-section">
-                    <header className="saved-sheet-book__resource-section-header">
-                      <strong>Needs Attention</strong>
-                      <small>Spent, partially used, or otherwise not at full capacity.</small>
-                    </header>
-                    <div className="saved-sheet-book__resource-list">
-                      {attentionTrackedResources.map((resource) => renderInteractiveTrackedResourceRow(resource))}
-                    </div>
-                  </section>
-                ) : null}
-                {readyTrackedResources.length > 0 && (showReadyTrackedResources || attentionTrackedResources.length === 0) ? (
-                  <section className="saved-sheet-book__resource-section">
-                    <header className="saved-sheet-book__resource-section-header">
-                      <strong>Ready Resources</strong>
-                      <small>Currently full or unused and available when the table needs them.</small>
-                    </header>
-                    <div className="saved-sheet-book__resource-list">
-                      {readyTrackedResources.map((resource) => renderInteractiveTrackedResourceRow(resource))}
-                    </div>
-                  </section>
-                ) : attentionTrackedResources.length > 0 && readyTrackedResources.length > 0 ? (
-                  <p className="muted-copy">Ready resources are collapsed while attention items are present.</p>
-                ) : null}
-              </div>
-            ) : (
-              <p className="muted-copy">No bounded resource rows are configured yet.</p>
-            )}
-          </article>
+            </article>
+          ) : null}
         </div>
       </section>
 
       <section className="saved-sheet-book__page saved-sheet-book__page--page-2" id="saved-sheet-book-page-2">
-        <header className="saved-sheet-book__page-header">
+        <header className="saved-sheet-book__page-header saved-sheet-book__page-header--compact">
           <div className="saved-sheet-book__page-copy">
             <span>Page 2</span>
             <strong>Spellbook Worksheet</strong>
-            <p>The second page now reads like a dedicated spellbook sheet: spellcasting summary up top, a lined spell table in the center, and a right-rail inspector instead of a generic notes block.</p>
           </div>
           <div className="saved-sheet-book__page-meta">
             <span>{isEditing ? "Previewing draft" : "Live now"}</span>
-            <small>{isEditing ? "Unsaved page-profile and resource edits already flow through this page while spell hover and pin behavior stays active." : "Hover or focus a spell to preview it. Click a row to pin it in the inspector."}</small>
+            <small>
+              {isEditing
+                ? "Unsaved notebook edits already flow through the spellbook summary while spell hover and pin behavior stays active."
+                : "Hover or focus a spell to preview it. Click a row to pin it in the inspector."}
+            </small>
           </div>
         </header>
 
@@ -1572,84 +1604,6 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
                 <p className="muted-copy">Hover, focus, or select a spell row to inspect its text here.</p>
               ) : (
                 <p className="muted-copy">No filtered spell is currently selected because the active filters returned no rows.</p>
-              )}
-            </article>
-
-            <article className="saved-sheet-book__panel saved-sheet-book__worksheet-panel saved-sheet-book__worksheet-panel--profile">
-              <header className="saved-sheet-book__panel-header">
-                <span>Field Profile</span>
-                <strong>{isEditing ? "Draft values" : "Saved page-two fields"}</strong>
-              </header>
-              <div className="saved-sheet-book__worksheet-note-stack">
-                <section className="saved-sheet-book__worksheet-note-block">
-                  <span>Appearance</span>
-                  <p>{pageTwoSummary.appearance}</p>
-                </section>
-                <section className="saved-sheet-book__worksheet-note-block">
-                  <span>Equipment Notes</span>
-                  <p>{pageTwoSummary.equipmentNotes}</p>
-                </section>
-              </div>
-              <div className="saved-sheet-book__worksheet-detail-grid">
-                <div className="saved-sheet-book__worksheet-detail">
-                  <span>Alignment</span>
-                  <strong>{pageTwoSummary.alignment}</strong>
-                </div>
-                <div className="saved-sheet-book__worksheet-detail">
-                  <span>Languages</span>
-                  <strong>{pageTwoSummary.languages}</strong>
-                </div>
-                <div className="saved-sheet-book__worksheet-detail saved-sheet-book__worksheet-detail--wide">
-                  <span>Coins</span>
-                  <strong>{pageTwoSummary.currencySummary}</strong>
-                </div>
-              </div>
-            </article>
-
-            <article className="saved-sheet-book__panel saved-sheet-book__worksheet-panel saved-sheet-book__worksheet-panel--resources">
-              <header className="saved-sheet-book__panel-header">
-                <span>Tracked Resources</span>
-                <strong>{pageTwoSummary.trackedResources.length} configured</strong>
-              </header>
-              {pageTwoSummary.trackedResources.length > 0 ? (
-                <div className="saved-sheet-book__resource-sections">
-                  <div className="saved-sheet-book__resource-summary">
-                    <span
-                      className={`saved-sheet-book__resource-summary-pill ${attentionTrackedResources.length > 0 ? "saved-sheet-book__resource-summary-pill--attention" : ""}`.trim()}
-                    >
-                      Needs Attention {attentionTrackedResources.length}
-                    </span>
-                    <span className="saved-sheet-book__resource-summary-pill">Ready {readyTrackedResources.length}</span>
-                  </div>
-                  {attentionTrackedResources.length > 0 ? (
-                    <section className="saved-sheet-book__resource-section">
-                      <header className="saved-sheet-book__resource-section-header">
-                        <strong>Needs Attention</strong>
-                        <small>Page two stays focused on the resources that changed during play.</small>
-                      </header>
-                      <div className="saved-sheet-book__resource-list">
-                        {attentionTrackedResources.map((resource) => renderSummaryTrackedResourceRow(resource))}
-                      </div>
-                    </section>
-                  ) : (
-                    <section className="saved-sheet-book__resource-section">
-                      <header className="saved-sheet-book__resource-section-header">
-                        <strong>Ready Resources</strong>
-                        <small>All tracked resources are currently full or unused.</small>
-                      </header>
-                      <div className="saved-sheet-book__resource-list">
-                        {readyTrackedResources.map((resource) => renderSummaryTrackedResourceRow(resource))}
-                      </div>
-                    </section>
-                  )}
-                  {attentionTrackedResources.length > 0 && readyTrackedResources.length > 0 ? (
-                    <p className="muted-copy">
-                      Ready resources stay grouped on page 1 so this page can focus on what changed during play.
-                    </p>
-                  ) : null}
-                </div>
-              ) : (
-                <p className="muted-copy">No bounded resource rows are configured yet. Add them in Edit Sheet mode to make the rest controls more useful during play.</p>
               )}
             </article>
           </div>

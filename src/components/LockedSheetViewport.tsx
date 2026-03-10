@@ -33,13 +33,14 @@ const VIEWPORT_INTERACTIVE_SELECTOR = [
 
 interface LockedSheetViewportProps extends PropsWithChildren {
   minWidth: number;
+  showChrome?: boolean;
 }
 
 function isInteractiveTarget(target: EventTarget | null) {
   return target instanceof Element && Boolean(target.closest(VIEWPORT_INTERACTIVE_SELECTOR));
 }
 
-export function LockedSheetViewport({ children, minWidth }: LockedSheetViewportProps) {
+export function LockedSheetViewport({ children, minWidth, showChrome = true }: LockedSheetViewportProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const navigatorTrackRef = useRef<HTMLDivElement | null>(null);
@@ -203,6 +204,12 @@ export function LockedSheetViewport({ children, minWidth }: LockedSheetViewportP
   const viewportClassName = [
     "sheet-layout-lock",
     isDragging ? "sheet-layout-lock--dragging" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const shellClassName = [
+    "sheet-layout-lock-shell",
+    showChrome ? "" : "sheet-layout-lock-shell--bare",
   ]
     .filter(Boolean)
     .join(" ");
@@ -476,31 +483,33 @@ export function LockedSheetViewport({ children, minWidth }: LockedSheetViewportP
   };
 
   return (
-    <div className="sheet-layout-lock-shell">
-      <div className="sheet-layout-lock__toolbar">
-        <div className="sheet-layout-lock__copy">
-          <span>Desktop Layout Locked</span>
-          <small aria-live="polite">{statusCopy}</small>
-          <small className="sheet-layout-lock__shortcut-copy">{interactionHint}</small>
+    <div className={shellClassName}>
+      {showChrome ? (
+        <div className="sheet-layout-lock__toolbar">
+          <div className="sheet-layout-lock__copy">
+            <span>Desktop Layout Locked</span>
+            <small aria-live="polite">{statusCopy}</small>
+            <small className="sheet-layout-lock__shortcut-copy">{interactionHint}</small>
+          </div>
+          <div
+            aria-label="Sheet zoom"
+            className="sheet-layout-lock__controls"
+            role="group"
+          >
+            {LOCKED_SHEET_VIEWPORT_SCALES.map((option) => (
+              <button
+                key={option.value}
+                aria-pressed={scaleMode === option.value}
+                className={`sheet-layout-lock__button ${scaleMode === option.value ? "sheet-layout-lock__button--active" : ""}`.trim()}
+                onClick={() => setScaleMode(option.value)}
+                type="button"
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
         </div>
-        <div
-          aria-label="Sheet zoom"
-          className="sheet-layout-lock__controls"
-          role="group"
-        >
-          {LOCKED_SHEET_VIEWPORT_SCALES.map((option) => (
-            <button
-              key={option.value}
-              aria-pressed={scaleMode === option.value}
-              className={`sheet-layout-lock__button ${scaleMode === option.value ? "sheet-layout-lock__button--active" : ""}`.trim()}
-              onClick={() => setScaleMode(option.value)}
-              type="button"
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      ) : null}
 
       <div className={frameClassName}>
         <div aria-hidden="true" className="sheet-layout-lock__edge sheet-layout-lock__edge--left" />
@@ -523,7 +532,7 @@ export function LockedSheetViewport({ children, minWidth }: LockedSheetViewportP
         <div aria-hidden="true" className="sheet-layout-lock__edge sheet-layout-lock__edge--right" />
       </div>
 
-      {showsNavigator ? (
+      {showChrome && showsNavigator ? (
         <div className="sheet-layout-lock__navigator-shell">
           <div className="sheet-layout-lock__navigator-copy">
             <span>Sheet Navigator</span>

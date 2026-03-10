@@ -20,6 +20,7 @@ interface SheetPreviewProps {
   character: CharacterRecord;
   derived: DerivedSheetState;
   onOpenReference?: (slug: string) => void;
+  worksheetFooter?: ReactNode;
 }
 
 interface OffenseRow {
@@ -198,7 +199,7 @@ function ReferenceButton({
   );
 }
 
-export function SheetPreview({ character, derived, onOpenReference }: SheetPreviewProps) {
+export function SheetPreview({ character, derived, onOpenReference, worksheetFooter }: SheetPreviewProps) {
   const classLabel = getClassTemplate(character.classId).name;
   const subclassTemplate = getSubclassTemplate(character.classId, character.subclass, character.enabledSourceIds);
   const subclassLabel = getSubclassLabel(character.classId, character.subclass, character.enabledSourceIds);
@@ -792,6 +793,12 @@ export function SheetPreview({ character, derived, onOpenReference }: SheetPrevi
           </article>
         </div>
       </section>
+
+      {worksheetFooter ? (
+        <section className="record-sheet__worksheet-footer">
+          {worksheetFooter}
+        </section>
+      ) : null}
     </div>
   );
 }

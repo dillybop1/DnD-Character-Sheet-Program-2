@@ -1183,3 +1183,44 @@
 - Decision: Pivot the next bounded slice away from further roster work and reopen the saved-sheet route as a worksheet-first simplification pass instead.
 - Consequences: The roadmap now treats the saved-sheet route as the highest-value non-print surface again, the roster remains at its current browse-plus-management baseline, and the next implementation should strip route chrome and relocate live page-one interactions onto the worksheet rather than adding more launch-page management features.
 
+## DEC-170
+
+- Date: `2026-03-10`
+- Context: After the worksheet-first route-shell removal landed, `/characters/:id` was materially closer to the intended play surface, but the remaining `LockedSheetViewport` toolbar and sheet navigator still framed the parchment pages with non-sheet chrome.
+- Decision: Stay on saved-sheet polish for one more bounded pass and remove the remaining layout-lock chrome from the dedicated worksheet route instead of pivoting away immediately after `M13-128`.
+- Consequences: The roadmap keeps its focus on making the saved-sheet route feel like the worksheet itself, the broader worksheet-first rewrite stays bounded, and the next implementation should hide the viewport chrome on `/characters/:id` without regressing the builder preview workflow that still benefits from those controls.
+
+## DEC-171
+
+- Date: `2026-03-10`
+- Context: Once the roadmap chose one more saved-sheet polish slice, the highest-value bounded move was to strip the `LockedSheetViewport` toolbar and navigator from the dedicated worksheet route while preserving the locked-canvas behavior and leaving the builder preview controls alone.
+- Decision: Add a chrome toggle to `LockedSheetViewport`, use the chrome-less mode on `CharacterSheetPage`, keep the full viewport controls in the builder preview, and update the saved-sheet smoke coverage to assert that `/characters/:id` no longer shows the remaining viewport chrome.
+- Consequences: The dedicated saved-sheet route now reads more like only the worksheet pages, the builder/editor still keeps the zoom and navigator affordances needed for preview work, and the next roadmap choice becomes "keep polishing the saved-sheet route after the chrome-removal pass or pivot to another non-print surface."
+
+## DEC-172
+
+- Date: `2026-03-10`
+- Context: After the route-shell and viewport-chrome cleanup landed, `/characters/:id` was much closer to the intended worksheet surface, but its page-switch controls still depended on raw `window.innerWidth` even though the actual single-page collapse point is driven by the narrower `app-main` container.
+- Decision: Stay on saved-sheet polish for one more bounded pass instead of pivoting away immediately after `M13-130`.
+- Consequences: The roadmap keeps the worksheet-first route in focus long enough to close a real narrow-layout bug, the broader saved-sheet rewrite still stays bounded, and the next implementation should align page navigation availability with the actual route layout rather than another global viewport heuristic.
+
+## DEC-173
+
+- Date: `2026-03-10`
+- Context: Once the roadmap chose one more saved-sheet polish slice, the highest-value bounded move was to stop deciding page-nav availability in JavaScript from `window.innerWidth`, because that could hide page switching when the saved-sheet column collapsed inside a wider window.
+- Decision: Keep the saved-sheet page nav in the route markup at all times, let CSS and the existing container-query layout decide when it is visible, and update smoke coverage to pin a wide viewport so the old mismatch cannot slip back in unnoticed.
+- Consequences: The worksheet-first route now keeps its page-switch controls available whenever the narrow single-page layout needs them, the implementation becomes simpler because it no longer duplicates layout state in JavaScript, and the next roadmap choice becomes "keep polishing the saved-sheet route after the page-nav availability fix or pivot to another non-print surface."
+
+## DEC-174
+
+- Date: `2026-03-10`
+- Context: After the page-nav availability fix landed, the dedicated saved-sheet route was functionally coherent, but page one still opened with another character-summary card, homebrew chips, and created/updated timestamps above a sheet that already shows the core identity data itself.
+- Decision: Stay on saved-sheet polish for one more bounded pass instead of pivoting away immediately after `M13-132`.
+- Consequences: The roadmap keeps the worksheet-first route in focus long enough to remove another remaining layer of duplicated route chrome, the saved-sheet rewrite still stays bounded, and the next implementation should compact the top-of-page presentation rather than reopening a broader surface rewrite.
+
+## DEC-175
+
+- Date: `2026-03-10`
+- Context: Once the roadmap chose one more saved-sheet polish slice, the highest-value bounded move was to remove the duplicated page-one identity/timestamp block and shrink the worksheet headers, while keeping edit/export/back actions easy to reach from the dedicated route.
+- Decision: Stop passing the page-one summary card into `SavedSheetBook`, render route actions and status in a slimmer toolbar, compact both worksheet headers, and update smoke coverage to assert that the old `Last saved` summary chrome is gone while route actions remain present.
+- Consequences: `/characters/:id` now reaches the parchment faster, the route still preserves the one-window edit/export/back workflow, and the next roadmap choice becomes "keep polishing the saved-sheet route after the header-compaction pass or pivot to another non-print surface."

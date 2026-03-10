@@ -75,13 +75,19 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 
 ## Current M13 Focus
 
-- The next saved-sheet pass is a worksheet-first simplification rather than another dashboard or roster slice.
-- Implementation steps for that pass:
-  - Strip the non-parchment saved-sheet route chrome so `/characters/:id` shows only the parchment Character Worksheet and Spell Worksheet pages.
-  - Remove the current saved-sheet support cards that sit outside the worksheet body, especially the route-level quick references, sheet snapshot, and spell-slot tracking header area.
-  - Move page-one play-state mutations onto the Character Worksheet itself: current HP, temp HP, death saves, inspiration, hit dice actions, rests, and class-feature charge usage such as Rage and Wild Shape.
-  - Keep spell-slot and recovery actions on the Spell Worksheet, but remove the extra page-two profile and tracked-resource side panels so page two stays focused on spell use.
-  - Update the saved-sheet smoke coverage after the route and worksheet controls move so the worksheet-first flow is the new tested baseline.
+- The worksheet-first saved-sheet simplification pass is now live on `/characters/:id`, and the remaining layout-lock toolbar/navigator chrome has been removed from that dedicated route.
+- The saved-sheet route now behaves like the worksheet surface itself:
+  - the old route-level quick-reference, snapshot, and in-route reference chrome is gone
+  - page-one play-state and tracked-resource interactions now live inside the Character Worksheet
+  - page two stays focused on spell slots, recovery, the spell table, and spell detail inspection
+  - the dedicated saved-sheet route no longer shows the `LockedSheetViewport` toolbar or sheet navigator, while the builder preview still keeps those controls
+- The saved-sheet route also keeps its page-switch controls aligned with the actual worksheet layout now:
+  - the page nav stays in the markup, while CSS decides when the narrow single-page route needs it
+  - `/characters/:id` no longer keys page navigation availability off raw `window.innerWidth`, which avoids losing page switching when the content column is narrow inside a wider app window
+- The saved-sheet route now also reaches the parchment faster:
+  - the duplicated page-one character summary and created/updated timestamps are gone from the top of the dedicated route
+  - worksheet headers are more compact while keeping the route actions and status copy available
+- The current follow-up is another decision task: choose whether to keep polishing the worksheet-first route after the header-compaction pass or pivot to a different non-print surface.
 
 ## Acceptance Criteria
 

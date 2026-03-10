@@ -309,12 +309,21 @@ function findSlotRow(container: HTMLElement, levelLabel: string) {
   );
 }
 
+function setWindowWidth(width: number) {
+  Object.defineProperty(window, "innerWidth", {
+    configurable: true,
+    writable: true,
+    value: width,
+  });
+}
+
 describe("saved sheet route smoke test", () => {
   let container: HTMLDivElement | null = null;
   let root: Root | null = null;
 
   beforeAll(() => {
     vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
+    setWindowWidth(1400);
 
     Object.defineProperty(window, "requestAnimationFrame", {
       configurable: true,
@@ -357,7 +366,7 @@ describe("saved sheet route smoke test", () => {
       root?.render(<App />);
     });
 
-    await waitFor(() => normalizeText(container?.textContent).includes("Saved sheet workspace"));
+    await waitFor(() => normalizeText(container?.textContent).includes("Character Worksheet"));
     const appContainer = container;
 
     if (!appContainer) {
@@ -367,7 +376,15 @@ describe("saved sheet route smoke test", () => {
     expect(normalizeText(appContainer.textContent)).toContain("Character Worksheet");
     expect(normalizeText(appContainer.textContent)).not.toContain("Page 1 Preview");
     expect(normalizeText(appContainer.textContent)).not.toContain("Combat Snapshot");
+    expect(normalizeText(appContainer.textContent)).not.toContain("Saved sheet workspace");
+    expect(normalizeText(appContainer.textContent)).not.toContain("Quick References");
+    expect(normalizeText(appContainer.textContent)).not.toContain("Sheet Snapshot");
+    expect(normalizeText(appContainer.textContent)).not.toContain("Desktop Layout Locked");
+    expect(normalizeText(appContainer.textContent)).not.toContain("Sheet Navigator");
+    expect(normalizeText(appContainer.textContent)).not.toContain("Last saved");
     expect(appContainer.querySelector(".record-sheet")).toBeTruthy();
+    expect(findButtonByText(appContainer, "Export JSON")).toBeTruthy();
+    expect(findButtonByText(appContainer, "Back to Roster")).toBeTruthy();
 
     const pageTwoButton = findButtonByText(appContainer, "Spellbook Worksheet");
     expect(pageTwoButton).toBeTruthy();
