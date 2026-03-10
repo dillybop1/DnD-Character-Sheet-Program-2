@@ -55,7 +55,7 @@ export const trackedResourceSchema = z.object({
   current: z.number().int().min(0).optional().default(0),
   max: z.number().int().min(0).optional().default(0),
   display: z.enum(["checkboxes", "counter"]).optional().default("counter"),
-  recovery: z.enum(["manual", "shortRest", "longRest"]).optional().default("manual"),
+  recovery: z.enum(["manual", "shortRest", "longRest", "shortRestOne"]).optional().default("manual"),
   referenceSlug: z.string().optional(),
   notes: z.string().optional(),
 });

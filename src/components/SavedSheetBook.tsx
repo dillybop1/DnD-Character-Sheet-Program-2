@@ -1,21 +1,46 @@
 import { useEffect, useState } from "react";
-import { normalizeSheetProfile, normalizeTrackedResources, updateTrackedResourceCurrent } from "../../shared/sheetTracking";
+import {
+  buildTrackedResourcesForCharacter,
+  AUTOMATED_FIGHTER_SECOND_WIND_ID,
+  AUTOMATED_PALADIN_LAY_ON_HANDS_ID,
+  AUTOMATED_RANGER_TIRELESS_ID,
+  normalizeSheetProfile,
+  normalizeTrackedResources,
+  updateTrackedResourceCurrent,
+} from "../../shared/sheetTracking";
 import type { CharacterRecord, CurrencyWallet, DerivedSheetState, TrackedResource } from "../../shared/types";
 import {
+  applySavedSheetHitDiceSpend,
+  applySavedSheetLayOnHandsHealing,
+  applySavedSheetMagicalCunning,
   SAVED_SHEET_PAGES,
   applySavedSheetRest,
+  applySavedSheetSecondWindHealing,
+  applySavedSheetTirelessTempHitPoints,
+  applySavedSheetSorcerousRestoration,
+  applySavedSheetSpellSlotRecovery,
+  applySavedSheetTrackedResourceDelta,
+  buildSavedSheetSpellInspectorNavigation,
+  buildSavedSheetHitDiceSummary,
   buildSavedSheetSpellcastingHeader,
   buildSavedSheetSpellSlotRows,
   buildSavedSheetSpellTableRows,
   buildSavedSheetPageTwoSummary,
+  buildSavedSheetTrackedResourceSections,
+  filterSavedSheetSpellTableRows,
+  buildSavedSheetRecoveryActions,
   canTakeSavedSheetRest,
   createSavedSheetEditorDraft,
   createSavedSheetTrackedResource,
   getSavedSheetDefaultSpellId,
   parseSavedSheetLanguages,
+  updateSavedSheetPactSlotsRemaining,
+  updateSavedSheetSpellSlotsRemaining,
+  type SavedSheetSpellBrowseMode,
   type SavedSheetRestKind,
   type SavedSheetEditorDraft,
   type SavedSheetPageId,
+  type SavedSheetRecoveryAction,
 } from "../lib/savedSheetBook";
 import { SheetPreview } from "./SheetPreview";
 
@@ -38,11 +63,50 @@ function clampInteger(value: string, fallback = 0) {
   return Number.isNaN(parsed) ? fallback : Math.max(0, parsed);
 }
 
+function clampPositiveInteger(value: string, fallback = 1) {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isNaN(parsed) ? fallback : Math.max(1, parsed);
+}
+
 function formatResourceMeta(resource: TrackedResource) {
   const display = resource.display === "checkboxes" ? "Checkboxes" : "Counter";
   const recovery =
     resource.recovery === "shortRest" ? "Short Rest" : resource.recovery === "longRest" ? "Long Rest" : "Manual";
-  return `${display} | ${recovery}`;
+  const recoveryLabel = resource.recovery === "shortRestOne" ? "Short Rest +1 / Long Rest full" : recovery;
+  return `${display} | ${recoveryLabel}`;
+}
+
+function parseSpellSlotIndex(rowId: string) {
+  if (!rowId.startsWith("spell-slot-")) {
+    return null;
+  }
+
+  const slotLevel = Number.parseInt(rowId.replace("spell-slot-", ""), 10);
+  return Number.isNaN(slotLevel) || slotLevel <= 0 ? null : slotLevel - 1;
+}
+
+function formatPendingSpellSlotRecovery(pendingSpellSlotRecovery: number[]) {
+  const parts = pendingSpellSlotRecovery.flatMap((quantity, index) =>
+    quantity > 0 ? [`L${index + 1} x${quantity}`] : [],
+  );
+
+  return parts.join(", ");
+}
+
+function supportsBulkTrackedResourceAdjustment(resource: TrackedResource) {
+  return resource.display === "counter" && resource.max >= 5;
+}
+
+function supportsLayOnHandsHealing(resource: TrackedResource) {
+  return resource.display === "counter" && resource.id === AUTOMATED_PALADIN_LAY_ON_HANDS_ID;
+}
+
+function supportsSecondWindHealing(resource: TrackedResource) {
+  return resource.display === "counter" && resource.id === AUTOMATED_FIGHTER_SECOND_WIND_ID;
+}
+
+function supportsTirelessTempHitPoints(resource: TrackedResource) {
+  return resource.display === "counter" && resource.id === AUTOMATED_RANGER_TIRELESS_ID;
 }
 
 export function SavedSheetBook({ character, derived, onOpenReference, onSaveCharacter }: SavedSheetBookProps) {
@@ -54,20 +118,67 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
   const [isSavingPlayState, setIsSavingPlayState] = useState(false);
   const [draft, setDraft] = useState<SavedSheetEditorDraft>(() => createSavedSheetEditorDraft(character));
   const [languagesInput, setLanguagesInput] = useState(() => createSavedSheetEditorDraft(character).sheetProfile.languages.join(", "));
+  const [resourceAdjustmentDrafts, setResourceAdjustmentDrafts] = useState<Record<string, string>>({});
+  const [hitDiceAdjustmentDraft, setHitDiceAdjustmentDraft] = useState("1");
+  const [activeSpellSlotRecoveryId, setActiveSpellSlotRecoveryId] = useState<string | null>(null);
+  const [pendingSpellSlotRecovery, setPendingSpellSlotRecovery] = useState<number[]>([]);
+  const [spellSearchQuery, setSpellSearchQuery] = useState("");
+  const [spellBrowseMode, setSpellBrowseMode] = useState<SavedSheetSpellBrowseMode>("all");
+  const [showReadyTrackedResources, setShowReadyTrackedResources] = useState(() =>
+    buildTrackedResourcesForCharacter(character, undefined, derived.abilityModifiers).every(
+      (resource) => resource.current >= resource.max,
+    ),
+  );
 
   const previewCharacter = isEditing
-    ? { ...character, sheetProfile: draft.sheetProfile, trackedResources: draft.trackedResources }
+    ? {
+        ...character,
+        sheetProfile: draft.sheetProfile,
+        trackedResources: buildTrackedResourcesForCharacter(character, draft.trackedResources, derived.abilityModifiers),
+      }
     : character;
+  const trackedResources = buildTrackedResourcesForCharacter(character, undefined, derived.abilityModifiers);
   const pageTwoSummary = buildSavedSheetPageTwoSummary(previewCharacter, derived);
+  const trackedResourceSections = buildSavedSheetTrackedResourceSections(pageTwoSummary.trackedResources);
+  const attentionTrackedResources = trackedResourceSections.needsAttention;
+  const readyTrackedResources = trackedResourceSections.ready;
   const spellcastingHeader = buildSavedSheetSpellcastingHeader(derived);
   const spellSlotRows = buildSavedSheetSpellSlotRows(derived);
   const spellRows = buildSavedSheetSpellTableRows(derived);
+  const filteredSpellRows = filterSavedSheetSpellTableRows(spellRows, {
+    query: spellSearchQuery,
+    mode: spellBrowseMode,
+  });
+  const recoveryActions = buildSavedSheetRecoveryActions(character, derived);
+  const readyRecoveryActions = recoveryActions.filter((action) => action.disabledReason === null);
+  const blockedRecoveryActions = recoveryActions.filter((action) => action.disabledReason !== null);
+  const hitDiceSummary = buildSavedSheetHitDiceSummary(character, derived);
   const defaultSpellId = getSavedSheetDefaultSpellId(spellRows);
+  const filteredDefaultSpellId = getSavedSheetDefaultSpellId(filteredSpellRows);
   const [previewedSpellId, setPreviewedSpellId] = useState<string | null>(() => defaultSpellId);
   const [pinnedSpellId, setPinnedSpellId] = useState<string | null>(null);
-  const inspectedSpellId = pinnedSpellId ?? previewedSpellId ?? defaultSpellId;
-  const inspectedSpell = spellRows.find((spell) => spell.id === inspectedSpellId) ?? null;
+  const visiblePinnedSpellId = filteredSpellRows.some((spell) => spell.id === pinnedSpellId) ? pinnedSpellId : null;
+  const visiblePreviewedSpellId = filteredSpellRows.some((spell) => spell.id === previewedSpellId) ? previewedSpellId : null;
+  const inspectedSpellId = visiblePinnedSpellId ?? visiblePreviewedSpellId ?? filteredDefaultSpellId;
+  const inspectedSpell = filteredSpellRows.find((spell) => spell.id === inspectedSpellId) ?? null;
+  const spellInspectorNavigation = buildSavedSheetSpellInspectorNavigation(filteredSpellRows, inspectedSpellId);
   const canRest = canTakeSavedSheetRest(character);
+  const activeSpellSlotRecovery = recoveryActions.find(
+    (action): action is Extract<SavedSheetRecoveryAction, { kind: "spellSlots" }> =>
+      action.kind === "spellSlots" && action.resourceId === activeSpellSlotRecoveryId,
+  ) ?? null;
+  const pendingSpellSlotRecoveryLevelTotal = pendingSpellSlotRecovery.reduce(
+    (total, quantity, index) => total + quantity * (index + 1),
+    0,
+  );
+  const pendingSpellSlotRecoverySummary = formatPendingSpellSlotRecovery(pendingSpellSlotRecovery);
+  const recoveryOverviewButtonLabel = activeSpellSlotRecovery ? "Continue Recovery on Page 2" : "Open Page 2 Recovery";
+  const recoveryOverviewStatus =
+    activeSpellSlotRecovery !== null
+      ? `Recovery selection is in progress for ${activeSpellSlotRecovery.label}.`
+      : readyRecoveryActions.length > 0
+        ? `${readyRecoveryActions.length} recovery action${readyRecoveryActions.length === 1 ? "" : "s"} ready on page 2.`
+        : `${blockedRecoveryActions.length} tracked recovery action${blockedRecoveryActions.length === 1 ? "" : "s"}, but none are ready right now.`;
 
   useEffect(() => {
     setActivePage("page-1");
@@ -78,7 +189,14 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
     setIsSavingPlayState(false);
     setPreviewedSpellId(defaultSpellId);
     setPinnedSpellId(null);
-  }, [character.id, defaultSpellId]);
+    setResourceAdjustmentDrafts({});
+    setHitDiceAdjustmentDraft("1");
+    setActiveSpellSlotRecoveryId(null);
+    setPendingSpellSlotRecovery([]);
+    setSpellSearchQuery("");
+    setSpellBrowseMode("all");
+    setShowReadyTrackedResources(attentionTrackedResources.length === 0);
+  }, [attentionTrackedResources.length, character.id, defaultSpellId]);
 
   useEffect(() => {
     if (isEditing) {
@@ -89,6 +207,23 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
     setDraft(nextDraft);
     setLanguagesInput(nextDraft.sheetProfile.languages.join(", "));
   }, [character, isEditing]);
+
+  useEffect(() => {
+    if (!activeSpellSlotRecoveryId) {
+      return;
+    }
+
+    if (!activeSpellSlotRecovery) {
+      setActiveSpellSlotRecoveryId(null);
+      setPendingSpellSlotRecovery([]);
+    }
+  }, [activeSpellSlotRecovery, activeSpellSlotRecoveryId]);
+
+  useEffect(() => {
+    if (attentionTrackedResources.length === 0) {
+      setShowReadyTrackedResources(true);
+    }
+  }, [attentionTrackedResources.length]);
 
   function selectPage(pageId: SavedSheetPageId) {
     setActivePage(pageId);
@@ -156,7 +291,7 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
         {
           ...character,
           sheetProfile,
-          trackedResources,
+          trackedResources: buildTrackedResourcesForCharacter(character, trackedResources, derived.abilityModifiers),
         },
         "Saved sheet fields.",
       );
@@ -173,7 +308,7 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
 
   async function savePlayState(nextCharacter: CharacterRecord, successMessage: string) {
     if (!onSaveCharacter) {
-      return;
+      return false;
     }
 
     setIsSavingPlayState(true);
@@ -182,11 +317,40 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
     try {
       await onSaveCharacter(nextCharacter, successMessage);
       setPlayStateStatus(successMessage);
+      return true;
     } catch (error: unknown) {
       setPlayStateStatus(error instanceof Error ? error.message : "Failed to save play state.");
+      return false;
     } finally {
       setIsSavingPlayState(false);
     }
+  }
+
+  function resetActiveSpellSlotRecovery() {
+    setActiveSpellSlotRecoveryId(null);
+    setPendingSpellSlotRecovery([]);
+  }
+
+  function startSpellSlotRecovery(resourceId: string) {
+    setActiveSpellSlotRecoveryId(resourceId);
+    setPendingSpellSlotRecovery(Array.from({ length: derived.spellcasting.spellSlotsMax.length }, () => 0));
+  }
+
+  function updatePendingSlotRecovery(slotIndex: number, delta: 1 | -1) {
+    setPendingSpellSlotRecovery((current) => current.map((quantity, index) => (
+      index === slotIndex ? Math.max(0, quantity + delta) : quantity
+    )));
+  }
+
+  function setResourceAdjustment(resourceId: string, nextValue: string) {
+    setResourceAdjustmentDrafts((current) => ({
+      ...current,
+      [resourceId]: nextValue,
+    }));
+  }
+
+  function getResourceAdjustment(resourceId: string) {
+    return clampPositiveInteger(resourceAdjustmentDrafts[resourceId] ?? "1", 1);
   }
 
   function handlePlayStateNumberChange(
@@ -208,6 +372,23 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
       },
       `Saved ${field === "currentHitPoints" ? "hit points" : field === "tempHitPoints" ? "temporary hit points" : "hit dice spent"}.`,
     );
+  }
+
+  async function handleHitDiceAction(mode: "spendOnly" | "averageHeal") {
+    const requestedAmount = clampPositiveInteger(hitDiceAdjustmentDraft, 1);
+    const nextCharacter = applySavedSheetHitDiceSpend(character, derived, requestedAmount, mode);
+
+    if (nextCharacter === character) {
+      return;
+    }
+
+    const spentAmount = nextCharacter.hitDiceSpent - character.hitDiceSpent;
+    const healedAmount = nextCharacter.currentHitPoints - character.currentHitPoints;
+    const successMessage = mode === "averageHeal"
+      ? `Spent ${spentAmount} Hit Dice and healed ${healedAmount} HP using average healing.`
+      : `Spent ${spentAmount} Hit Dice.`;
+
+    await savePlayState(nextCharacter, successMessage);
   }
 
   function handleDeathSaveChange(field: "successes" | "failures", value: string) {
@@ -236,7 +417,7 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
   }
 
   function handleTrackedResourceCurrentChange(resourceId: string, nextCurrent: number) {
-    const resource = character.trackedResources.find((entry) => entry.id === resourceId);
+    const resource = trackedResources.find((entry) => entry.id === resourceId);
 
     if (!resource) {
       return;
@@ -245,10 +426,124 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
     void savePlayState(
       {
         ...character,
-        trackedResources: updateTrackedResourceCurrent(character.trackedResources, resourceId, nextCurrent),
+        trackedResources: updateTrackedResourceCurrent(trackedResources, resourceId, nextCurrent),
       },
       `Updated ${resource.label}.`,
     );
+  }
+
+  function handleTrackedResourceDelta(resource: TrackedResource, delta: number) {
+    const nextCharacter = applySavedSheetTrackedResourceDelta(character, derived, resource.id, delta);
+
+    if (nextCharacter === character) {
+      return;
+    }
+
+    const amount = Math.abs(delta);
+    const successMessage = delta < 0
+      ? `Spent ${amount} from ${resource.label}.`
+      : `Restored ${amount} to ${resource.label}.`;
+
+    void savePlayState(nextCharacter, successMessage);
+  }
+
+  function handleLayOnHandsHealing(resource: TrackedResource) {
+    const requestedAmount = getResourceAdjustment(resource.id);
+    const nextCharacter = applySavedSheetLayOnHandsHealing(character, derived, requestedAmount);
+
+    if (nextCharacter === character) {
+      return;
+    }
+
+    const healedAmount = nextCharacter.currentHitPoints - character.currentHitPoints;
+
+    void savePlayState(nextCharacter, `Restored ${healedAmount} HP with Lay on Hands.`);
+  }
+
+  function handleSecondWindHealing() {
+    const nextCharacter = applySavedSheetSecondWindHealing(character, derived);
+
+    if (nextCharacter === character) {
+      return;
+    }
+
+    const healedAmount = nextCharacter.currentHitPoints - character.currentHitPoints;
+
+    void savePlayState(nextCharacter, `Restored ${healedAmount} HP with Second Wind using average healing.`);
+  }
+
+  function handleTirelessTempHitPoints() {
+    const nextCharacter = applySavedSheetTirelessTempHitPoints(character, derived);
+
+    if (nextCharacter === character) {
+      return;
+    }
+
+    void savePlayState(nextCharacter, `Set temporary HP to ${nextCharacter.tempHitPoints} with Tireless using average healing.`);
+  }
+
+  function handleSpellSlotRemainingChange(slotIndex: number, nextRemaining: number) {
+    void savePlayState(
+      updateSavedSheetSpellSlotsRemaining(character, derived, slotIndex, nextRemaining),
+      "Saved spell slot tracking.",
+    );
+  }
+
+  function handlePactSlotsRemainingChange(nextRemaining: number) {
+    void savePlayState(
+      updateSavedSheetPactSlotsRemaining(character, derived, nextRemaining),
+      "Saved spell slot tracking.",
+    );
+  }
+
+  async function handleRecoveryAction(action: SavedSheetRecoveryAction) {
+    if (action.kind === "spellSlots") {
+      if (activeSpellSlotRecoveryId === action.resourceId) {
+        return;
+      }
+
+      startSpellSlotRecovery(action.resourceId);
+      setPlayStateStatus(`Select spell slots to recover with ${action.label}, then apply the recovery.`);
+      return;
+    }
+
+    const nextCharacter =
+      action.kind === "pactSlots"
+        ? applySavedSheetMagicalCunning(character, derived)
+        : applySavedSheetSorcerousRestoration(character, derived);
+    const successMessage =
+      action.kind === "pactSlots"
+        ? "Recovered Pact Magic slots with Magical Cunning."
+        : `Recovered ${action.recoverAmount} ${action.targetLabel} with Sorcerous Restoration.`;
+
+    if (nextCharacter === character) {
+      return;
+    }
+
+    await savePlayState(nextCharacter, successMessage);
+  }
+
+  async function handleApplySpellSlotRecovery() {
+    if (!activeSpellSlotRecovery) {
+      return;
+    }
+
+    const nextCharacter = applySavedSheetSpellSlotRecovery(
+      character,
+      derived,
+      activeSpellSlotRecovery.resourceId,
+      pendingSpellSlotRecovery,
+    );
+
+    if (nextCharacter === character) {
+      return;
+    }
+
+    const saved = await savePlayState(nextCharacter, `Recovered spell slots with ${activeSpellSlotRecovery.label}.`);
+
+    if (saved) {
+      resetActiveSpellSlotRecovery();
+    }
   }
 
   function handleRest(restKind: SavedSheetRestKind) {
@@ -280,6 +575,163 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
   function togglePinnedSpell(spellId: string) {
     setPreviewedSpellId(spellId);
     setPinnedSpellId((currentSpellId) => currentSpellId === spellId ? null : spellId);
+  }
+
+  function navigateToSpell(spellId: string | null) {
+    if (!spellId) {
+      return;
+    }
+
+    setPreviewedSpellId(spellId);
+    setPinnedSpellId(spellId);
+  }
+
+  function renderInteractiveTrackedResourceRow(resource: TrackedResource) {
+    return (
+      <div key={resource.id} className="saved-sheet-book__resource-row saved-sheet-book__resource-row--interactive">
+        <div>
+          {resource.referenceSlug && onOpenReference ? (
+            <button className="record-sheet__link-button" onClick={() => onOpenReference(resource.referenceSlug!)} type="button">
+              <strong>{resource.label}</strong>
+            </button>
+          ) : (
+            <strong>{resource.label}</strong>
+          )}
+          <small>{formatResourceMeta(resource)}</small>
+          {resource.notes ? <small>{resource.notes}</small> : null}
+        </div>
+        {resource.display === "checkboxes" ? (
+          <div className="saved-sheet-book__resource-pips" role="group" aria-label={`${resource.label} charges`}>
+            {Array.from({ length: resource.max }, (_, index) => {
+              const isAvailable = index < resource.current;
+
+              return (
+                <button
+                  key={`${resource.id}-${index + 1}`}
+                  aria-pressed={isAvailable}
+                  className={`saved-sheet-book__resource-pip ${isAvailable ? "saved-sheet-book__resource-pip--active" : ""}`.trim()}
+                  disabled={isSavingPlayState}
+                  onClick={() => handleTrackedResourceCurrentChange(resource.id, isAvailable ? index : index + 1)}
+                  type="button"
+                />
+              );
+            })}
+          </div>
+        ) : (
+          <div className="saved-sheet-book__resource-counter">
+            <button
+              className="inline-link-button"
+              disabled={isSavingPlayState || resource.current <= 0}
+              onClick={() => handleTrackedResourceCurrentChange(resource.id, resource.current - 1)}
+              type="button"
+            >
+              Use
+            </button>
+            <span>
+              {resource.current}/{resource.max}
+            </span>
+            <button
+              className="inline-link-button"
+              disabled={isSavingPlayState || resource.current >= resource.max}
+              onClick={() => handleTrackedResourceCurrentChange(resource.id, resource.current + 1)}
+              type="button"
+            >
+              +1
+            </button>
+            {supportsBulkTrackedResourceAdjustment(resource) ? (
+              <div className="saved-sheet-book__resource-adjuster">
+                <label className="saved-sheet-book__resource-adjuster-field">
+                  <span>Amount</span>
+                  <input
+                    aria-label={`${resource.label} amount`}
+                    min={1}
+                    onChange={(event) => setResourceAdjustment(resource.id, event.target.value)}
+                    type="number"
+                    value={resourceAdjustmentDrafts[resource.id] ?? "1"}
+                  />
+                </label>
+                <button
+                  className="inline-link-button"
+                  disabled={isSavingPlayState || getResourceAdjustment(resource.id) > resource.current}
+                  onClick={() => handleTrackedResourceDelta(resource, -getResourceAdjustment(resource.id))}
+                  type="button"
+                >
+                  Spend
+                </button>
+                <button
+                  className="inline-link-button"
+                  disabled={isSavingPlayState || resource.current + getResourceAdjustment(resource.id) > resource.max}
+                  onClick={() => handleTrackedResourceDelta(resource, getResourceAdjustment(resource.id))}
+                  type="button"
+                >
+                  Restore
+                </button>
+                {supportsLayOnHandsHealing(resource) ? (
+                  <button
+                    className="inline-link-button"
+                    disabled={
+                      isSavingPlayState ||
+                      character.currentHitPoints >= derived.hitPointsMax ||
+                      getResourceAdjustment(resource.id) > resource.current ||
+                      getResourceAdjustment(resource.id) > derived.hitPointsMax - character.currentHitPoints
+                    }
+                    onClick={() => handleLayOnHandsHealing(resource)}
+                    type="button"
+                  >
+                    Heal HP
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+            {supportsSecondWindHealing(resource) ? (
+              <button
+                className="inline-link-button"
+                disabled={isSavingPlayState || resource.current <= 0 || character.currentHitPoints >= derived.hitPointsMax}
+                onClick={handleSecondWindHealing}
+                type="button"
+              >
+                Average Heal
+              </button>
+            ) : null}
+            {supportsTirelessTempHitPoints(resource) ? (
+              <button
+                className="inline-link-button"
+                disabled={isSavingPlayState || resource.current <= 0 || character.tempHitPoints >= Math.max(1, 5 + derived.abilityModifiers.wisdom)}
+                onClick={handleTirelessTempHitPoints}
+                type="button"
+              >
+                Average Temp HP
+              </button>
+            ) : null}
+          </div>
+        )}
+        {supportsLayOnHandsHealing(resource) ? (
+          <small className="saved-sheet-book__resource-action-note">
+            Heal HP applies only direct self-healing here. Poisoned removal and other target-side effects stay manual.
+          </small>
+        ) : supportsSecondWindHealing(resource) ? (
+          <small className="saved-sheet-book__resource-action-note">
+            Average Heal applies Second Wind self-healing only. Tactical Mind and Tactical Shift stay manual.
+          </small>
+        ) : supportsTirelessTempHitPoints(resource) ? (
+          <small className="saved-sheet-book__resource-action-note">
+            Average Temp HP applies only the Tireless temporary HP gain. Exhaustion reduction stays manual.
+          </small>
+        ) : null}
+      </div>
+    );
+  }
+
+  function renderSummaryTrackedResourceRow(resource: TrackedResource) {
+    return (
+      <div key={resource.id} className="saved-sheet-book__resource-row saved-sheet-book__resource-row--summary">
+        <div>
+          <strong>{resource.label}</strong>
+          <small>{formatResourceMeta(resource)}</small>
+        </div>
+        <span>{resource.current}/{resource.max}</span>
+      </div>
+    );
   }
 
   return (
@@ -355,9 +807,48 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
             <p className="muted-copy">
               Short Rest refreshes pact slots, short-rest resources, and clears stale death saves. Long Rest restores hit
               points, clears temp HP, refreshes spell slots, restores hit point dice, and resets all rest-based
-              resources. Hit Point Dice spending during a short rest stays manual through the fields below.
+              resources. Hit Dice can be spent directly here; use Average Heal as a fast shortcut, or roll at the table
+              and update HP manually if you want the exact die result.
             </p>
             <p className="muted-copy">{playStateStatus}</p>
+            {recoveryActions.length > 0 ? (
+              <div className="saved-sheet-book__recovery-overview">
+                <div className="saved-sheet-book__recovery-overview-copy">
+                  <strong>Recovery Highlights</strong>
+                  <small>{recoveryOverviewStatus}</small>
+                  {activeSpellSlotRecovery ? (
+                    <small>
+                      Pending: {pendingSpellSlotRecoverySummary || "none selected"} ({pendingSpellSlotRecoveryLevelTotal}/
+                      {activeSpellSlotRecovery.slotBudget} slot levels)
+                    </small>
+                  ) : blockedRecoveryActions.length > 0 && readyRecoveryActions.length === 0 ? (
+                    <small>
+                      {blockedRecoveryActions[0]?.label}: {blockedRecoveryActions[0]?.disabledReason}
+                    </small>
+                  ) : null}
+                </div>
+                <div className="saved-sheet-book__chip-list">
+                  {readyRecoveryActions.map((action) => (
+                    <span
+                      key={action.resourceId}
+                      className="saved-sheet-book__resource-summary-pill saved-sheet-book__resource-summary-pill--attention"
+                    >
+                      {action.label}
+                    </span>
+                  ))}
+                  {blockedRecoveryActions.length > 0 && readyRecoveryActions.length === 0 ? (
+                    blockedRecoveryActions.map((action) => (
+                      <span key={action.resourceId} className="saved-sheet-book__resource-summary-pill">
+                        {action.label}
+                      </span>
+                    ))
+                  ) : null}
+                </div>
+                <button className="inline-link-button" onClick={() => selectPage("page-2")} type="button">
+                  {recoveryOverviewButtonLabel}
+                </button>
+              </div>
+            ) : null}
             <div className="saved-sheet-book__play-state-grid">
               <label className="saved-sheet-book__form-field">
                 <span>Current HP</span>
@@ -419,6 +910,48 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
                   value={character.deathSaves.failures}
                 />
               </label>
+            </div>
+            <div className="saved-sheet-book__hit-dice-actions">
+              <div className="saved-sheet-book__hit-dice-copy">
+                <strong>Hit Dice Actions</strong>
+                <small>
+                  {hitDiceSummary.available}/{hitDiceSummary.max} available • {hitDiceSummary.hitDieLabel} • Average{" "}
+                  {hitDiceSummary.averageHealingPerDie} HP per die
+                </small>
+                <small>Spend Only keeps healing manual. Average Heal applies a bounded average shortcut and still respects max HP.</small>
+              </div>
+              <label className="saved-sheet-book__resource-adjuster-field">
+                <span>Amount</span>
+                <input
+                  aria-label="Hit Dice amount"
+                  max={Math.max(1, hitDiceSummary.available)}
+                  min={1}
+                  onChange={(event) => setHitDiceAdjustmentDraft(event.target.value)}
+                  type="number"
+                  value={hitDiceAdjustmentDraft}
+                />
+              </label>
+              <button
+                className="inline-link-button"
+                disabled={isSavingPlayState || hitDiceSummary.available <= 0 || clampPositiveInteger(hitDiceAdjustmentDraft, 1) > hitDiceSummary.available}
+                onClick={() => void handleHitDiceAction("spendOnly")}
+                type="button"
+              >
+                Spend Only
+              </button>
+              <button
+                className="inline-link-button"
+                disabled={
+                  isSavingPlayState ||
+                  hitDiceSummary.available <= 0 ||
+                  character.currentHitPoints >= derived.hitPointsMax ||
+                  clampPositiveInteger(hitDiceAdjustmentDraft, 1) > hitDiceSummary.available
+                }
+                onClick={() => void handleHitDiceAction("averageHeal")}
+                type="button"
+              >
+                Average Heal
+              </button>
             </div>
           </article>
 
@@ -550,12 +1083,18 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
                         <select
                           onChange={(event) => updateResource(resource.id, (current) => ({
                             ...current,
-                            recovery: event.target.value === "shortRest" || event.target.value === "longRest" ? event.target.value : "manual",
+                            recovery:
+                              event.target.value === "shortRest" ||
+                              event.target.value === "longRest" ||
+                              event.target.value === "shortRestOne"
+                                ? event.target.value
+                                : "manual",
                           }))}
                           value={resource.recovery}
                         >
                           <option value="manual">Manual</option>
                           <option value="shortRest">Short Rest</option>
+                          <option value="shortRestOne">+1 Short Rest / Full Long Rest</option>
                           <option value="longRest">Long Rest</option>
                         </select>
                       </label>
@@ -577,64 +1116,55 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
                 >
                   Add Resource
                 </button>
+                <p className="muted-copy">
+                  Supported class-driven resources are added automatically on the live sheet when the character qualifies.
+                </p>
               </div>
             ) : pageTwoSummary.trackedResources.length > 0 ? (
-              <div className="saved-sheet-book__resource-list">
-                {pageTwoSummary.trackedResources.map((resource) => (
-                  <div key={resource.id} className="saved-sheet-book__resource-row saved-sheet-book__resource-row--interactive">
-                    <div>
-                      {resource.referenceSlug && onOpenReference ? (
-                        <button className="record-sheet__link-button" onClick={() => onOpenReference(resource.referenceSlug!)} type="button">
-                          <strong>{resource.label}</strong>
-                        </button>
-                      ) : (
-                        <strong>{resource.label}</strong>
-                      )}
-                      <small>{formatResourceMeta(resource)}</small>
-                      {resource.notes ? <small>{resource.notes}</small> : null}
+              <div className="saved-sheet-book__resource-sections">
+                <div className="saved-sheet-book__resource-summary">
+                  <span
+                    className={`saved-sheet-book__resource-summary-pill ${attentionTrackedResources.length > 0 ? "saved-sheet-book__resource-summary-pill--attention" : ""}`.trim()}
+                  >
+                    Needs Attention {attentionTrackedResources.length}
+                  </span>
+                  <span className="saved-sheet-book__resource-summary-pill">Ready {readyTrackedResources.length}</span>
+                  {attentionTrackedResources.length > 0 && readyTrackedResources.length > 0 ? (
+                    <button
+                      className="inline-link-button"
+                      onClick={() => setShowReadyTrackedResources((current) => !current)}
+                      type="button"
+                    >
+                      {showReadyTrackedResources
+                        ? `Hide Ready Resources (${readyTrackedResources.length})`
+                        : `Show Ready Resources (${readyTrackedResources.length})`}
+                    </button>
+                  ) : null}
+                </div>
+                {attentionTrackedResources.length > 0 ? (
+                  <section className="saved-sheet-book__resource-section">
+                    <header className="saved-sheet-book__resource-section-header">
+                      <strong>Needs Attention</strong>
+                      <small>Spent, partially used, or otherwise not at full capacity.</small>
+                    </header>
+                    <div className="saved-sheet-book__resource-list">
+                      {attentionTrackedResources.map((resource) => renderInteractiveTrackedResourceRow(resource))}
                     </div>
-                    {resource.display === "checkboxes" ? (
-                      <div className="saved-sheet-book__resource-pips" role="group" aria-label={`${resource.label} charges`}>
-                        {Array.from({ length: resource.max }, (_, index) => {
-                          const isAvailable = index < resource.current;
-
-                          return (
-                            <button
-                              key={`${resource.id}-${index + 1}`}
-                              aria-pressed={isAvailable}
-                              className={`saved-sheet-book__resource-pip ${isAvailable ? "saved-sheet-book__resource-pip--active" : ""}`.trim()}
-                              disabled={isSavingPlayState}
-                              onClick={() => handleTrackedResourceCurrentChange(resource.id, isAvailable ? index : index + 1)}
-                              type="button"
-                            />
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="saved-sheet-book__resource-counter">
-                        <button
-                          className="inline-link-button"
-                          disabled={isSavingPlayState || resource.current <= 0}
-                          onClick={() => handleTrackedResourceCurrentChange(resource.id, resource.current - 1)}
-                          type="button"
-                        >
-                          -
-                        </button>
-                        <span>
-                          {resource.current}/{resource.max}
-                        </span>
-                        <button
-                          className="inline-link-button"
-                          disabled={isSavingPlayState || resource.current >= resource.max}
-                          onClick={() => handleTrackedResourceCurrentChange(resource.id, resource.current + 1)}
-                          type="button"
-                        >
-                          +
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  </section>
+                ) : null}
+                {readyTrackedResources.length > 0 && (showReadyTrackedResources || attentionTrackedResources.length === 0) ? (
+                  <section className="saved-sheet-book__resource-section">
+                    <header className="saved-sheet-book__resource-section-header">
+                      <strong>Ready Resources</strong>
+                      <small>Currently full or unused and available when the table needs them.</small>
+                    </header>
+                    <div className="saved-sheet-book__resource-list">
+                      {readyTrackedResources.map((resource) => renderInteractiveTrackedResourceRow(resource))}
+                    </div>
+                  </section>
+                ) : attentionTrackedResources.length > 0 && readyTrackedResources.length > 0 ? (
+                  <p className="muted-copy">Ready resources are collapsed while attention items are present.</p>
+                ) : null}
               </div>
             ) : (
               <p className="muted-copy">No bounded resource rows are configured yet.</p>
@@ -697,19 +1227,163 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
                     <div className="saved-sheet-book__slot-ledger-head">Expended</div>
                     <div className="saved-sheet-book__slot-ledger-head">Remaining</div>
 
-                    {spellSlotRows.map((row) => (
-                      <div key={row.id} className="saved-sheet-book__slot-ledger-row">
-                        <span className="saved-sheet-book__slot-ledger-cell" data-label="Level">{row.levelLabel}</span>
-                        <span className="saved-sheet-book__slot-ledger-cell" data-label="Total">{row.total}</span>
-                        <span className="saved-sheet-book__slot-ledger-cell" data-label="Expended">{row.expended}</span>
-                        <span className="saved-sheet-book__slot-ledger-cell" data-label="Remaining">{row.remaining}</span>
-                      </div>
-                    ))}
+                    {spellSlotRows.map((row, index) => {
+                      const rowSlotIndex = parseSpellSlotIndex(row.id);
+                      const pendingRecovery = rowSlotIndex === null ? 0 : pendingSpellSlotRecovery[rowSlotIndex] ?? 0;
+                      const slotLevel = rowSlotIndex === null ? null : rowSlotIndex + 1;
+                      const canUseSlotRecoveryControls =
+                        activeSpellSlotRecovery !== null &&
+                        rowSlotIndex !== null &&
+                        slotLevel !== null &&
+                        slotLevel <= activeSpellSlotRecovery.maxRecoverableSlotLevel;
+                      const expendedRecoverableSlots = row.total - row.remaining - pendingRecovery;
+                      const canAddRecovery =
+                        canUseSlotRecoveryControls &&
+                        activeSpellSlotRecovery !== null &&
+                        slotLevel !== null &&
+                        expendedRecoverableSlots > 0 &&
+                        pendingSpellSlotRecoveryLevelTotal + slotLevel <= activeSpellSlotRecovery.slotBudget;
+                      const canRemoveRecovery = canUseSlotRecoveryControls && pendingRecovery > 0;
+
+                      return (
+                        <div key={row.id} className="saved-sheet-book__slot-ledger-row">
+                          <span className="saved-sheet-book__slot-ledger-cell" data-label="Level">{row.levelLabel}</span>
+                          <span className="saved-sheet-book__slot-ledger-cell" data-label="Total">{row.total}</span>
+                          <span className="saved-sheet-book__slot-ledger-cell" data-label="Expended">{row.expended}</span>
+                          <span className="saved-sheet-book__slot-ledger-cell saved-sheet-book__slot-ledger-cell--remaining" data-label="Remaining">
+                            <strong>{row.remaining}</strong>
+                            <div className="saved-sheet-book__slot-controls">
+                              <button
+                                className="inline-link-button"
+                                disabled={isSavingPlayState || activeSpellSlotRecovery !== null || row.remaining <= 0}
+                                onClick={() => (
+                                  row.id === "pact-slots"
+                                    ? handlePactSlotsRemainingChange(row.remaining - 1)
+                                    : handleSpellSlotRemainingChange(index, row.remaining - 1)
+                                )}
+                                type="button"
+                              >
+                                Use
+                              </button>
+                              <button
+                                className="inline-link-button"
+                                disabled={isSavingPlayState || activeSpellSlotRecovery !== null || row.remaining >= row.total}
+                                onClick={() => (
+                                  row.id === "pact-slots"
+                                    ? handlePactSlotsRemainingChange(row.remaining + 1)
+                                    : handleSpellSlotRemainingChange(index, row.remaining + 1)
+                                )}
+                                type="button"
+                              >
+                                +1
+                              </button>
+                            </div>
+                            {canUseSlotRecoveryControls ? (
+                              <div className="saved-sheet-book__slot-recovery-controls">
+                                <button
+                                  className="inline-link-button"
+                                  disabled={isSavingPlayState || !canRemoveRecovery}
+                                  onClick={() => rowSlotIndex !== null && updatePendingSlotRecovery(rowSlotIndex, -1)}
+                                  type="button"
+                                >
+                                  Undo
+                                </button>
+                                <button
+                                  className="inline-link-button"
+                                  disabled={isSavingPlayState || !canAddRecovery}
+                                  onClick={() => rowSlotIndex !== null && updatePendingSlotRecovery(rowSlotIndex, 1)}
+                                  type="button"
+                                >
+                                  Recover
+                                </button>
+                              </div>
+                            ) : null}
+                            {pendingRecovery > 0 ? <small className="saved-sheet-book__slot-recovery-badge">Pending +{pendingRecovery}</small> : null}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="muted-copy">No spell slots are currently tracked for this character.</p>
                 )}
               </div>
+              {recoveryActions.length > 0 ? (
+                <div className="saved-sheet-book__worksheet-recovery-section">
+                  <div className="saved-sheet-book__worksheet-section-heading">
+                    <span>Recovery Actions</span>
+                    <strong>{readyRecoveryActions.length} ready</strong>
+                  </div>
+                  <div className="saved-sheet-book__recovery-card-list">
+                    {[...readyRecoveryActions, ...blockedRecoveryActions].map((action) => {
+                      const isActive = action.kind === "spellSlots" && action.resourceId === activeSpellSlotRecoveryId;
+                      const actionBlockedByOtherSelection = activeSpellSlotRecovery !== null && !isActive;
+                      const actionDisabled = isSavingPlayState || actionBlockedByOtherSelection || action.disabledReason !== null;
+                      const actionSummary =
+                        action.kind === "spellSlots"
+                          ? `Recover up to ${action.slotBudget} combined slot levels (max level ${action.maxRecoverableSlotLevel}).`
+                          : action.kind === "pactSlots"
+                            ? `Restore ${action.recoverAmount} expended pact slots.`
+                            : `Restore ${action.recoverAmount} ${action.targetLabel}.`;
+
+                      return (
+                        <article
+                          key={action.resourceId}
+                          className={`saved-sheet-book__recovery-card ${isActive ? "saved-sheet-book__recovery-card--active" : ""}`.trim()}
+                        >
+                          <div className="saved-sheet-book__recovery-card-copy">
+                            <strong>{action.label}</strong>
+                            <small>{action.usesRemaining}/{action.usesMax} uses remaining</small>
+                            <small>{actionSummary}</small>
+                            {action.notes ? <small>{action.notes}</small> : null}
+                            {isActive ? (
+                              <small>
+                                Selected: {pendingSpellSlotRecoverySummary || "none"} ({pendingSpellSlotRecoveryLevelTotal}/{action.slotBudget} levels)
+                              </small>
+                            ) : null}
+                            {action.disabledReason ? <small>{action.disabledReason}</small> : null}
+                          </div>
+                          <div className="saved-sheet-book__recovery-card-actions">
+                            {action.kind === "spellSlots" && isActive ? (
+                              <>
+                                <button
+                                  className="action-button"
+                                  disabled={isSavingPlayState || pendingSpellSlotRecoveryLevelTotal <= 0}
+                                  onClick={() => void handleApplySpellSlotRecovery()}
+                                  type="button"
+                                >
+                                  Apply Recovery
+                                </button>
+                                <button
+                                  className="action-button action-button--secondary"
+                                  disabled={isSavingPlayState}
+                                  onClick={resetActiveSpellSlotRecovery}
+                                  type="button"
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                className="action-button"
+                                disabled={actionDisabled}
+                                onClick={() => void handleRecoveryAction(action)}
+                                type="button"
+                              >
+                                {action.kind === "spellSlots"
+                                  ? "Start Recovery"
+                                  : action.kind === "pactSlots"
+                                    ? "Recover Pact Slots"
+                                    : `Recover ${action.recoverAmount} ${action.targetLabel}`}
+                              </button>
+                            )}
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
               {spellcastingHeader.bonusLine ? (
                 <div className="saved-sheet-book__worksheet-bonus-line">
                   <span>Additional Spellcasting</span>
@@ -721,48 +1395,95 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
             <article className="saved-sheet-book__panel saved-sheet-book__worksheet-panel saved-sheet-book__worksheet-panel--spell-table">
               <header className="saved-sheet-book__panel-header">
                 <span>Spell Table</span>
-                <strong>{spellRows.length} tracked</strong>
+                <strong>{filteredSpellRows.length === spellRows.length ? `${spellRows.length} tracked` : `${filteredSpellRows.length}/${spellRows.length} shown`}</strong>
               </header>
               {spellRows.length > 0 ? (
-                <div className="saved-sheet-book__spell-table-shell">
-                  <div className="saved-sheet-book__spell-table">
-                    <div className="saved-sheet-book__spell-table-head">Level</div>
-                    <div className="saved-sheet-book__spell-table-head">Spell Name</div>
-                    <div className="saved-sheet-book__spell-table-head">Range</div>
-                    <div className="saved-sheet-book__spell-table-head">Save / Attack</div>
-                    <div className="saved-sheet-book__spell-table-head">Casting</div>
-                    <div className="saved-sheet-book__spell-table-head">Duration</div>
-                    <div className="saved-sheet-book__spell-table-head">C</div>
-
-                    {spellRows.map((spell) => {
-                      const isActive = inspectedSpell?.id === spell.id;
-                      const isPinned = pinnedSpellId === spell.id;
-
-                      return (
+                <div className="saved-sheet-book__spell-table-panel">
+                  <div className="saved-sheet-book__spell-toolbar">
+                    <label className="saved-sheet-book__form-field saved-sheet-book__spell-search-field">
+                      <span>Search</span>
+                      <input
+                        aria-label="Spell table search"
+                        onChange={(event) => setSpellSearchQuery(event.target.value)}
+                        placeholder="Search spells, text, or range"
+                        type="text"
+                        value={spellSearchQuery}
+                      />
+                    </label>
+                    <div className="saved-sheet-book__spell-filter-row">
+                      {([
+                        ["all", "All"],
+                        ["prepared", "Prepared"],
+                        ["cantrips", "Cantrips"],
+                        ["leveled", "Leveled"],
+                      ] as const).map(([mode, label]) => (
                         <button
-                          key={spell.id}
-                          className={`saved-sheet-book__spell-row ${isActive ? "saved-sheet-book__spell-row--active" : ""} ${isPinned ? "saved-sheet-book__spell-row--pinned" : ""}`.trim()}
-                          onBlur={clearSpellPreview}
-                          onClick={() => togglePinnedSpell(spell.id)}
-                          onFocus={() => previewSpell(spell.id)}
-                          onMouseEnter={() => previewSpell(spell.id)}
-                          onMouseLeave={clearSpellPreview}
+                          key={mode}
+                          className={`saved-sheet-book__worksheet-toggle ${spellBrowseMode === mode ? "saved-sheet-book__worksheet-toggle--active" : ""}`.trim()}
+                          onClick={() => setSpellBrowseMode(mode)}
                           type="button"
                         >
-                          <span className="saved-sheet-book__spell-cell" data-label="Level">{spell.levelLabel}</span>
-                          <span className="saved-sheet-book__spell-cell saved-sheet-book__spell-cell--name" data-label="Spell Name">
-                            <strong>{spell.name}</strong>
-                            <small>{spell.prepared ? "Prepared" : "Known"} | {spell.ritualLabel}</small>
-                          </span>
-                          <span className="saved-sheet-book__spell-cell" data-label="Range">{spell.rangeLabel}</span>
-                          <span className="saved-sheet-book__spell-cell" data-label="Save / Attack">{spell.saveLabel}</span>
-                          <span className="saved-sheet-book__spell-cell" data-label="Casting">{spell.castLabel}</span>
-                          <span className="saved-sheet-book__spell-cell" data-label="Duration">{spell.durationLabel}</span>
-                          <span className="saved-sheet-book__spell-cell" data-label="Concentration">{spell.concentrationLabel}</span>
+                          {label}
                         </button>
-                      );
-                    })}
+                      ))}
+                      {(spellSearchQuery || spellBrowseMode !== "all") ? (
+                        <button
+                          className="inline-link-button"
+                          onClick={() => {
+                            setSpellSearchQuery("");
+                            setSpellBrowseMode("all");
+                          }}
+                          type="button"
+                        >
+                          Clear Filters
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
+                  {filteredSpellRows.length > 0 ? (
+                    <div className="saved-sheet-book__spell-table-shell">
+                      <div className="saved-sheet-book__spell-table">
+                        <div className="saved-sheet-book__spell-table-head">Level</div>
+                        <div className="saved-sheet-book__spell-table-head">Spell Name</div>
+                        <div className="saved-sheet-book__spell-table-head">Range</div>
+                        <div className="saved-sheet-book__spell-table-head">Save / Attack</div>
+                        <div className="saved-sheet-book__spell-table-head">Casting</div>
+                        <div className="saved-sheet-book__spell-table-head">Duration</div>
+                        <div className="saved-sheet-book__spell-table-head">C</div>
+
+                        {filteredSpellRows.map((spell) => {
+                          const isActive = inspectedSpell?.id === spell.id;
+                          const isPinned = visiblePinnedSpellId === spell.id;
+
+                          return (
+                            <button
+                              key={spell.id}
+                              className={`saved-sheet-book__spell-row ${isActive ? "saved-sheet-book__spell-row--active" : ""} ${isPinned ? "saved-sheet-book__spell-row--pinned" : ""}`.trim()}
+                              onBlur={clearSpellPreview}
+                              onClick={() => togglePinnedSpell(spell.id)}
+                              onFocus={() => previewSpell(spell.id)}
+                              onMouseEnter={() => previewSpell(spell.id)}
+                              onMouseLeave={clearSpellPreview}
+                              type="button"
+                            >
+                              <span className="saved-sheet-book__spell-cell" data-label="Level">{spell.levelLabel}</span>
+                              <span className="saved-sheet-book__spell-cell saved-sheet-book__spell-cell--name" data-label="Spell Name">
+                                <strong>{spell.name}</strong>
+                                <small>{spell.prepared ? "Prepared" : "Known"} | {spell.ritualLabel}</small>
+                              </span>
+                              <span className="saved-sheet-book__spell-cell" data-label="Range">{spell.rangeLabel}</span>
+                              <span className="saved-sheet-book__spell-cell" data-label="Save / Attack">{spell.saveLabel}</span>
+                              <span className="saved-sheet-book__spell-cell" data-label="Casting">{spell.castLabel}</span>
+                              <span className="saved-sheet-book__spell-cell" data-label="Duration">{spell.durationLabel}</span>
+                              <span className="saved-sheet-book__spell-cell" data-label="Concentration">{spell.concentrationLabel}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="muted-copy">No spells match the current filters. Clear filters to see the full spellbook.</p>
+                  )}
                 </div>
               ) : (
                 <p className="muted-copy">No spells are currently tracked on this character.</p>
@@ -778,6 +1499,31 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
               </header>
               {inspectedSpell ? (
                 <div className="saved-sheet-book__spell-inspector">
+                  <div className="saved-sheet-book__spell-inspector-toolbar">
+                    <div className="saved-sheet-book__spell-inspector-position">
+                      {spellInspectorNavigation.currentPosition !== null
+                        ? `Showing ${spellInspectorNavigation.currentPosition} of ${spellInspectorNavigation.total} visible spells`
+                        : `${spellInspectorNavigation.total} visible spells`}
+                    </div>
+                    <div className="saved-sheet-book__spell-inspector-nav">
+                      <button
+                        className="action-button action-button--secondary"
+                        disabled={spellInspectorNavigation.previousSpellId === null}
+                        onClick={() => navigateToSpell(spellInspectorNavigation.previousSpellId)}
+                        type="button"
+                      >
+                        Previous Spell
+                      </button>
+                      <button
+                        className="action-button action-button--secondary"
+                        disabled={spellInspectorNavigation.nextSpellId === null}
+                        onClick={() => navigateToSpell(spellInspectorNavigation.nextSpellId)}
+                        type="button"
+                      >
+                        Next Spell
+                      </button>
+                    </div>
+                  </div>
                   <div className="saved-sheet-book__metric-grid">
                     {[
                       ["Level", inspectedSpell.levelLabel],
@@ -822,8 +1568,10 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
                     </div>
                   </div>
                 </div>
-              ) : (
+              ) : filteredSpellRows.length > 0 ? (
                 <p className="muted-copy">Hover, focus, or select a spell row to inspect its text here.</p>
+              ) : (
+                <p className="muted-copy">No filtered spell is currently selected because the active filters returned no rows.</p>
               )}
             </article>
 
@@ -864,16 +1612,41 @@ export function SavedSheetBook({ character, derived, onOpenReference, onSaveChar
                 <strong>{pageTwoSummary.trackedResources.length} configured</strong>
               </header>
               {pageTwoSummary.trackedResources.length > 0 ? (
-                <div className="saved-sheet-book__resource-list">
-                  {pageTwoSummary.trackedResources.map((resource) => (
-                    <div key={resource.id} className="saved-sheet-book__resource-row saved-sheet-book__resource-row--summary">
-                      <div>
-                        <strong>{resource.label}</strong>
-                        <small>{formatResourceMeta(resource)}</small>
+                <div className="saved-sheet-book__resource-sections">
+                  <div className="saved-sheet-book__resource-summary">
+                    <span
+                      className={`saved-sheet-book__resource-summary-pill ${attentionTrackedResources.length > 0 ? "saved-sheet-book__resource-summary-pill--attention" : ""}`.trim()}
+                    >
+                      Needs Attention {attentionTrackedResources.length}
+                    </span>
+                    <span className="saved-sheet-book__resource-summary-pill">Ready {readyTrackedResources.length}</span>
+                  </div>
+                  {attentionTrackedResources.length > 0 ? (
+                    <section className="saved-sheet-book__resource-section">
+                      <header className="saved-sheet-book__resource-section-header">
+                        <strong>Needs Attention</strong>
+                        <small>Page two stays focused on the resources that changed during play.</small>
+                      </header>
+                      <div className="saved-sheet-book__resource-list">
+                        {attentionTrackedResources.map((resource) => renderSummaryTrackedResourceRow(resource))}
                       </div>
-                      <span>{resource.current}/{resource.max}</span>
-                    </div>
-                  ))}
+                    </section>
+                  ) : (
+                    <section className="saved-sheet-book__resource-section">
+                      <header className="saved-sheet-book__resource-section-header">
+                        <strong>Ready Resources</strong>
+                        <small>All tracked resources are currently full or unused.</small>
+                      </header>
+                      <div className="saved-sheet-book__resource-list">
+                        {readyTrackedResources.map((resource) => renderSummaryTrackedResourceRow(resource))}
+                      </div>
+                    </section>
+                  )}
+                  {attentionTrackedResources.length > 0 && readyTrackedResources.length > 0 ? (
+                    <p className="muted-copy">
+                      Ready resources stay grouped on page 1 so this page can focus on what changed during play.
+                    </p>
+                  ) : null}
                 </div>
               ) : (
                 <p className="muted-copy">No bounded resource rows are configured yet. Add them in Edit Sheet mode to make the rest controls more useful during play.</p>

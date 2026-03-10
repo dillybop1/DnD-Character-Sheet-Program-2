@@ -3048,5 +3048,3080 @@
     "effect": "Create ten panels of solid stone that can enclose areas, bridge gaps, and become permanent if maintained",
     "descriptionKey": "wall-of-stone",
     "concentration": true
+  },
+  {
+    "slug": "commune",
+    "name": "Commune",
+    "summary": "Ask a deity or divine proxy a small set of direct questions and receive truthful answers.",
+    "tags": [
+      "level 5",
+      "divination",
+      "cleric",
+      "ritual",
+      "utility",
+      "knowledge",
+      "divine"
+    ],
+    "level": 5,
+    "school": "Divination",
+    "classes": [
+      "Cleric"
+    ],
+    "castingTime": "1 minute or Ritual",
+    "range": "Self",
+    "duration": "1 minute",
+    "effect": "Ask a deity or divine proxy up to three yes-or-no questions before the spell ends",
+    "descriptionKey": "commune",
+    "ritual": true
+  },
+  {
+    "slug": "commune-with-nature",
+    "name": "Commune with Nature",
+    "summary": "Nature spirits reveal key facts about the surrounding region, from portals to powerful threats.",
+    "tags": [
+      "level 5",
+      "divination",
+      "druid",
+      "ranger",
+      "ritual",
+      "utility",
+      "exploration",
+      "nature"
+    ],
+    "level": 5,
+    "school": "Divination",
+    "classes": [
+      "Druid",
+      "Ranger"
+    ],
+    "castingTime": "1 minute or Ritual",
+    "range": "Self",
+    "duration": "Instantaneous",
+    "effect": "Learn three facts about the nearby natural area, such as settlements, portals, creatures, terrain resources, or water",
+    "descriptionKey": "commune-with-nature",
+    "ritual": true
+  },
+  {
+    "slug": "contact-other-plane",
+    "name": "Contact Other Plane",
+    "summary": "Risk a mind-breaking communion with an extraplanar intelligence to ask difficult questions.",
+    "tags": [
+      "level 5",
+      "divination",
+      "warlock",
+      "wizard",
+      "ritual",
+      "utility",
+      "knowledge",
+      "psychic"
+    ],
+    "level": 5,
+    "school": "Divination",
+    "classes": [
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "1 minute or Ritual",
+    "range": "Self",
+    "duration": "1 minute",
+    "effect": "Contact an extraplanar intelligence to ask up to five questions, risking 6d6 Psychic damage and Incapacitated on a failed Intelligence save",
+    "descriptionKey": "contact-other-plane",
+    "ritual": true
+  },
+  {
+    "slug": "dispel-evil-and-good",
+    "name": "Dispel Evil and Good",
+    "summary": "Ward yourself against outsiders, break certain enchantments, or dismiss a nearby extraplanar foe.",
+    "tags": [
+      "level 5",
+      "abjuration",
+      "cleric",
+      "paladin",
+      "concentration",
+      "protection",
+      "banishment",
+      "charisma save"
+    ],
+    "level": 5,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Paladin"
+    ],
+    "castingTime": "Action",
+    "range": "Self",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "Protect yourself from several creature types, break certain possessions or fear/charm effects, or dismiss a nearby outsider",
+    "descriptionKey": "dispel-evil-and-good",
+    "concentration": true,
+    "attackType": "save",
+    "saveAbility": "charisma"
+  },
+  {
+    "slug": "dominate-person",
+    "name": "Dominate Person",
+    "summary": "Seize a humanoid mind, issue telepathic orders, and maintain control while the spell lasts.",
+    "tags": [
+      "level 5",
+      "enchantment",
+      "bard",
+      "sorcerer",
+      "wizard",
+      "concentration",
+      "control",
+      "wisdom save",
+      "charm"
+    ],
+    "level": 5,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "On a failed Wisdom save, charm a Humanoid and command it telepathically for the duration",
+    "descriptionKey": "dominate-person",
+    "concentration": true,
+    "attackType": "save",
+    "saveAbility": "wisdom"
+  },
+  {
+    "slug": "geas",
+    "name": "Geas",
+    "summary": "Bind a creature to a long-term command and punish open defiance with psychic agony.",
+    "tags": [
+      "level 5",
+      "enchantment",
+      "bard",
+      "cleric",
+      "druid",
+      "paladin",
+      "wizard",
+      "control",
+      "wisdom save",
+      "psychic"
+    ],
+    "level": 5,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Wizard"
+    ],
+    "castingTime": "1 minute",
+    "range": "60 feet",
+    "duration": "30 days",
+    "effect": "On a failed Wisdom save, charm a creature with a long-term command that deals 5d10 Psychic damage when defied",
+    "descriptionKey": "geas",
+    "attackType": "save",
+    "saveAbility": "wisdom",
+    "damage": "5d10 psychic"
+  },
+  {
+    "slug": "legend-lore",
+    "name": "Legend Lore",
+    "summary": "Learn significant lore about a famous person, place, or object from the world itself.",
+    "tags": [
+      "level 5",
+      "divination",
+      "bard",
+      "cleric",
+      "wizard",
+      "utility",
+      "knowledge",
+      "lore"
+    ],
+    "level": 5,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Wizard"
+    ],
+    "castingTime": "10 minutes",
+    "range": "Self",
+    "duration": "Instantaneous",
+    "effect": "Learn significant lore about a famous person, place, or object",
+    "descriptionKey": "legend-lore"
+  },
+  {
+    "slug": "planar-binding",
+    "name": "Planar Binding",
+    "summary": "Compel a Celestial, Elemental, Fey, or Fiend to serve you for an extended duration.",
+    "tags": [
+      "level 5",
+      "abjuration",
+      "bard",
+      "cleric",
+      "druid",
+      "warlock",
+      "wizard",
+      "control",
+      "charisma save",
+      "binding"
+    ],
+    "level": 5,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "1 hour",
+    "range": "60 feet",
+    "duration": "24 hours",
+    "effect": "On a failed Charisma save, bind a Celestial, Elemental, Fey, or Fiend to serve you for 24 hours or longer",
+    "descriptionKey": "planar-binding",
+    "attackType": "save",
+    "saveAbility": "charisma"
+  },
+  {
+    "slug": "rarys-telepathic-bond",
+    "name": "Rary’s Telepathic Bond",
+    "summary": "Forge a long-range telepathic link among a whole group of willing allies.",
+    "tags": [
+      "level 5",
+      "divination",
+      "bard",
+      "cleric",
+      "paladin",
+      "sorcerer",
+      "wizard",
+      "utility",
+      "communication",
+      "telepathy"
+    ],
+    "level": 5,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Paladin",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "30 feet",
+    "duration": "1 Hour",
+    "effect": "Forge an hour-long telepathic link among up to eight willing creatures on the same plane",
+    "descriptionKey": "rarys-telepathic-bond"
+  },
+  {
+    "slug": "tree-stride",
+    "name": "Tree Stride",
+    "summary": "Step through living trees to cross a wooded battlefield or forest in an instant.",
+    "tags": [
+      "level 5",
+      "conjuration",
+      "druid",
+      "ranger",
+      "concentration",
+      "travel",
+      "movement",
+      "nature"
+    ],
+    "level": 5,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Ranger"
+    ],
+    "castingTime": "Action",
+    "range": "Self",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "Move from one living tree to another of the same kind within 500 feet once on each of your turns",
+    "descriptionKey": "tree-stride",
+    "concentration": true
+  },
+  {
+    "slug": "animate-objects",
+    "name": "Animate Objects",
+    "summary": "Animate a cluster of objects into a temporary allied construct swarm under your command.",
+    "tags": [
+      "level 5",
+      "transmutation",
+      "bard",
+      "sorcerer",
+      "wizard",
+      "concentration",
+      "summon",
+      "control",
+      "force"
+    ],
+    "level": 5,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "120 feet",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "Animate several unattended objects into allied Constructs you can command with a Bonus Action",
+    "descriptionKey": "animate-objects",
+    "concentration": true
+  },
+  {
+    "slug": "cloudkill",
+    "name": "Cloudkill",
+    "summary": "A drifting poison fog chokes an area and punishes anything trapped inside it.",
+    "tags": [
+      "level 5",
+      "conjuration",
+      "sorcerer",
+      "wizard",
+      "concentration",
+      "damage",
+      "poison",
+      "constitution save",
+      "area"
+    ],
+    "level": 5,
+    "school": "Conjuration",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "120 feet",
+    "duration": "Concentration, up to 10 minutes",
+    "effect": "A drifting 20-foot-radius Sphere deals 5d8 Poison damage on a Constitution save and heavily obscures the area",
+    "descriptionKey": "cloudkill",
+    "concentration": true,
+    "attackType": "save",
+    "saveAbility": "constitution",
+    "damage": "5d8 poison"
+  },
+  {
+    "slug": "conjure-elemental",
+    "name": "Conjure Elemental",
+    "summary": "Conjure an elemental spirit that restrains nearby foes in punishing elemental force.",
+    "tags": [
+      "level 5",
+      "conjuration",
+      "druid",
+      "wizard",
+      "concentration",
+      "summon",
+      "control",
+      "dexterity save",
+      "elemental"
+    ],
+    "level": 5,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Concentration, up to 10 minutes",
+    "effect": "Conjure a Large elemental spirit that can restrain nearby creatures and deal 8d8 elemental damage on a Dexterity save",
+    "descriptionKey": "conjure-elemental",
+    "concentration": true,
+    "attackType": "save",
+    "saveAbility": "dexterity"
+  },
+  {
+    "slug": "contagion",
+    "name": "Contagion",
+    "summary": "A malignant touch inflicts necrotic sickness, poison, and lingering saving-throw weakness.",
+    "tags": [
+      "level 5",
+      "necromancy",
+      "cleric",
+      "druid",
+      "damage",
+      "necrotic",
+      "constitution save",
+      "poisoned",
+      "debuff"
+    ],
+    "level": 5,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric",
+      "Druid"
+    ],
+    "castingTime": "Action",
+    "range": "Touch",
+    "duration": "7 days",
+    "effect": "A touched creature takes 11d8 Necrotic damage on a failed Constitution save and can remain Poisoned for 7 days",
+    "descriptionKey": "contagion",
+    "attackType": "save",
+    "saveAbility": "constitution",
+    "damage": "11d8 necrotic"
+  },
+  {
+    "slug": "dream",
+    "name": "Dream",
+    "summary": "Send a messenger into a target's dreams to converse or deliver a terrifying psychic warning.",
+    "tags": [
+      "level 5",
+      "illusion",
+      "bard",
+      "warlock",
+      "wizard",
+      "utility",
+      "psychic",
+      "communication",
+      "wisdom save"
+    ],
+    "level": 5,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "1 minute",
+    "range": "Special",
+    "duration": "8 hours",
+    "effect": "Enter a known target's dreams to converse or deliver a terrifying ten-word message that can deny rest and deal 3d6 Psychic damage",
+    "descriptionKey": "dream",
+    "attackType": "save",
+    "saveAbility": "wisdom",
+    "damage": "3d6 psychic"
+  },
+  {
+    "slug": "flame-strike",
+    "name": "Flame Strike",
+    "summary": "A pillar of sacred fire crashes down, mixing searing flame with divine radiance.",
+    "tags": [
+      "level 5",
+      "evocation",
+      "cleric",
+      "damage",
+      "fire",
+      "radiant",
+      "dexterity save",
+      "area"
+    ],
+    "level": 5,
+    "school": "Evocation",
+    "classes": [
+      "Cleric"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Instantaneous",
+    "effect": "A 10-foot-radius, 40-foot-high Cylinder deals 5d6 Fire and 5d6 Radiant damage on a Dexterity save",
+    "descriptionKey": "flame-strike",
+    "attackType": "save",
+    "saveAbility": "dexterity",
+    "damage": "5d6 fire + 5d6 radiant"
+  },
+  {
+    "slug": "insect-plague",
+    "name": "Insect Plague",
+    "summary": "A churning swarm of locusts obscures an area and tears through anything trapped within it.",
+    "tags": [
+      "level 5",
+      "conjuration",
+      "cleric",
+      "druid",
+      "sorcerer",
+      "concentration",
+      "damage",
+      "constitution save",
+      "area",
+      "piercing"
+    ],
+    "level": 5,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Sorcerer"
+    ],
+    "castingTime": "Action",
+    "range": "300 feet",
+    "duration": "Concentration, up to 10 minutes",
+    "effect": "A 20-foot-radius swarm deals 4d10 Piercing damage on a Constitution save, lightly obscures the area, and creates Difficult Terrain",
+    "descriptionKey": "insect-plague",
+    "concentration": true,
+    "attackType": "save",
+    "saveAbility": "constitution",
+    "damage": "4d10 piercing"
+  },
+  {
+    "slug": "mislead",
+    "name": "Mislead",
+    "summary": "Turn invisible while a convincing illusory double moves and performs in your place.",
+    "tags": [
+      "level 5",
+      "illusion",
+      "bard",
+      "warlock",
+      "wizard",
+      "concentration",
+      "invisible",
+      "utility",
+      "deception"
+    ],
+    "level": 5,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "Self",
+    "duration": "Concentration, up to 1 hour",
+    "effect": "Become Invisible while an illusory double appears, moves, speaks, and can serve as your remote senses",
+    "descriptionKey": "mislead",
+    "concentration": true
+  },
+  {
+    "slug": "seeming",
+    "name": "Seeming",
+    "summary": "Wrap a whole group in long-lasting illusions that alter their bodies and gear.",
+    "tags": [
+      "level 5",
+      "illusion",
+      "bard",
+      "sorcerer",
+      "wizard",
+      "utility",
+      "disguise",
+      "charisma save"
+    ],
+    "level": 5,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "30 feet",
+    "duration": "8 hours",
+    "effect": "Give creatures within range illusory appearances that can alter body shape, gear, and apparent size for 8 hours",
+    "descriptionKey": "seeming",
+    "attackType": "save",
+    "saveAbility": "charisma"
+  },
+  {
+    "slug": "telekinesis",
+    "name": "Telekinesis",
+    "summary": "Move creatures and objects by force of thought, suspending or wrenching them through the air.",
+    "tags": [
+      "level 5",
+      "transmutation",
+      "sorcerer",
+      "wizard",
+      "concentration",
+      "control",
+      "strength save",
+      "movement",
+      "utility"
+    ],
+    "level": 5,
+    "school": "Transmutation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Concentration, up to 10 minutes",
+    "effect": "Move creatures or objects by thought, potentially Restraining a creature on a failed Strength save",
+    "descriptionKey": "telekinesis",
+    "concentration": true,
+    "attackType": "save",
+    "saveAbility": "strength"
+  },
+  {
+    "slug": "antilife-shell",
+    "name": "Antilife Shell",
+    "summary": "A living barrier surrounds you and keeps most creatures from crossing into reach.",
+    "tags": [
+      "level 5",
+      "abjuration",
+      "druid",
+      "concentration",
+      "defense",
+      "barrier",
+      "emanation"
+    ],
+    "level": 5,
+    "school": "Abjuration",
+    "classes": [
+      "Druid"
+    ],
+    "castingTime": "Action",
+    "range": "Self",
+    "duration": "Concentration, up to 1 hour",
+    "effect": "A 10-foot Emanation prevents most creatures from passing or reaching through it",
+    "descriptionKey": "antilife-shell",
+    "concentration": true
+  },
+  {
+    "slug": "awaken",
+    "name": "Awaken",
+    "summary": "Grant a beast or plant true intellect, speech, and temporary supernatural goodwill.",
+    "tags": [
+      "level 5",
+      "transmutation",
+      "bard",
+      "druid",
+      "utility",
+      "beast",
+      "plant",
+      "companion"
+    ],
+    "level": 5,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Druid"
+    ],
+    "castingTime": "8 hours",
+    "range": "Touch",
+    "duration": "Instantaneous",
+    "effect": "Raise a Beast or Plant to Intelligence 10, grant speech, and Charm it for 30 days unless harmed",
+    "descriptionKey": "awaken"
+  },
+  {
+    "slug": "creation",
+    "name": "Creation",
+    "summary": "Pull shadowstuff into the world and shape it into a temporary object of matter you know.",
+    "tags": [
+      "level 5",
+      "illusion",
+      "sorcerer",
+      "wizard",
+      "utility",
+      "creation",
+      "object"
+    ],
+    "level": 5,
+    "school": "Illusion",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "1 minute",
+    "range": "30 feet",
+    "duration": "Special",
+    "effect": "Create a temporary object of vegetable or mineral matter up to a 5-foot Cube from shadow material",
+    "descriptionKey": "creation"
+  },
+  {
+    "slug": "hallow",
+    "name": "Hallow",
+    "summary": "Consecrate a large area with a lasting ward and bind a powerful supernatural effect to it.",
+    "tags": [
+      "level 5",
+      "abjuration",
+      "cleric",
+      "utility",
+      "ward",
+      "holy",
+      "protection",
+      "teleportation"
+    ],
+    "level": 5,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "castingTime": "24 hours",
+    "range": "Touch",
+    "duration": "Until dispelled",
+    "effect": "Consecrate an area with a lasting ward against chosen creature types and one bound extra effect",
+    "descriptionKey": "hallow"
+  },
+  {
+    "slug": "modify-memory",
+    "name": "Modify Memory",
+    "summary": "Charm a creature, incapacitate it, and rewrite or erase part of its recent memories.",
+    "tags": [
+      "level 5",
+      "enchantment",
+      "bard",
+      "wizard",
+      "concentration",
+      "control",
+      "wisdom save",
+      "memory",
+      "charm"
+    ],
+    "level": 5,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "30 feet",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "On a failed Wisdom save, charm and incapacitate a creature while you alter or erase a memory",
+    "descriptionKey": "modify-memory",
+    "concentration": true,
+    "attackType": "save",
+    "saveAbility": "wisdom"
+  },
+  {
+    "slug": "passwall",
+    "name": "Passwall",
+    "summary": "Open a temporary passage through solid construction without destabilizing the structure.",
+    "tags": [
+      "level 5",
+      "transmutation",
+      "wizard",
+      "utility",
+      "travel",
+      "breach",
+      "wall"
+    ],
+    "level": 5,
+    "school": "Transmutation",
+    "classes": [
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "30 feet",
+    "duration": "1 hour",
+    "effect": "Open a temporary passage through wood, plaster, or stone up to 20 feet deep",
+    "descriptionKey": "passwall"
+  },
+  {
+    "slug": "reincarnate",
+    "name": "Reincarnate",
+    "summary": "Restore a dead humanoid to life in a newly formed body of another playable species.",
+    "tags": [
+      "level 5",
+      "necromancy",
+      "druid",
+      "healing",
+      "restoration",
+      "resurrection"
+    ],
+    "level": 5,
+    "school": "Necromancy",
+    "classes": [
+      "Druid"
+    ],
+    "castingTime": "1 hour",
+    "range": "Touch",
+    "duration": "Instantaneous",
+    "effect": "Form a new body for a dead Humanoid and return its soul to life in a new species",
+    "descriptionKey": "reincarnate"
+  },
+  {
+    "slug": "summon-dragon",
+    "name": "Summon Dragon",
+    "summary": "Call a draconic spirit to fight beside you with claws, breath, flight, and shared resistance.",
+    "tags": [
+      "level 5",
+      "conjuration",
+      "wizard",
+      "concentration",
+      "summon",
+      "dragon",
+      "companion",
+      "control"
+    ],
+    "level": 5,
+    "school": "Conjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Concentration, up to 1 hour",
+    "effect": "Summon a Draconic Spirit ally that fights on your initiative, grants you resistance, and scales with slot level",
+    "descriptionKey": "summon-dragon",
+    "concentration": true
+  },
+  {
+    "slug": "blade-barrier",
+    "name": "Blade Barrier",
+    "summary": "Raise a wall of magical blades that shreds and hinders creatures trying to cross it.",
+    "tags": [
+      "level 6",
+      "evocation",
+      "cleric",
+      "concentration",
+      "control",
+      "barrier",
+      "wall",
+      "dexterity save",
+      "force"
+    ],
+    "level": 6,
+    "school": "Evocation",
+    "classes": [
+      "Cleric"
+    ],
+    "castingTime": "Action",
+    "range": "90 feet",
+    "duration": "Concentration, up to 10 minutes",
+    "effect": "Create a long wall or ring of magical blades that grants cover, becomes difficult terrain, and deals 6d10 Force damage to creatures in or moving through it",
+    "attackType": "save",
+    "saveAbility": "dexterity",
+    "damage": "6d10 force",
+    "descriptionKey": "blade-barrier",
+    "concentration": true
+  },
+  {
+    "slug": "chain-lightning",
+    "name": "Chain Lightning",
+    "summary": "Hurl a lightning bolt that forks into multiple nearby targets for heavy crackling damage.",
+    "tags": [
+      "level 6",
+      "evocation",
+      "sorcerer",
+      "wizard",
+      "damage",
+      "lightning",
+      "dexterity save",
+      "multi-target"
+    ],
+    "level": 6,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "150 feet",
+    "duration": "Instantaneous",
+    "effect": "Strike one target and arc up to three more bolts to nearby creatures or objects for 10d8 Lightning damage",
+    "attackType": "save",
+    "saveAbility": "dexterity",
+    "damage": "10d8 lightning",
+    "descriptionKey": "chain-lightning"
+  },
+  {
+    "slug": "disintegrate",
+    "name": "Disintegrate",
+    "summary": "Fire a devastating green ray that erases creatures, objects, and magical force.",
+    "tags": [
+      "level 6",
+      "transmutation",
+      "sorcerer",
+      "wizard",
+      "damage",
+      "force",
+      "dexterity save",
+      "object"
+    ],
+    "level": 6,
+    "school": "Transmutation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Instantaneous",
+    "effect": "Launch a ray that deals 10d6 + 40 Force damage and can reduce creatures, objects, or force creations to dust",
+    "attackType": "save",
+    "saveAbility": "dexterity",
+    "damage": "10d6 + 40 force",
+    "descriptionKey": "disintegrate"
+  },
+  {
+    "slug": "globe-of-invulnerability",
+    "name": "Globe of Invulnerability",
+    "summary": "Surround yourself with a shimmering anti-magic barrier that blanks lesser spells.",
+    "tags": [
+      "level 6",
+      "abjuration",
+      "sorcerer",
+      "wizard",
+      "concentration",
+      "defense",
+      "barrier",
+      "anti-magic"
+    ],
+    "level": 6,
+    "school": "Abjuration",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "Self",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "Create a 10-foot Emanation that blocks spells of level 5 or lower cast from outside the barrier",
+    "descriptionKey": "globe-of-invulnerability",
+    "concentration": true
+  },
+  {
+    "slug": "heal",
+    "name": "Heal",
+    "summary": "Flood a creature with restorative energy for a major burst of healing and condition recovery.",
+    "tags": [
+      "level 6",
+      "abjuration",
+      "cleric",
+      "druid",
+      "healing",
+      "restoration"
+    ],
+    "level": 6,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Druid"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Instantaneous",
+    "effect": "Restore 70 Hit Points and end the Blinded, Deafened, and Poisoned conditions on a creature",
+    "descriptionKey": "heal"
+  },
+  {
+    "slug": "heroes-feast",
+    "name": "Heroes' Feast",
+    "summary": "Conjure a grand feast that fortifies allies against fear and poison and bolsters their vitality.",
+    "tags": [
+      "level 6",
+      "conjuration",
+      "bard",
+      "cleric",
+      "druid",
+      "buff",
+      "poison",
+      "fear",
+      "healing"
+    ],
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid"
+    ],
+    "castingTime": "10 minutes",
+    "range": "Self",
+    "duration": "Instantaneous",
+    "effect": "Create a feast for up to twelve creatures that grants poison resistance, fear and poison immunity, and bonus hit points for 24 hours",
+    "descriptionKey": "heroes-feast"
+  },
+  {
+    "slug": "mass-suggestion",
+    "name": "Mass Suggestion",
+    "summary": "Implant a plausible command into many minds at once and steer their behavior for hours or longer.",
+    "tags": [
+      "level 6",
+      "enchantment",
+      "bard",
+      "sorcerer",
+      "wizard",
+      "control",
+      "wisdom save",
+      "charm",
+      "social"
+    ],
+    "level": 6,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "24 hours",
+    "effect": "On a failed Wisdom save, up to twelve creatures follow a short suggestion for up to 24 hours unless harmed",
+    "attackType": "save",
+    "saveAbility": "wisdom",
+    "descriptionKey": "mass-suggestion"
+  },
+  {
+    "slug": "sunbeam",
+    "name": "Sunbeam",
+    "summary": "Project a recurring line of searing sunlight that burns foes and leaves them dazzled.",
+    "tags": [
+      "level 6",
+      "evocation",
+      "cleric",
+      "druid",
+      "sorcerer",
+      "wizard",
+      "concentration",
+      "radiant",
+      "constitution save",
+      "beam"
+    ],
+    "level": 6,
+    "school": "Evocation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "Self",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "Launch a 60-foot line of sunlight that deals 6d8 Radiant damage, can blind, and can be fired again each turn",
+    "attackType": "save",
+    "saveAbility": "constitution",
+    "damage": "6d8 radiant",
+    "descriptionKey": "sunbeam",
+    "concentration": true
+  },
+  {
+    "slug": "true-seeing",
+    "name": "True Seeing",
+    "summary": "Grant a creature supernatural sight that pierces illusions and hidden truths.",
+    "tags": [
+      "level 6",
+      "divination",
+      "bard",
+      "cleric",
+      "sorcerer",
+      "warlock",
+      "wizard",
+      "utility",
+      "vision"
+    ],
+    "level": 6,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "Touch",
+    "duration": "1 hour",
+    "effect": "Give a willing creature Truesight out to 120 feet for 1 hour",
+    "descriptionKey": "true-seeing"
+  },
+  {
+    "slug": "wall-of-ice",
+    "name": "Wall of Ice",
+    "summary": "Shape a massive icy barrier that freezes on impact and punishes anything that breaks through it.",
+    "tags": [
+      "level 6",
+      "evocation",
+      "wizard",
+      "concentration",
+      "control",
+      "wall",
+      "cold",
+      "dexterity save"
+    ],
+    "level": 6,
+    "school": "Evocation",
+    "classes": [
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "120 feet",
+    "duration": "Concentration, up to 10 minutes",
+    "effect": "Create a dome, globe, or paneled wall of ice that deals Cold damage when formed and leaves a frigid damaging breach when broken",
+    "attackType": "save",
+    "saveAbility": "dexterity",
+    "damage": "10d6 cold",
+    "descriptionKey": "wall-of-ice",
+    "concentration": true
+  },
+  {
+    "slug": "eyebite",
+    "name": "Eyebite",
+    "summary": "Turn your gaze into a repeating curse that can panic, sicken, or drop targets unconscious.",
+    "tags": [
+      "level 6",
+      "necromancy",
+      "bard",
+      "sorcerer",
+      "warlock",
+      "wizard",
+      "concentration",
+      "control",
+      "wisdom save",
+      "fear"
+    ],
+    "level": 6,
+    "school": "Necromancy",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "Self",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "Force a creature within 60 feet to fall asleep, panic, or sicken, and retarget the gaze on later turns",
+    "attackType": "save",
+    "saveAbility": "wisdom",
+    "concentration": true,
+    "descriptionKey": "eyebite"
+  },
+  {
+    "slug": "find-the-path",
+    "name": "Find the Path",
+    "summary": "Sense the most direct physical route to a known destination for hours or even a full day.",
+    "tags": [
+      "level 6",
+      "divination",
+      "bard",
+      "cleric",
+      "druid",
+      "concentration",
+      "utility",
+      "travel",
+      "navigation"
+    ],
+    "level": 6,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid"
+    ],
+    "castingTime": "1 minute",
+    "range": "Self",
+    "duration": "Concentration, up to 1 day",
+    "effect": "Sense the distance, direction, and most direct physical route to a familiar destination on the same plane",
+    "concentration": true,
+    "descriptionKey": "find-the-path"
+  },
+  {
+    "slug": "flesh-to-stone",
+    "name": "Flesh to Stone",
+    "summary": "Lock a creature in place and grind it toward petrification through repeated failed saves.",
+    "tags": [
+      "level 6",
+      "transmutation",
+      "druid",
+      "sorcerer",
+      "wizard",
+      "concentration",
+      "control",
+      "constitution save",
+      "petrify"
+    ],
+    "level": 6,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "Restrain a creature and force repeated Constitution saves that can turn it to stone",
+    "attackType": "save",
+    "saveAbility": "constitution",
+    "concentration": true,
+    "descriptionKey": "flesh-to-stone"
+  },
+  {
+    "slug": "forbiddance",
+    "name": "Forbiddance",
+    "summary": "Seal a large sanctified area against teleportation, planar travel, and unwanted creature types.",
+    "tags": [
+      "level 6",
+      "abjuration",
+      "cleric",
+      "ritual",
+      "ward",
+      "teleportation",
+      "planar",
+      "radiant",
+      "necrotic"
+    ],
+    "level": 6,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "castingTime": "10 minutes or Ritual",
+    "range": "Touch",
+    "duration": "1 day",
+    "effect": "Ward a huge area against teleportation and planar entry, and damage chosen creature types that cross it",
+    "damage": "5d10 radiant or necrotic",
+    "ritual": true,
+    "descriptionKey": "forbiddance"
+  },
+  {
+    "slug": "harm",
+    "name": "Harm",
+    "summary": "Unleash withering necrotic power that ravages a target and slashes its maximum hit points.",
+    "tags": [
+      "level 6",
+      "necromancy",
+      "cleric",
+      "damage",
+      "constitution save",
+      "necrotic",
+      "debuff"
+    ],
+    "level": 6,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Instantaneous",
+    "effect": "Deal 14d6 Necrotic damage and reduce the target's Hit Point maximum by the damage taken",
+    "attackType": "save",
+    "saveAbility": "constitution",
+    "damage": "14d6 necrotic",
+    "descriptionKey": "harm"
+  },
+  {
+    "slug": "move-earth",
+    "name": "Move Earth",
+    "summary": "Slowly reshape a wide stretch of terrain into trenches, berms, walls, or pillars.",
+    "tags": [
+      "level 6",
+      "transmutation",
+      "druid",
+      "sorcerer",
+      "wizard",
+      "concentration",
+      "utility",
+      "terrain",
+      "earth"
+    ],
+    "level": 6,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "120 feet",
+    "duration": "Concentration, up to 2 hours",
+    "effect": "Reshape a large area of dirt, sand, or clay over time into trenches, walls, pillars, or raised ground",
+    "concentration": true,
+    "descriptionKey": "move-earth"
+  },
+  {
+    "slug": "transport-via-plants",
+    "name": "Transport via Plants",
+    "summary": "Open a living passage between two large plants anywhere on the same plane.",
+    "tags": [
+      "level 6",
+      "conjuration",
+      "druid",
+      "utility",
+      "travel",
+      "teleportation",
+      "plant"
+    ],
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Druid"
+    ],
+    "castingTime": "Action",
+    "range": "10 feet",
+    "duration": "1 minute",
+    "effect": "Create a magical link between two large inanimate plants so creatures can step through one and emerge from the other",
+    "descriptionKey": "transport-via-plants"
+  },
+  {
+    "slug": "wall-of-thorns",
+    "name": "Wall of Thorns",
+    "summary": "Raise a dense bramble barrier that tears at creatures when it appears and when they force through it.",
+    "tags": [
+      "level 6",
+      "conjuration",
+      "druid",
+      "concentration",
+      "control",
+      "wall",
+      "piercing",
+      "slashing",
+      "dexterity save"
+    ],
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Druid"
+    ],
+    "castingTime": "Action",
+    "range": "120 feet",
+    "duration": "Concentration, up to 10 minutes",
+    "effect": "Create a thorn wall that blocks line of sight, slows movement, and deals 7d8 Piercing or Slashing damage",
+    "attackType": "save",
+    "saveAbility": "dexterity",
+    "damage": "7d8 piercing or slashing",
+    "concentration": true,
+    "descriptionKey": "wall-of-thorns"
+  },
+  {
+    "slug": "wind-walk",
+    "name": "Wind Walk",
+    "summary": "Turn a whole group into swift cloud forms for long-distance travel and safe descent.",
+    "tags": [
+      "level 6",
+      "transmutation",
+      "druid",
+      "utility",
+      "travel",
+      "flight",
+      "group"
+    ],
+    "level": 6,
+    "school": "Transmutation",
+    "classes": [
+      "Druid"
+    ],
+    "castingTime": "1 minute",
+    "range": "30 feet",
+    "duration": "8 hours",
+    "effect": "Transform yourself and up to ten willing creatures into fast-moving cloud forms with flight and damage resistance",
+    "descriptionKey": "wind-walk"
+  },
+  {
+    "slug": "word-of-recall",
+    "name": "Word of Recall",
+    "summary": "Teleport yourself and nearby allies back to a prepared sanctuary in an instant.",
+    "tags": [
+      "level 6",
+      "conjuration",
+      "cleric",
+      "utility",
+      "travel",
+      "teleportation",
+      "sanctuary"
+    ],
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "castingTime": "Action",
+    "range": "5 feet",
+    "duration": "Instantaneous",
+    "effect": "Teleport yourself and up to five willing creatures to a previously prepared sanctuary",
+    "descriptionKey": "word-of-recall"
+  },
+  {
+    "slug": "circle-of-death",
+    "name": "Circle of Death",
+    "summary": "Unleash a massive wave of negative energy that scours a wide area with necrotic force.",
+    "tags": [
+      "level 6",
+      "necromancy",
+      "sorcerer",
+      "warlock",
+      "wizard",
+      "damage",
+      "necrotic",
+      "constitution save",
+      "area"
+    ],
+    "level": 6,
+    "school": "Necromancy",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "150 feet",
+    "duration": "Instantaneous",
+    "effect": "Burst a 60-foot-radius Sphere with negative energy for 8d8 Necrotic damage",
+    "attackType": "save",
+    "saveAbility": "constitution",
+    "damage": "8d8 necrotic",
+    "descriptionKey": "circle-of-death"
+  },
+  {
+    "slug": "conjure-fey",
+    "name": "Conjure Fey",
+    "summary": "Call a fey spirit that lashes minds, spreads fear, and blinks around the battlefield.",
+    "tags": [
+      "level 6",
+      "conjuration",
+      "druid",
+      "concentration",
+      "summon",
+      "psychic",
+      "fear",
+      "spell attack"
+    ],
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Druid"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Concentration, up to 10 minutes",
+    "effect": "Summon a fey spirit that makes a melee spell attack for 3d12 Psychic damage and can teleport before attacking again",
+    "attackType": "spellAttack",
+    "damage": "3d12 psychic",
+    "concentration": true,
+    "descriptionKey": "conjure-fey"
+  },
+  {
+    "slug": "contingency",
+    "name": "Contingency",
+    "summary": "Bind a prepared self-targeting spell to a trigger so it springs into effect automatically.",
+    "tags": [
+      "level 6",
+      "abjuration",
+      "wizard",
+      "utility",
+      "defense",
+      "trigger"
+    ],
+    "level": 6,
+    "school": "Abjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "castingTime": "10 minutes",
+    "range": "Self",
+    "duration": "10 days",
+    "effect": "Store a self-targeting level 5 or lower spell and define the trigger that releases it automatically",
+    "descriptionKey": "contingency"
+  },
+  {
+    "slug": "create-undead",
+    "name": "Create Undead",
+    "summary": "Raise controlled undead servants from humanoid corpses and renew your command over them nightly.",
+    "tags": [
+      "level 6",
+      "necromancy",
+      "cleric",
+      "warlock",
+      "wizard",
+      "summon",
+      "undead",
+      "control"
+    ],
+    "level": 6,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "1 minute",
+    "range": "10 feet",
+    "duration": "Instantaneous",
+    "effect": "At night, animate up to three humanoid corpses as Ghouls and maintain command over them for 24 hours",
+    "descriptionKey": "create-undead"
+  },
+  {
+    "slug": "guards-and-wards",
+    "name": "Guards and Wards",
+    "summary": "Layer a stronghold with fog, locks, webs, illusions, and one extra magical trap effect.",
+    "tags": [
+      "level 6",
+      "abjuration",
+      "bard",
+      "wizard",
+      "utility",
+      "ward",
+      "trap",
+      "illusion"
+    ],
+    "level": 6,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "castingTime": "1 hour",
+    "range": "Touch",
+    "duration": "24 hours",
+    "effect": "Ward a large area with fogged corridors, locked doors, webbed stairs, and a chosen extra spell effect",
+    "descriptionKey": "guards-and-wards"
+  },
+  {
+    "slug": "magic-jar",
+    "name": "Magic Jar",
+    "summary": "Store your soul in a vessel, then attempt to possess another humanoid body.",
+    "tags": [
+      "level 6",
+      "necromancy",
+      "wizard",
+      "control",
+      "charisma save",
+      "possession",
+      "soul"
+    ],
+    "level": 6,
+    "school": "Necromancy",
+    "classes": [
+      "Wizard"
+    ],
+    "castingTime": "1 minute",
+    "range": "Self",
+    "duration": "Until dispelled",
+    "effect": "Project your soul into a container and attempt to possess a humanoid body within 100 feet",
+    "attackType": "save",
+    "saveAbility": "charisma",
+    "descriptionKey": "magic-jar"
+  },
+  {
+    "slug": "planar-ally",
+    "name": "Planar Ally",
+    "summary": "Call on a powerful extraplanar patron to send a celestial, elemental, or fiendish helper.",
+    "tags": [
+      "level 6",
+      "conjuration",
+      "cleric",
+      "utility",
+      "summon",
+      "planar",
+      "negotiation"
+    ],
+    "level": 6,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "castingTime": "10 minutes",
+    "range": "60 feet",
+    "duration": "Instantaneous",
+    "effect": "Beseech a cosmic power to send a Celestial, Elemental, or Fiend that may bargain for service",
+    "descriptionKey": "planar-ally"
+  },
+  {
+    "slug": "programmed-illusion",
+    "name": "Programmed Illusion",
+    "summary": "Create a hidden scripted illusion that activates when a chosen trigger is met.",
+    "tags": [
+      "level 6",
+      "illusion",
+      "bard",
+      "wizard",
+      "utility",
+      "trap",
+      "trigger",
+      "deception"
+    ],
+    "level": 6,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "120 feet",
+    "duration": "Until dispelled",
+    "effect": "Set an illusion up to a 30-foot Cube to perform a scripted five-minute scene when a trigger occurs",
+    "descriptionKey": "programmed-illusion"
+  },
+  {
+    "name": "Delayed Blast Fireball",
+    "slug": "delayed-blast-fireball",
+    "summary": "Condense a growing bead of fire that erupts into a devastating delayed blast.",
+    "tags": [
+      "level 7",
+      "evocation",
+      "sorcerer",
+      "wizard",
+      "concentration",
+      "damage",
+      "fire",
+      "dexterity save",
+      "area"
+    ],
+    "level": 7,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "150 feet",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "Suspend a glowing bead that explodes in a 20-foot-radius Sphere for at least 12d6 Fire damage when released",
+    "attackType": "save",
+    "saveAbility": "dexterity",
+    "damage": "12d6 fire",
+    "concentration": true,
+    "descriptionKey": "delayed-blast-fireball"
+  },
+  {
+    "name": "Etherealness",
+    "slug": "etherealness",
+    "summary": "Step into the Border Ethereal to drift unseen through the world for hours.",
+    "tags": [
+      "level 7",
+      "conjuration",
+      "bard",
+      "cleric",
+      "sorcerer",
+      "warlock",
+      "wizard",
+      "utility",
+      "travel",
+      "planar"
+    ],
+    "level": 7,
+    "school": "Conjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "Self",
+    "duration": "Up to 8 hours",
+    "effect": "Step into the Border Ethereal for up to 8 hours and optionally bring extra willing creatures with a higher slot",
+    "descriptionKey": "etherealness"
+  },
+  {
+    "name": "Finger of Death",
+    "slug": "finger-of-death",
+    "summary": "Unleash killing necrotic energy that can raise its humanoid victim as a zombie.",
+    "tags": [
+      "level 7",
+      "necromancy",
+      "sorcerer",
+      "warlock",
+      "wizard",
+      "damage",
+      "necrotic",
+      "constitution save",
+      "undead"
+    ],
+    "level": 7,
+    "school": "Necromancy",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Instantaneous",
+    "effect": "Blast one creature with negative energy for 7d8 + 30 Necrotic damage and raise a slain Humanoid as a Zombie",
+    "attackType": "save",
+    "saveAbility": "constitution",
+    "damage": "7d8 + 30 necrotic",
+    "descriptionKey": "finger-of-death"
+  },
+  {
+    "name": "Fire Storm",
+    "slug": "fire-storm",
+    "summary": "Shape a contiguous storm of fire cubes that engulfs a large battlefield.",
+    "tags": [
+      "level 7",
+      "evocation",
+      "cleric",
+      "druid",
+      "sorcerer",
+      "damage",
+      "fire",
+      "dexterity save",
+      "area"
+    ],
+    "level": 7,
+    "school": "Evocation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Sorcerer"
+    ],
+    "castingTime": "Action",
+    "range": "150 feet",
+    "duration": "Instantaneous",
+    "effect": "Arrange up to ten contiguous 10-foot Cubes of fire that deal 7d10 Fire damage",
+    "attackType": "save",
+    "saveAbility": "dexterity",
+    "damage": "7d10 fire",
+    "descriptionKey": "fire-storm"
+  },
+  {
+    "name": "Forcecage",
+    "slug": "forcecage",
+    "summary": "Seal a target area inside an invisible prison of force that resists escape and dispelling.",
+    "tags": [
+      "level 7",
+      "evocation",
+      "bard",
+      "warlock",
+      "wizard",
+      "control",
+      "force",
+      "prison",
+      "ward"
+    ],
+    "level": 7,
+    "school": "Evocation",
+    "classes": [
+      "Bard",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "100 feet",
+    "duration": "Concentration, up to 1 hour",
+    "effect": "Create an invisible force cage or box that traps creatures and blocks most escape",
+    "concentration": true,
+    "descriptionKey": "forcecage"
+  },
+  {
+    "name": "Plane Shift",
+    "slug": "plane-shift",
+    "summary": "Transport linked allies across planes or to a known planar teleportation circle.",
+    "tags": [
+      "level 7",
+      "conjuration",
+      "cleric",
+      "druid",
+      "sorcerer",
+      "warlock",
+      "wizard",
+      "utility",
+      "travel",
+      "planar"
+    ],
+    "level": 7,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "Touch",
+    "duration": "Instantaneous",
+    "effect": "Transport yourself and up to eight linked willing creatures to another plane of existence",
+    "descriptionKey": "plane-shift"
+  },
+  {
+    "name": "Regenerate",
+    "slug": "regenerate",
+    "summary": "Restore a creature, sustain its recovery for an hour, and regrow severed body parts.",
+    "tags": [
+      "level 7",
+      "transmutation",
+      "bard",
+      "cleric",
+      "druid",
+      "healing",
+      "restoration",
+      "body"
+    ],
+    "level": 7,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid"
+    ],
+    "castingTime": "1 minute",
+    "range": "Touch",
+    "duration": "1 hour",
+    "effect": "Restore 4d8 + 15 Hit Points, then keep healing the target each turn while limbs regrow",
+    "descriptionKey": "regenerate"
+  },
+  {
+    "name": "Resurrection",
+    "slug": "resurrection",
+    "summary": "Return a dead creature to full life and restore its body, at a steep cost to both of you.",
+    "tags": [
+      "level 7",
+      "necromancy",
+      "bard",
+      "cleric",
+      "healing",
+      "restoration",
+      "resurrection"
+    ],
+    "level": 7,
+    "school": "Necromancy",
+    "classes": [
+      "Bard",
+      "Cleric"
+    ],
+    "castingTime": "1 hour",
+    "range": "Touch",
+    "duration": "Instantaneous",
+    "effect": "Revive a creature dead up to a century with full Hit Points and restored body parts",
+    "descriptionKey": "resurrection"
+  },
+  {
+    "name": "Reverse Gravity",
+    "slug": "reverse-gravity",
+    "summary": "Invert gravity in a towering cylinder and fling creatures and objects upward.",
+    "tags": [
+      "level 7",
+      "transmutation",
+      "druid",
+      "sorcerer",
+      "wizard",
+      "concentration",
+      "control",
+      "dexterity save",
+      "battlefield"
+    ],
+    "level": 7,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "100 feet",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "Reverse gravity in a 50-foot-radius, 100-foot-high Cylinder and send creatures upward",
+    "attackType": "save",
+    "saveAbility": "dexterity",
+    "concentration": true,
+    "descriptionKey": "reverse-gravity"
+  },
+  {
+    "name": "Teleport",
+    "slug": "teleport",
+    "summary": "Instantly transport allies or an object to a known destination on the same plane.",
+    "tags": [
+      "level 7",
+      "conjuration",
+      "bard",
+      "sorcerer",
+      "wizard",
+      "utility",
+      "travel",
+      "teleportation"
+    ],
+    "level": 7,
+    "school": "Conjuration",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "10 feet",
+    "duration": "Instantaneous",
+    "effect": "Teleport yourself and up to eight willing creatures or one object to a familiar destination",
+    "descriptionKey": "teleport"
+  },
+  {
+    "slug": "conjure-celestial",
+    "name": "Conjure Celestial",
+    "summary": "Call down a moving pillar of celestial light that heals allies or sears foes.",
+    "tags": [
+      "level 7",
+      "conjuration",
+      "cleric",
+      "concentration",
+      "healing",
+      "radiant",
+      "dexterity save",
+      "cylinder"
+    ],
+    "level": 7,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "castingTime": "Action",
+    "range": "90 feet",
+    "duration": "Concentration, up to 10 minutes",
+    "effect": "Create a moving pillar of Upper Planes light that heals chosen creatures or deals 6d12 Radiant damage",
+    "attackType": "save",
+    "saveAbility": "dexterity",
+    "damage": "6d12 radiant",
+    "concentration": true,
+    "descriptionKey": "conjure-celestial"
+  },
+  {
+    "slug": "divine-word",
+    "name": "Divine Word",
+    "summary": "Speak a word of Upper Planes power that weakens or destroys creatures by their remaining vitality.",
+    "tags": [
+      "level 7",
+      "evocation",
+      "cleric",
+      "charisma save",
+      "control",
+      "banishment",
+      "word"
+    ],
+    "level": 7,
+    "school": "Evocation",
+    "classes": [
+      "Cleric"
+    ],
+    "castingTime": "Bonus Action",
+    "range": "30 feet",
+    "duration": "Instantaneous",
+    "effect": "Utter a divine word that inflicts escalating HP-threshold effects and can banish extraplanar creatures",
+    "attackType": "save",
+    "saveAbility": "charisma",
+    "descriptionKey": "divine-word"
+  },
+  {
+    "slug": "mirage-arcane",
+    "name": "Mirage Arcane",
+    "summary": "Remake a vast landscape into an illusory terrain that looks, feels, and functions like something else.",
+    "tags": [
+      "level 7",
+      "illusion",
+      "bard",
+      "druid",
+      "wizard",
+      "utility",
+      "terrain",
+      "large area"
+    ],
+    "level": 7,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Wizard"
+    ],
+    "castingTime": "10 minutes",
+    "range": "Sight",
+    "duration": "10 days",
+    "effect": "Transform up to 1 mile square of terrain into a convincing illusory landscape that can impede movement",
+    "descriptionKey": "mirage-arcane"
+  },
+  {
+    "slug": "mordenkainens-magnificent-mansion",
+    "name": "Mordenkainen?s Magnificent Mansion",
+    "summary": "Conjure an extradimensional mansion with a banquet, many rooms, and a silent staff of servants.",
+    "tags": [
+      "level 7",
+      "conjuration",
+      "bard",
+      "wizard",
+      "utility",
+      "shelter",
+      "extradimensional"
+    ],
+    "level": 7,
+    "school": "Conjuration",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "castingTime": "1 minute",
+    "range": "300 feet",
+    "duration": "24 hours",
+    "effect": "Open a shimmering door to an extradimensional mansion with furnished rooms, food, and 100 servants",
+    "descriptionKey": "mordenkainens-magnificent-mansion"
+  },
+  {
+    "slug": "mordenkainens-sword",
+    "name": "Mordenkainen?s Sword",
+    "summary": "Manifest a hovering spectral sword that repeatedly strikes nearby targets with force.",
+    "tags": [
+      "level 7",
+      "evocation",
+      "bard",
+      "wizard",
+      "spell attack",
+      "force",
+      "weapon"
+    ],
+    "level": 7,
+    "school": "Evocation",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "90 feet",
+    "duration": "1 minute",
+    "effect": "Create a spectral sword that makes repeated melee spell attacks for 4d12 plus modifier Force damage",
+    "attackType": "spellAttack",
+    "damage": "4d12 force",
+    "descriptionKey": "mordenkainens-sword"
+  },
+  {
+    "slug": "prismatic-spray",
+    "name": "Prismatic Spray",
+    "summary": "Blast a cone of eight possible colored rays with wildly different elemental and disruptive effects.",
+    "tags": [
+      "level 7",
+      "evocation",
+      "bard",
+      "sorcerer",
+      "wizard",
+      "dexterity save",
+      "random",
+      "cone"
+    ],
+    "level": 7,
+    "school": "Evocation",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "Self",
+    "duration": "Instantaneous",
+    "effect": "Flash eight possible rays in a 60-foot Cone, rolling randomly to determine each target effect",
+    "attackType": "save",
+    "saveAbility": "dexterity",
+    "descriptionKey": "prismatic-spray"
+  },
+  {
+    "slug": "project-image",
+    "name": "Project Image",
+    "summary": "Create a distant illusory double that you can see and hear through while directing its performance.",
+    "tags": [
+      "level 7",
+      "illusion",
+      "bard",
+      "wizard",
+      "concentration",
+      "remote",
+      "double"
+    ],
+    "level": 7,
+    "school": "Illusion",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "500 miles",
+    "duration": "Concentration, up to 1 day",
+    "effect": "Create a distant illusory copy of yourself that you can perceive through and direct",
+    "concentration": true,
+    "descriptionKey": "project-image"
+  },
+  {
+    "slug": "sequester",
+    "name": "Sequester",
+    "summary": "Hide an object or willing creature from sight, divination, and time until the spell ends.",
+    "tags": [
+      "level 7",
+      "transmutation",
+      "wizard",
+      "utility",
+      "invisible",
+      "suspended animation"
+    ],
+    "level": 7,
+    "school": "Transmutation",
+    "classes": [
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "Touch",
+    "duration": "Until dispelled",
+    "effect": "Magically conceal an object or willing creature in invisibility and suspended animation until a condition ends the spell",
+    "descriptionKey": "sequester"
+  },
+  {
+    "slug": "simulacrum",
+    "name": "Simulacrum",
+    "summary": "Shape a loyal snow-and-ice duplicate of a beast or humanoid into a long-term servant.",
+    "tags": [
+      "level 7",
+      "illusion",
+      "wizard",
+      "utility",
+      "duplicate",
+      "construct"
+    ],
+    "level": 7,
+    "school": "Illusion",
+    "classes": [
+      "Wizard"
+    ],
+    "castingTime": "12 hours",
+    "range": "Touch",
+    "duration": "Until dispelled",
+    "effect": "Create a friendly simulacrum duplicate from ice or snow that obeys your commands",
+    "descriptionKey": "simulacrum"
+  },
+  {
+    "slug": "symbol",
+    "name": "Symbol",
+    "summary": "Inscribe a nearly invisible trigger glyph that unleashes one of several devastating magical effects.",
+    "tags": [
+      "level 7",
+      "abjuration",
+      "bard",
+      "cleric",
+      "druid",
+      "wizard",
+      "glyph",
+      "trap",
+      "ward"
+    ],
+    "level": 7,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Wizard"
+    ],
+    "castingTime": "1 minute",
+    "range": "Touch",
+    "duration": "Until dispelled or triggered",
+    "effect": "Inscribe a hidden harmful glyph with a chosen trigger and one of six major effects",
+    "descriptionKey": "symbol"
+  },
+  {
+    "slug": "animal-shapes",
+    "name": "Animal Shapes",
+    "summary": "Transform willing allies into beasts so a group can adapt to travel, combat, or infiltration on the fly.",
+    "tags": [
+      "level 8",
+      "transmutation",
+      "druid",
+      "utility",
+      "shapeshift",
+      "beast",
+      "allies",
+      "temporary hit points"
+    ],
+    "level": 8,
+    "school": "Transmutation",
+    "classes": [
+      "Druid"
+    ],
+    "castingTime": "Action",
+    "range": "30 feet",
+    "duration": "24 hours",
+    "effect": "Transform willing creatures into Large or smaller beasts of CR 4 or lower and grant temporary hit points based on the chosen form",
+    "descriptionKey": "animal-shapes"
+  },
+  {
+    "slug": "antimagic-field",
+    "name": "Antimagic Field",
+    "summary": "Wrap yourself in an antimagic aura that suppresses spells, magic items, teleportation, and planar travel.",
+    "tags": [
+      "level 8",
+      "abjuration",
+      "cleric",
+      "wizard",
+      "concentration",
+      "anti-magic",
+      "ward",
+      "emanation"
+    ],
+    "level": 8,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "Self",
+    "duration": "Concentration, up to 1 hour",
+    "effect": "Create a 10-foot antimagic aura that suppresses spells, magic items, teleportation, and planar travel",
+    "concentration": true,
+    "descriptionKey": "antimagic-field"
+  },
+  {
+    "slug": "control-weather",
+    "name": "Control Weather",
+    "summary": "Seize the sky and steadily shift precipitation, temperature, and wind across a massive outdoor area.",
+    "tags": [
+      "level 8",
+      "transmutation",
+      "cleric",
+      "druid",
+      "wizard",
+      "concentration",
+      "weather",
+      "outdoor",
+      "large area"
+    ],
+    "level": 8,
+    "school": "Transmutation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Wizard"
+    ],
+    "castingTime": "10 minutes",
+    "range": "Self",
+    "duration": "Concentration, up to 8 hours",
+    "effect": "Alter precipitation, temperature, and wind within 5 miles, shifting conditions over time",
+    "concentration": true,
+    "descriptionKey": "control-weather"
+  },
+  {
+    "slug": "dominate-monster",
+    "name": "Dominate Monster",
+    "summary": "Charm and telepathically command nearly any creature, overriding its choices while the spell lasts.",
+    "tags": [
+      "level 8",
+      "enchantment",
+      "bard",
+      "sorcerer",
+      "warlock",
+      "wizard",
+      "concentration",
+      "control",
+      "wisdom save",
+      "charm"
+    ],
+    "level": 8,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Concentration, up to 1 hour",
+    "effect": "Charm a creature and issue telepathic commands while the two of you remain on the same plane",
+    "attackType": "save",
+    "saveAbility": "wisdom",
+    "concentration": true,
+    "descriptionKey": "dominate-monster"
+  },
+  {
+    "slug": "earthquake",
+    "name": "Earthquake",
+    "summary": "Rend the ground into dangerous difficult terrain that topples creatures and tears open fissures.",
+    "tags": [
+      "level 8",
+      "transmutation",
+      "cleric",
+      "druid",
+      "sorcerer",
+      "concentration",
+      "dexterity save",
+      "terrain",
+      "prone",
+      "fissures"
+    ],
+    "level": 8,
+    "school": "Transmutation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Sorcerer"
+    ],
+    "castingTime": "Action",
+    "range": "500 feet",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "Shake a 100-foot-radius area into difficult terrain, knocking creatures prone and opening fissures",
+    "attackType": "save",
+    "saveAbility": "dexterity",
+    "concentration": true,
+    "descriptionKey": "earthquake"
+  },
+  {
+    "slug": "holy-aura",
+    "name": "Holy Aura",
+    "summary": "Radiate a powerful divine ward that protects allies and blinds fiends or undead who strike them.",
+    "tags": [
+      "level 8",
+      "abjuration",
+      "cleric",
+      "concentration",
+      "buff",
+      "saving throws",
+      "blind",
+      "undead",
+      "fiends"
+    ],
+    "level": 8,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "castingTime": "Action",
+    "range": "Self",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "Emit a 30-foot aura that boosts allies' saves, hinders attackers, and can blind fiends or undead",
+    "attackType": "save",
+    "saveAbility": "constitution",
+    "concentration": true,
+    "descriptionKey": "holy-aura"
+  },
+  {
+    "slug": "incendiary-cloud",
+    "name": "Incendiary Cloud",
+    "summary": "Unleash a rolling cloud of smoke and embers that obscures the field and scorches anyone caught inside.",
+    "tags": [
+      "level 8",
+      "conjuration",
+      "druid",
+      "sorcerer",
+      "wizard",
+      "concentration",
+      "fire",
+      "dexterity save",
+      "sphere",
+      "obscured"
+    ],
+    "level": 8,
+    "school": "Conjuration",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "150 feet",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "Create a mobile 20-foot-radius cloud of smoke and embers that heavily obscures and deals 10d8 Fire damage",
+    "attackType": "save",
+    "saveAbility": "dexterity",
+    "damage": "10d8 fire",
+    "concentration": true,
+    "descriptionKey": "incendiary-cloud"
+  },
+  {
+    "slug": "maze",
+    "name": "Maze",
+    "summary": "Trap a creature in a labyrinthine demiplane until it solves its way out or the spell ends.",
+    "tags": [
+      "level 8",
+      "conjuration",
+      "wizard",
+      "concentration",
+      "control",
+      "banishment",
+      "demiplane"
+    ],
+    "level": 8,
+    "school": "Conjuration",
+    "classes": [
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Concentration, up to 10 minutes",
+    "effect": "Banish a creature into a maze-like demiplane until it escapes with a Study check or the spell ends",
+    "concentration": true,
+    "descriptionKey": "maze"
+  },
+  {
+    "slug": "power-word-stun",
+    "name": "Power Word Stun",
+    "summary": "Overload a creature's mind with a single command that can leave it stunned on the spot.",
+    "tags": [
+      "level 8",
+      "enchantment",
+      "bard",
+      "sorcerer",
+      "warlock",
+      "wizard",
+      "control",
+      "stun",
+      "word"
+    ],
+    "level": 8,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Instantaneous",
+    "effect": "Stun a creature with 150 Hit Points or fewer or reduce its Speed to 0 until your next turn",
+    "descriptionKey": "power-word-stun"
+  },
+  {
+    "slug": "sunburst",
+    "name": "Sunburst",
+    "summary": "Detonate a sphere of blazing sunlight that burns foes, blinds them, and strips away magical darkness.",
+    "tags": [
+      "level 8",
+      "evocation",
+      "cleric",
+      "druid",
+      "sorcerer",
+      "wizard",
+      "radiant",
+      "constitution save",
+      "blind",
+      "sphere"
+    ],
+    "level": 8,
+    "school": "Evocation",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "150 feet",
+    "duration": "Instantaneous",
+    "effect": "Flash brilliant sunlight in a 60-foot-radius sphere to deal 12d6 Radiant damage, blind creatures, and dispel magical darkness",
+    "attackType": "save",
+    "saveAbility": "constitution",
+    "damage": "12d6 radiant",
+    "descriptionKey": "sunburst"
+  },
+  {
+    "slug": "antipathy-sympathy",
+    "name": "Antipathy/Sympathy",
+    "summary": "Bind a creature type to recoil from or gravitate toward a target for days at a time.",
+    "tags": [
+      "level 8",
+      "enchantment",
+      "bard",
+      "druid",
+      "wizard",
+      "wisdom save",
+      "control",
+      "charm",
+      "frighten",
+      "ward"
+    ],
+    "level": 8,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Wizard"
+    ],
+    "castingTime": "1 hour",
+    "range": "60 feet",
+    "duration": "10 days",
+    "effect": "Ward a Huge or smaller target so a chosen creature type is drawn toward it or repelled from it within 120 feet",
+    "attackType": "save",
+    "saveAbility": "wisdom",
+    "descriptionKey": "antipathy-sympathy"
+  },
+  {
+    "slug": "befuddlement",
+    "name": "Befuddlement",
+    "summary": "Shatter a creature's mind with psychic force and potentially lock out its spellcasting for weeks.",
+    "tags": [
+      "level 8",
+      "enchantment",
+      "bard",
+      "druid",
+      "warlock",
+      "wizard",
+      "intelligence save",
+      "psychic",
+      "control"
+    ],
+    "level": 8,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "150 feet",
+    "duration": "Instantaneous",
+    "effect": "Blast a creature for 10d12 Psychic damage and potentially block spellcasting and Magic actions until it recovers",
+    "attackType": "save",
+    "saveAbility": "intelligence",
+    "damage": "10d12 psychic",
+    "descriptionKey": "befuddlement"
+  },
+  {
+    "slug": "clone",
+    "name": "Clone",
+    "summary": "Grow a dormant duplicate body that can receive a creature's soul after death.",
+    "tags": [
+      "level 8",
+      "necromancy",
+      "wizard",
+      "utility",
+      "duplicate",
+      "resurrection",
+      "vessel"
+    ],
+    "level": 8,
+    "school": "Necromancy",
+    "classes": [
+      "Wizard"
+    ],
+    "castingTime": "1 hour",
+    "range": "Touch",
+    "duration": "Instantaneous",
+    "effect": "Create an inert duplicate that matures over 120 days and can house the original creature's returning soul",
+    "descriptionKey": "clone"
+  },
+  {
+    "slug": "demiplane",
+    "name": "Demiplane",
+    "summary": "Open a shadowy doorway to a private extradimensional room you can revisit on later castings.",
+    "tags": [
+      "level 8",
+      "conjuration",
+      "sorcerer",
+      "warlock",
+      "wizard",
+      "utility",
+      "extradimensional",
+      "portal",
+      "storage"
+    ],
+    "level": 8,
+    "school": "Conjuration",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "1 hour",
+    "effect": "Create a shadowy door to an empty demiplane and reconnect to demiplanes from prior castings",
+    "descriptionKey": "demiplane"
+  },
+  {
+    "slug": "glibness",
+    "name": "Glibness",
+    "summary": "Turn every Charisma check into a polished performance and foil magic that tests your honesty.",
+    "tags": [
+      "level 8",
+      "enchantment",
+      "bard",
+      "warlock",
+      "utility",
+      "social",
+      "charisma",
+      "truth"
+    ],
+    "level": 8,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Warlock"
+    ],
+    "castingTime": "Action",
+    "range": "Self",
+    "duration": "1 hour",
+    "effect": "Treat Charisma checks as at least 15 and appear truthful to magic that tests your words",
+    "descriptionKey": "glibness"
+  },
+  {
+    "slug": "mind-blank",
+    "name": "Mind Blank",
+    "summary": "Shield a creature from psychic harm, charm, remote sensing, and magical attempts to read or control the mind.",
+    "tags": [
+      "level 8",
+      "abjuration",
+      "bard",
+      "wizard",
+      "ward",
+      "psychic immunity",
+      "charm immunity",
+      "mind",
+      "divination"
+    ],
+    "level": 8,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "Touch",
+    "duration": "24 hours",
+    "effect": "Grant psychic and charm immunity while blocking emotion sensing, thought reading, magical location, and mind control",
+    "descriptionKey": "mind-blank"
+  },
+  {
+    "slug": "tsunami",
+    "name": "Tsunami",
+    "summary": "Raise a colossal moving wall of water that batters creatures and sweeps them along as it collapses.",
+    "tags": [
+      "level 8",
+      "conjuration",
+      "druid",
+      "strength save",
+      "bludgeoning",
+      "wave",
+      "large area",
+      "battlefield"
+    ],
+    "level": 8,
+    "school": "Conjuration",
+    "classes": [
+      "Druid"
+    ],
+    "castingTime": "1 minute",
+    "range": "1 mile",
+    "duration": "6 rounds",
+    "effect": "Create a massive advancing wall of water that deals Bludgeoning damage and drags creatures through its path",
+    "attackType": "save",
+    "saveAbility": "strength",
+    "damage": "6d10 bludgeoning",
+    "descriptionKey": "tsunami"
+  },
+  {
+    "slug": "astral-projection",
+    "name": "Astral Projection",
+    "summary": "Project yourself and willing allies into the Astral Plane while your bodies remain behind in suspended animation.",
+    "tags": [
+      "level 9",
+      "necromancy",
+      "cleric",
+      "warlock",
+      "wizard",
+      "astral",
+      "planar travel",
+      "projection",
+      "party"
+    ],
+    "level": 9,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "1 hour",
+    "range": "10 feet",
+    "duration": "Until dispelled",
+    "effect": "Project yourself and up to eight willing creatures into the Astral Plane while your bodies remain in suspended animation until the spell ends",
+    "descriptionKey": "astral-projection"
+  },
+  {
+    "slug": "foresight",
+    "name": "Foresight",
+    "summary": "Grant a creature a glimpse of the immediate future so it acts with near-perfect awareness for hours.",
+    "tags": [
+      "level 9",
+      "divination",
+      "bard",
+      "druid",
+      "warlock",
+      "wizard",
+      "buff",
+      "advantage",
+      "defense",
+      "future"
+    ],
+    "level": 9,
+    "school": "Divination",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "1 minute",
+    "range": "Touch",
+    "duration": "8 hours",
+    "effect": "Grant a willing creature Advantage on D20 Tests while other creatures have Disadvantage on attack rolls against it",
+    "descriptionKey": "foresight"
+  },
+  {
+    "slug": "gate",
+    "name": "Gate",
+    "summary": "Tear open a portal to another plane or drag a named extraplanar creature through to your side.",
+    "tags": [
+      "level 9",
+      "conjuration",
+      "cleric",
+      "sorcerer",
+      "warlock",
+      "wizard",
+      "portal",
+      "planar travel",
+      "summoning",
+      "concentration"
+    ],
+    "level": 9,
+    "school": "Conjuration",
+    "classes": [
+      "Cleric",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "Open a portal to a precise location on another plane or pull a named creature through from another plane",
+    "concentration": true,
+    "descriptionKey": "gate"
+  },
+  {
+    "slug": "imprisonment",
+    "name": "Imprisonment",
+    "summary": "Seal a creature into a chosen magical prison that can last until a specific trigger ends it.",
+    "tags": [
+      "level 9",
+      "abjuration",
+      "warlock",
+      "wizard",
+      "wisdom save",
+      "prison",
+      "restraint",
+      "stasis",
+      "ward"
+    ],
+    "level": 9,
+    "school": "Abjuration",
+    "classes": [
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "1 minute",
+    "range": "30 feet",
+    "duration": "Until dispelled",
+    "effect": "Trap a creature in one of several magical prisons until a specified trigger or a level 9 Dispel Magic ends the spell",
+    "attackType": "save",
+    "saveAbility": "wisdom",
+    "descriptionKey": "imprisonment"
+  },
+  {
+    "slug": "mass-heal",
+    "name": "Mass Heal",
+    "summary": "Release an overwhelming surge of restorative energy that can heal an entire group at once.",
+    "tags": [
+      "level 9",
+      "abjuration",
+      "cleric",
+      "healing",
+      "support",
+      "restoration",
+      "mass"
+    ],
+    "level": 9,
+    "school": "Abjuration",
+    "classes": [
+      "Cleric"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Instantaneous",
+    "effect": "Restore up to 700 Hit Points divided among creatures you can see and remove blinded, deafened, and poisoned",
+    "descriptionKey": "mass-heal"
+  },
+  {
+    "slug": "meteor-swarm",
+    "name": "Meteor Swarm",
+    "summary": "Call down a catastrophic rain of blazing meteors that devastates a huge area from extreme range.",
+    "tags": [
+      "level 9",
+      "evocation",
+      "sorcerer",
+      "wizard",
+      "dexterity save",
+      "fire",
+      "bludgeoning",
+      "large area",
+      "blast"
+    ],
+    "level": 9,
+    "school": "Evocation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "1 mile",
+    "duration": "Instantaneous",
+    "effect": "Rain four meteors onto distant points, dealing massive Fire and Bludgeoning damage in huge overlapping spheres",
+    "attackType": "save",
+    "saveAbility": "dexterity",
+    "damage": "20d6 fire + 20d6 bludgeoning",
+    "descriptionKey": "meteor-swarm"
+  },
+  {
+    "slug": "power-word-heal",
+    "name": "Power Word Heal",
+    "summary": "Speak a word of supreme restoration that instantly returns a creature to peak fighting condition.",
+    "tags": [
+      "level 9",
+      "enchantment",
+      "bard",
+      "cleric",
+      "healing",
+      "support",
+      "condition removal",
+      "word"
+    ],
+    "level": 9,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Cleric"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Instantaneous",
+    "effect": "Fully restore one creature?s Hit Points and end several major conditions with a single word",
+    "descriptionKey": "power-word-heal"
+  },
+  {
+    "slug": "power-word-kill",
+    "name": "Power Word Kill",
+    "summary": "Utter a final command that slays the weak outright and still crushes stronger minds with psychic force.",
+    "tags": [
+      "level 9",
+      "enchantment",
+      "bard",
+      "sorcerer",
+      "warlock",
+      "wizard",
+      "psychic",
+      "finisher",
+      "word",
+      "kill"
+    ],
+    "level": 9,
+    "school": "Enchantment",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "Instantaneous",
+    "effect": "Kill a creature with 100 Hit Points or fewer or deal 12d12 Psychic damage instead",
+    "damage": "12d12 psychic",
+    "descriptionKey": "power-word-kill"
+  },
+  {
+    "slug": "prismatic-wall",
+    "name": "Prismatic Wall",
+    "summary": "Raise a layered rainbow barrier that blinds nearby creatures and punishes anything passing through it.",
+    "tags": [
+      "level 9",
+      "abjuration",
+      "bard",
+      "wizard",
+      "wall",
+      "barrier",
+      "blind",
+      "elemental",
+      "defense"
+    ],
+    "level": 9,
+    "school": "Abjuration",
+    "classes": [
+      "Bard",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "60 feet",
+    "duration": "10 minutes",
+    "effect": "Create a seven-layer wall or globe of light that blinds nearby creatures and imposes different effects by color",
+    "descriptionKey": "prismatic-wall"
+  },
+  {
+    "slug": "shapechange",
+    "name": "Shapechange",
+    "summary": "Take on the form of immensely powerful creatures while keeping your own mind and magical aptitude.",
+    "tags": [
+      "level 9",
+      "transmutation",
+      "druid",
+      "wizard",
+      "shapeshift",
+      "concentration",
+      "utility",
+      "combat",
+      "beast"
+    ],
+    "level": 9,
+    "school": "Transmutation",
+    "classes": [
+      "Druid",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "Self",
+    "duration": "Concentration, up to 1 hour",
+    "effect": "Assume powerful creature forms of CR no higher than your level or Challenge Rating while keeping your own mind and spellcasting",
+    "concentration": true,
+    "descriptionKey": "shapechange"
+  },
+  {
+    "slug": "storm-of-vengeance",
+    "name": "Storm of Vengeance",
+    "summary": "Summon a vast supernatural storm that escalates through thunder, acid, lightning, hail, and freezing winds.",
+    "tags": [
+      "level 9",
+      "conjuration",
+      "druid",
+      "storm",
+      "battlefield",
+      "acid",
+      "lightning",
+      "cold",
+      "concentration"
+    ],
+    "level": 9,
+    "school": "Conjuration",
+    "classes": [
+      "Druid"
+    ],
+    "castingTime": "Action",
+    "range": "1 mile",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "Unleash a 300-foot-radius storm cloud that escalates through thunder, acid, lightning, hail, and freezing winds over multiple turns",
+    "concentration": true,
+    "descriptionKey": "storm-of-vengeance"
+  },
+  {
+    "slug": "time-stop",
+    "name": "Time Stop",
+    "summary": "Freeze the world around you long enough to take several turns before anyone else can react.",
+    "tags": [
+      "level 9",
+      "transmutation",
+      "sorcerer",
+      "wizard",
+      "time",
+      "self-buff",
+      "turns",
+      "action economy"
+    ],
+    "level": 9,
+    "school": "Transmutation",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "Self",
+    "duration": "Instantaneous",
+    "effect": "Take 1d4 + 1 turns in a row while time is stopped for everyone else unless you affect another creature",
+    "descriptionKey": "time-stop"
+  },
+  {
+    "slug": "true-polymorph",
+    "name": "True Polymorph",
+    "summary": "Transform creatures or objects into entirely new forms, potentially making the change permanent.",
+    "tags": [
+      "level 9",
+      "transmutation",
+      "bard",
+      "warlock",
+      "wizard",
+      "wisdom save",
+      "transformation",
+      "concentration",
+      "shapeshift"
+    ],
+    "level": 9,
+    "school": "Transmutation",
+    "classes": [
+      "Bard",
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "30 feet",
+    "duration": "Concentration, up to 1 hour",
+    "effect": "Transform a creature or object into another form, potentially permanently if you maintain Concentration for the full duration",
+    "concentration": true,
+    "attackType": "save",
+    "saveAbility": "wisdom",
+    "descriptionKey": "true-polymorph"
+  },
+  {
+    "slug": "true-resurrection",
+    "name": "True Resurrection",
+    "summary": "Restore a long-dead creature completely, even providing a new body if the original is gone.",
+    "tags": [
+      "level 9",
+      "necromancy",
+      "cleric",
+      "druid",
+      "resurrection",
+      "healing",
+      "support",
+      "restoration"
+    ],
+    "level": 9,
+    "school": "Necromancy",
+    "classes": [
+      "Cleric",
+      "Druid"
+    ],
+    "castingTime": "1 hour",
+    "range": "Touch",
+    "duration": "Instantaneous",
+    "effect": "Return a creature dead up to 200 years to life with all Hit Points restored and a new body if needed",
+    "descriptionKey": "true-resurrection"
+  },
+  {
+    "slug": "weird",
+    "name": "Weird",
+    "summary": "Overwhelm multiple creatures with psychic nightmares that terrify them and grind them down.",
+    "tags": [
+      "level 9",
+      "illusion",
+      "warlock",
+      "wizard",
+      "wisdom save",
+      "psychic",
+      "frightened",
+      "large area",
+      "concentration"
+    ],
+    "level": 9,
+    "school": "Illusion",
+    "classes": [
+      "Warlock",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "120 feet",
+    "duration": "Concentration, up to 1 minute",
+    "effect": "Frighten creatures in a large sphere with psychic terrors that keep dealing Psychic damage on failed saves",
+    "concentration": true,
+    "attackType": "save",
+    "saveAbility": "wisdom",
+    "damage": "10d10 psychic",
+    "descriptionKey": "weird"
+  },
+  {
+    "slug": "wish",
+    "name": "Wish",
+    "summary": "Bend reality to duplicate lower-level magic or attempt nearly any effect at enormous personal risk.",
+    "tags": [
+      "level 9",
+      "conjuration",
+      "sorcerer",
+      "wizard",
+      "reality",
+      "utility",
+      "duplication",
+      "apex magic"
+    ],
+    "level": 9,
+    "school": "Conjuration",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "castingTime": "Action",
+    "range": "Self",
+    "duration": "Instantaneous",
+    "effect": "Duplicate lower-level spells or attempt to reshape reality itself at severe personal cost",
+    "descriptionKey": "wish"
   }
 ]

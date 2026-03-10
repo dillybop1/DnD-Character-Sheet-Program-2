@@ -1,19 +1,16 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { calculateDerivedState } from "../../shared/calculations";
 import {
   getArmorTemplate,
   getBackgroundTemplate,
-  getFeatChoiceLabel,
   getFeatSelectionConstraintMessage,
-  getFeatSupportLabel,
   getFeatTemplate,
   getGearTemplate,
   getClassTemplate,
   getSubclassLabel,
   isFeatSelectable,
   getWeaponTemplate,
-  listAvailableFeatChoiceOptions,
   listArmorTemplates,
   listBackgroundTemplates,
   listClassTemplates,
@@ -37,12 +34,40 @@ import { normalizePactSlotsRemaining, normalizeSpellSlotsRemaining } from "../..
 import { ABILITY_NAMES, SKILL_NAMES } from "../../shared/types";
 import type { AbilityName, BuilderInput, CharacterRecord, CompendiumEntry, HomebrewEntry, InventoryItemRecord, InventoryItemKind, SkillName } from "../../shared/types";
 import { CompendiumEntryDetail } from "../components/CompendiumEntryDetail";
+import { EquipmentSelectionBrowser, type EquipmentBrowserEntry } from "../components/EquipmentSelectionBrowser";
+import { FeatChoiceBrowser } from "../components/FeatChoiceBrowser";
+import { FeatSelectionBrowser } from "../components/FeatSelectionBrowser";
+import { InventoryManagerBrowser, type InventoryBrowserEntry } from "../components/InventoryManagerBrowser";
 import { LockedSheetViewport } from "../components/LockedSheetViewport";
+import { LoadoutManagerCard } from "../components/LoadoutManagerCard";
 import { SectionCard } from "../components/SectionCard";
 import { SheetPreview } from "../components/SheetPreview";
+import { SpellSelectionBrowser } from "../components/SpellSelectionBrowser";
 import { getArmorReferenceSlug, RULE_REFERENCE_SLUGS } from "../lib/compendiumLinks";
+import { buildCompendiumEntryPath, type CompendiumHandoffState } from "../lib/compendiumNavigation";
 import { dndApi } from "../lib/api";
-import { buildPreviewCharacter, builderInputFromCharacter, createDefaultBuilderInput, humanizeLabel } from "../lib/editor";
+import {
+  areSameAbilityScores,
+  areSameSkillProficiencies,
+  areSameSpellSelections,
+  buildClassStarterSkillProficiencies,
+  buildClassStarterSpellSelection,
+  buildClassStandardAbilityScores,
+  buildPreviewCharacter,
+  builderInputFromCharacter,
+  createDefaultBuilderInput,
+  humanizeLabel,
+  mergeSuggestedSkillProficiencies,
+} from "../lib/editor";
+
+const ABILITY_SHORT_LABELS: Record<AbilityName, string> = {
+  strength: "Str",
+  dexterity: "Dex",
+  constitution: "Con",
+  intelligence: "Int",
+  wisdom: "Wis",
+  charisma: "Cha",
+};
 
 function readSpellLevel(entry: CompendiumEntry) {
   return typeof entry.payload.level === "number" ? entry.payload.level : 0;
@@ -159,7 +184,138 @@ function inventoryTemplateLabel(templateType: InventoryItemKind, templateId: str
   return getGearTemplate(templateId)?.name ?? humanizeLabel(templateId.replaceAll("-", " "));
 }
 
+function formatAbilityScoreRecommendation(
+  abilityOrder: AbilityName[],
+  abilities: Record<AbilityName, number>,
+) {
+  return abilityOrder.map((ability) => `${ABILITY_SHORT_LABELS[ability]} ${abilities[ability]}`).join(", ");
+}
+
+function buildArmorBrowseCategory(armorId: string) {
+  if (armorId === "unarmored") {
+    return "Unarmored";
+  }
+
+  if (armorId === "leather" || armorId === "studded-leather") {
+    return "Light";
+  }
+
+  if (armorId === "scale-mail" || armorId === "breastplate") {
+    return "Medium";
+  }
+
+  return "Heavy";
+}
+
+function buildEquipmentBrowseEntries(
+  availableArmor: ReturnType<typeof listArmorTemplates>,
+  availableWeapons: ReturnType<typeof listWeaponTemplates>,
+  availableGear: ReturnType<typeof listGearTemplates>,
+) {
+  const armorEntries: EquipmentBrowserEntry[] = availableArmor.map((armor) => ({
+    key: `armor:${armor.id}`,
+    templateType: "armor",
+    templateId: armor.id,
+    referenceSlug: armor.id,
+    name: armor.name,
+    category: buildArmorBrowseCategory(armor.id),
+    summary: armor.notes ?? `AC ${armor.baseArmorClass}`,
+    searchText: [armor.name, buildArmorBrowseCategory(armor.id), armor.notes ?? "", "armor"].join(" ").toLowerCase(),
+  }));
+  const weaponEntries: EquipmentBrowserEntry[] = availableWeapons.map((weapon) => ({
+    key: `weapon:${weapon.id}`,
+    templateType: "weapon",
+    templateId: weapon.id,
+    referenceSlug: weapon.id,
+    name: weapon.name,
+    category: weapon.ranged ? "Ranged" : "Melee",
+    summary: `${weapon.damage} ${weapon.damageType}${weapon.notes ? `, ${weapon.notes}` : ""}`,
+    searchText: [weapon.name, weapon.damage, weapon.damageType, weapon.notes ?? "", weapon.ranged ? "ranged" : "melee", weapon.finesse ? "finesse" : ""]
+      .join(" ")
+      .toLowerCase(),
+  }));
+  const gearEntries: EquipmentBrowserEntry[] = availableGear.map((gear) => ({
+    key: `gear:${gear.id}`,
+    templateType: "gear",
+    templateId: gear.id,
+    referenceSlug: gear.id,
+    name: gear.name,
+    category: humanizeLabel(gear.category),
+    summary:
+      gear.notes ?? (gear.armorClassBonus ? `+${gear.armorClassBonus} Armor Class while equipped` : humanizeLabel(gear.category)),
+    searchText: [gear.name, gear.category, gear.notes ?? "", gear.equipable ? "equipable" : ""].join(" ").toLowerCase(),
+  }));
+
+  return [...armorEntries, ...weaponEntries, ...gearEntries];
+}
+
+function buildInventoryBrowseEntries(
+  inventoryEntries: ReturnType<typeof listInventoryEntries>,
+  draftInventoryById: Map<string, InventoryItemRecord>,
+) {
+  return inventoryEntries.map((entry): InventoryBrowserEntry => {
+    const rawInventoryEntry = draftInventoryById.get(entry.id);
+
+    if (entry.kind === "armor") {
+      const armor = getArmorTemplate(rawInventoryEntry?.templateId ?? "unarmored");
+
+      return {
+        id: entry.id,
+        kind: entry.kind,
+        templateId: rawInventoryEntry?.templateId ?? "unarmored",
+        name: entry.name,
+        quantity: entry.quantity,
+        equipped: entry.equipped,
+        equipable: Boolean(rawInventoryEntry && isInventoryItemEquipable(rawInventoryEntry)),
+        category: buildArmorBrowseCategory(rawInventoryEntry?.templateId ?? "unarmored"),
+        summary: entry.notes ?? armor.notes ?? `AC ${armor.baseArmorClass}`,
+        searchText: [entry.name, buildArmorBrowseCategory(rawInventoryEntry?.templateId ?? "unarmored"), entry.notes ?? armor.notes ?? "", entry.kind]
+          .join(" ")
+          .toLowerCase(),
+        referenceSlug: entry.referenceSlug,
+      };
+    }
+
+    if (entry.kind === "weapon") {
+      const weapon = rawInventoryEntry ? getWeaponTemplate(rawInventoryEntry.templateId) : null;
+
+      return {
+        id: entry.id,
+        kind: entry.kind,
+        templateId: rawInventoryEntry?.templateId ?? "",
+        name: entry.name,
+        quantity: entry.quantity,
+        equipped: entry.equipped,
+        equipable: Boolean(rawInventoryEntry && isInventoryItemEquipable(rawInventoryEntry)),
+        category: weapon?.ranged ? "Ranged" : "Melee",
+        summary: entry.notes ?? (weapon ? `${weapon.damage} ${weapon.damageType}` : "Tracked weapon"),
+        searchText: [entry.name, weapon?.damage ?? "", weapon?.damageType ?? "", weapon?.notes ?? "", weapon?.ranged ? "ranged" : "melee", entry.notes ?? "", entry.kind]
+          .join(" ")
+          .toLowerCase(),
+        referenceSlug: entry.referenceSlug,
+      };
+    }
+
+    const gear = rawInventoryEntry ? getGearTemplate(rawInventoryEntry.templateId) : null;
+
+    return {
+      id: entry.id,
+      kind: entry.kind,
+      templateId: rawInventoryEntry?.templateId ?? "",
+      name: entry.name,
+      quantity: entry.quantity,
+      equipped: entry.equipped,
+      equipable: Boolean(rawInventoryEntry && isInventoryItemEquipable(rawInventoryEntry)),
+      category: humanizeLabel(gear?.category ?? "gear"),
+      summary: entry.notes ?? gear?.notes ?? "Tracked gear",
+      searchText: [entry.name, gear?.category ?? "", gear?.notes ?? "", entry.notes ?? "", entry.kind].join(" ").toLowerCase(),
+      referenceSlug: entry.referenceSlug,
+    };
+  });
+}
+
 export function CharactersPage() {
+  const location = useLocation();
   const navigate = useNavigate();
   const { characterId } = useParams();
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterRecord | null>(null);
@@ -232,6 +388,12 @@ export function CharactersPage() {
   const previewCharacter = buildPreviewCharacter(draft, selectedCharacter, activeHomebrew);
   const derived = calculateDerivedState(previewCharacter, activeHomebrew);
   const selectedClass = getClassTemplate(draft.classId);
+  const classStandardAbilities = buildClassStandardAbilityScores(draft.classId);
+  const classStandardAbilitySummary = formatAbilityScoreRecommendation(
+    selectedClass.standardAbilityOrder,
+    classStandardAbilities,
+  );
+  const classStandardArrayApplied = areSameAbilityScores(draft.abilities, classStandardAbilities);
   const availableClasses = listClassTemplates(draft.enabledSourceIds);
   const availableSubclasses = listSubclassTemplates(draft.classId, draft.enabledSourceIds);
   const availableSpecies = listSpeciesTemplates(draft.enabledSourceIds);
@@ -243,6 +405,17 @@ export function CharactersPage() {
   );
   const backgroundFeatureSummary = selectedBackground.featureSummary;
   const backgroundStartingInventory = selectedBackground.startingInventory;
+  const classStarterSkills = selectedClass.starterSkillIds.filter((skill): skill is SkillName =>
+    SKILL_NAMES.includes(skill),
+  );
+  const classStarterSkillsApplied = classStarterSkills.every((skill) => {
+    const level = draft.skillProficiencies[skill];
+    return level === "proficient" || level === "expertise";
+  });
+  const backgroundSuggestedSkillsApplied = backgroundSuggestedSkills.every((skill) => {
+    const level = draft.skillProficiencies[skill];
+    return level === "proficient" || level === "expertise";
+  });
   const availableArmor = listArmorTemplates(draft.enabledSourceIds);
   const availableWeapons = listWeaponTemplates(draft.enabledSourceIds);
   const availableGear = listGearTemplates(draft.enabledSourceIds);
@@ -252,6 +425,11 @@ export function CharactersPage() {
     skillProficiencies: draft.skillProficiencies,
     featSelections: draft.featSelections,
   };
+  const skillProficiencyScopeKey = Object.entries(draft.skillProficiencies)
+    .sort(([leftKey], [rightKey]) => leftKey.localeCompare(rightKey))
+    .map(([skill, level]) => `${skill}:${level}`)
+    .join("|");
+  const featBrowseScopeKey = `feats:${draft.classId}:${draft.enabledSourceIds.join("|")}:${skillProficiencyScopeKey}`;
   const draftFeatState = sanitizeFeatState(draft.featIds, draft.featSelections, featContext);
   const featAvailabilityById = new Map(
     availableFeats.map((feat) => [
@@ -283,8 +461,50 @@ export function CharactersPage() {
   const draftInventoryById = new Map(draftInventory.map((item) => [item.id, item] as const));
   const inventoryEntries = listInventoryEntries(draft);
   const inventoryLoadout = deriveLegacyLoadout(draftInventory);
+  const suggestedBackgroundInventoryMerge = mergeInventorySuggestions(draftInventory, backgroundStartingInventory);
+  const backgroundStartingGearApplied =
+    suggestedBackgroundInventoryMerge.addedCount === 0 && suggestedBackgroundInventoryMerge.updatedCount === 0;
+  const inventoryBrowseEntries = buildInventoryBrowseEntries(inventoryEntries, draftInventoryById);
+  const loadoutArmorEntries = inventoryBrowseEntries.filter((entry) => entry.kind === "armor");
+  const loadoutShieldEntries = inventoryBrowseEntries.filter(
+    (entry) => entry.kind === "gear" && entry.templateId === "shield",
+  );
+  const loadoutWeaponEntries = inventoryBrowseEntries.filter((entry) => entry.kind === "weapon");
+  const trackedEquipmentStateByKey = draftInventory.reduce((accumulator, item) => {
+    const key = `${item.templateType}:${item.templateId}`;
+    const current = accumulator.get(key) ?? { quantity: 0, equippedCount: 0 };
+
+    accumulator.set(key, {
+      quantity: current.quantity + item.quantity,
+      equippedCount: current.equippedCount + (item.equipped ? 1 : 0),
+    });
+
+    return accumulator;
+  }, new Map<string, { quantity: number; equippedCount: number }>());
+  const equipmentBrowseEntries = buildEquipmentBrowseEntries(availableArmor, availableWeapons, availableGear);
   const classSpellOptions =
     selectedClass.spellcastingAbility === null ? [] : listCompendiumSpells(draft.enabledSourceIds, selectedClass.name);
+  const classStarterSpellSelection = buildClassStarterSpellSelection(draft.classId, draft.enabledSourceIds);
+  const classStarterSpellEntries = classStarterSpellSelection.spellIds
+    .map((spellId) => classSpellOptions.find((entry) => entry.slug === spellId))
+    .filter((entry): entry is CompendiumEntry => Boolean(entry));
+  const classHasStarterSpellPackage = classStarterSpellEntries.length > 0;
+  const classStarterCantripEntries = classStarterSpellEntries.filter((entry) => readSpellLevel(entry) === 0);
+  const classStarterLeveledEntries = classStarterSpellEntries.filter((entry) => readSpellLevel(entry) > 0);
+  const classStarterSpellsApplied =
+    !classHasStarterSpellPackage ||
+    areSameSpellSelections(
+      draft.spellIds,
+      draft.preparedSpellIds,
+      classStarterSpellSelection.spellIds,
+      classStarterSpellSelection.preparedSpellIds,
+    );
+  const quickStartSetupApplied =
+    classStandardArrayApplied &&
+    classStarterSkillsApplied &&
+    backgroundSuggestedSkillsApplied &&
+    backgroundStartingGearApplied &&
+    classStarterSpellsApplied;
   const selectedSpellEntries = draft.spellIds
     .map((spellId) => classSpellOptions.find((entry) => entry.slug === spellId))
     .filter((entry): entry is CompendiumEntry => Boolean(entry));
@@ -501,15 +721,179 @@ export function CharactersPage() {
       const nextSubclass = nextSubclassOptions.some((entry) => entry.id === normalizedCurrentSubclass)
         ? normalizedCurrentSubclass
         : "";
+      const currentClassStandardAbilities = buildClassStandardAbilityScores(current.classId);
+      const nextClassStandardAbilities = buildClassStandardAbilityScores(classId);
+      const currentClassStarterSkillProficiencies = buildClassStarterSkillProficiencies(current.classId);
+      const nextClassStarterSkillProficiencies = buildClassStarterSkillProficiencies(classId);
+      const currentClassStarterSpellSelection = buildClassStarterSpellSelection(current.classId, current.enabledSourceIds);
+      const nextClassStarterSpellSelection = buildClassStarterSpellSelection(classId, current.enabledSourceIds);
+      const shouldAutoCarryStarterSkills = areSameSkillProficiencies(
+        current.skillProficiencies,
+        currentClassStarterSkillProficiencies,
+      );
+      const shouldAutoCarryStarterSpells = areSameSpellSelections(
+        current.spellIds,
+        current.preparedSpellIds,
+        currentClassStarterSpellSelection.spellIds,
+        currentClassStarterSpellSelection.preparedSpellIds,
+      );
+      const shouldApplyNextStarterSpells =
+        shouldAutoCarryStarterSpells && nextClassStarterSpellSelection.spellIds.length > 0;
 
       return {
         ...current,
         classId,
         subclass: nextSubclass,
+        abilities: areSameAbilityScores(current.abilities, currentClassStandardAbilities)
+          ? nextClassStandardAbilities
+          : current.abilities,
+        skillProficiencies: shouldAutoCarryStarterSkills
+          ? nextClassStarterSkillProficiencies
+          : current.skillProficiencies,
+        spellIds: shouldApplyNextStarterSpells ? nextClassStarterSpellSelection.spellIds : current.spellIds,
+        preparedSpellIds: shouldApplyNextStarterSpells
+          ? nextClassStarterSpellSelection.preparedSpellIds
+          : current.preparedSpellIds,
         spellSlotsRemaining: [],
         pactSlotsRemaining: undefined,
       };
     });
+  }
+
+  function applyClassStandardArray() {
+    setDraft((current) => ({
+      ...current,
+      abilities: buildClassStandardAbilityScores(current.classId),
+    }));
+  }
+
+  function applyQuickStartSetup() {
+    const nextAbilities = buildClassStandardAbilityScores(draft.classId);
+    const nextStarterSpellSelection = buildClassStarterSpellSelection(draft.classId, draft.enabledSourceIds);
+    const nextSuggestedSkills = Array.from(new Set([...classStarterSkills, ...backgroundSuggestedSkills]));
+    const nextSkillProficiencies = mergeSuggestedSkillProficiencies(draft.skillProficiencies, nextSuggestedSkills);
+    const nextSuggestedInventoryMerge = mergeInventorySuggestions(draftInventory, backgroundStartingInventory);
+    const nextLegacyLoadout = deriveLegacyLoadout(nextSuggestedInventoryMerge.inventory);
+    const abilityChanged = !areSameAbilityScores(draft.abilities, nextAbilities);
+    const classSkillChanges = classStarterSkills.filter((skill) => {
+      const currentLevel = draft.skillProficiencies[skill];
+      return currentLevel !== "proficient" && currentLevel !== "expertise";
+    });
+    const backgroundSkillChanges = backgroundSuggestedSkills.filter((skill) => {
+      const currentLevel = draft.skillProficiencies[skill];
+      return currentLevel !== "proficient" && currentLevel !== "expertise";
+    });
+    const inventoryChanged =
+      nextSuggestedInventoryMerge.addedCount > 0 || nextSuggestedInventoryMerge.updatedCount > 0;
+    const starterSpellsChanged =
+      nextStarterSpellSelection.spellIds.length > 0 &&
+      !areSameSpellSelections(
+        draft.spellIds,
+        draft.preparedSpellIds,
+        nextStarterSpellSelection.spellIds,
+        nextStarterSpellSelection.preparedSpellIds,
+      );
+
+    if (
+      !abilityChanged &&
+      classSkillChanges.length === 0 &&
+      backgroundSkillChanges.length === 0 &&
+      !inventoryChanged &&
+      !starterSpellsChanged
+    ) {
+      setMessage(`${selectedClass.name} + ${selectedBackground.name} quick start is already represented in the draft.`);
+      return;
+    }
+
+    const updates: string[] = [];
+
+    if (abilityChanged) {
+      updates.push("class array applied");
+    }
+
+    if (classSkillChanges.length > 0) {
+      updates.push(`${classSkillChanges.length} class skill suggestion${classSkillChanges.length === 1 ? "" : "s"} applied`);
+    }
+
+    if (backgroundSkillChanges.length > 0) {
+      updates.push(`${backgroundSkillChanges.length} background skill suggestion${backgroundSkillChanges.length === 1 ? "" : "s"} applied`);
+    }
+
+    if (nextSuggestedInventoryMerge.addedCount > 0) {
+      updates.push(`${nextSuggestedInventoryMerge.addedCount} gear item${nextSuggestedInventoryMerge.addedCount === 1 ? "" : "s"} added`);
+    }
+
+    if (nextSuggestedInventoryMerge.updatedCount > 0) {
+      updates.push(`${nextSuggestedInventoryMerge.updatedCount} gear item${nextSuggestedInventoryMerge.updatedCount === 1 ? "" : "s"} updated`);
+    }
+
+    if (starterSpellsChanged && nextStarterSpellSelection.spellIds.length > 0) {
+      updates.push(`${nextStarterSpellSelection.spellIds.length} starter spell${nextStarterSpellSelection.spellIds.length === 1 ? "" : "s"} applied`);
+    }
+
+    setDraft((current) => ({
+      ...current,
+      abilities: nextAbilities,
+      skillProficiencies: nextSkillProficiencies,
+      inventory: nextSuggestedInventoryMerge.inventory,
+      armorId: nextLegacyLoadout.armorId,
+      shieldEquipped: nextLegacyLoadout.shieldEquipped,
+      weaponIds: nextLegacyLoadout.weaponIds,
+      spellIds: nextStarterSpellSelection.spellIds.length > 0 ? nextStarterSpellSelection.spellIds : current.spellIds,
+      preparedSpellIds:
+        nextStarterSpellSelection.spellIds.length > 0
+          ? nextStarterSpellSelection.preparedSpellIds
+          : current.preparedSpellIds,
+    }));
+    setMessage(`Applied ${selectedClass.name} + ${selectedBackground.name} quick start: ${updates.join(", ")}.`);
+  }
+
+  function applyClassStarterSkills() {
+    if (classStarterSkills.length === 0) {
+      setMessage(`${selectedClass.name} has no seeded starter skill package yet.`);
+      return;
+    }
+
+    if (classStarterSkillsApplied) {
+      setMessage(`${selectedClass.name} starter skills are already represented in the draft.`);
+      return;
+    }
+
+    setDraft((current) => ({
+      ...current,
+      skillProficiencies: mergeSuggestedSkillProficiencies(current.skillProficiencies, classStarterSkills),
+    }));
+    setMessage(`Applied ${selectedClass.name} starter skills: ${classStarterSkills.length} suggested ${classStarterSkills.length === 1 ? "proficiency" : "proficiencies"}.`);
+  }
+
+  function applyClassStarterSpells() {
+    const nextStarterSpellSelection = buildClassStarterSpellSelection(draft.classId, draft.enabledSourceIds);
+
+    if (nextStarterSpellSelection.spellIds.length === 0) {
+      setMessage(`${selectedClass.name} has no seeded starter spell package yet.`);
+      return;
+    }
+
+    if (
+      areSameSpellSelections(
+        draft.spellIds,
+        draft.preparedSpellIds,
+        nextStarterSpellSelection.spellIds,
+        nextStarterSpellSelection.preparedSpellIds,
+      )
+    ) {
+      setMessage(`${selectedClass.name} starter spells are already represented in the draft.`);
+      return;
+    }
+
+    setDraft((current) => ({
+      ...current,
+      spellIds: nextStarterSpellSelection.spellIds,
+      preparedSpellIds: nextStarterSpellSelection.preparedSpellIds,
+    }));
+    setMessage(
+      `Applied ${selectedClass.name} starter spells: ${nextStarterSpellSelection.spellIds.length} selected, ${nextStarterSpellSelection.preparedSpellIds.length} marked ready.`,
+    );
   }
 
   function updateDraftVital(key: "currentHitPoints" | "tempHitPoints" | "hitDiceSpent", value: number) {
@@ -774,25 +1158,23 @@ export function CharactersPage() {
     );
   }
 
-  function toggleInventoryEquipped(itemId: string) {
+  function setInventoryEquipped(itemId: string, equipped: boolean) {
     applyInventoryUpdate((currentInventory) => {
       const targetItem = currentInventory.find((item) => item.id === itemId);
 
-      if (!targetItem || !isInventoryItemEquipable(targetItem)) {
+      if (!targetItem || !isInventoryItemEquipable(targetItem) || targetItem.equipped === equipped) {
         return currentInventory;
       }
-
-      const nextEquipped = !targetItem.equipped;
 
       return currentInventory.map((item) => {
         if (item.id === itemId) {
           return {
             ...item,
-            equipped: nextEquipped,
+            equipped,
           };
         }
 
-        if (nextEquipped && targetItem.templateType === "armor" && item.templateType === "armor") {
+        if (equipped && targetItem.templateType === "armor" && item.templateType === "armor") {
           return {
             ...item,
             equipped: false,
@@ -802,6 +1184,29 @@ export function CharactersPage() {
         return item;
       });
     });
+  }
+
+  function toggleInventoryEquipped(itemId: string) {
+    const currentItem = draftInventory.find((item) => item.id === itemId);
+
+    if (!currentItem) {
+      return;
+    }
+
+    setInventoryEquipped(itemId, !currentItem.equipped);
+  }
+
+  function useUnarmoredLoadout() {
+    applyInventoryUpdate((currentInventory) =>
+      currentInventory.map((item) =>
+        item.templateType === "armor"
+          ? {
+              ...item,
+              equipped: false,
+            }
+          : item,
+      ),
+    );
   }
 
   function removeInventoryItem(itemId: string) {
@@ -884,6 +1289,20 @@ export function CharactersPage() {
     void openReference(slug).catch((error: unknown) => {
       setReferenceStatus(error instanceof Error ? error.message : "Failed to open reference.");
     });
+  }
+
+  function openFullCompendiumView() {
+    if (!referenceEntry) {
+      return;
+    }
+
+    const handoffState: CompendiumHandoffState = {
+      returnTo: `${location.pathname}${location.search}`,
+      returnLabel: "Back to Builder",
+      originLabel: selectedCharacter ? `${selectedCharacter.name} Builder` : "Character Builder",
+    };
+
+    navigate(buildCompendiumEntryPath(referenceEntry), { state: handoffState });
   }
 
   async function handleSave() {
@@ -1113,8 +1532,70 @@ export function CharactersPage() {
         </div>
 
         <div className="stack-md">
-          <div>
+          <div className="detail-card">
+            <div className="detail-card__header">
+              <strong>Quick Start Setup</strong>
+              <span>{selectedClass.name} + {selectedBackground.name}</span>
+            </div>
+            <p className="muted-copy">
+              {classStarterSpellEntries.length > 0
+                ? "Apply the current class standard array, the current class's app-authored starter skills, the current background's suggested skills, any seeded starting gear, and the current class's app-authored starter spell package in one bounded onboarding step."
+                : "Apply the current class standard array, the current class's app-authored starter skills, the current background's suggested skills, and any seeded starting gear in one bounded onboarding step."}
+            </p>
+            <div className="filter-row">
+              <span className="chip chip--active">{classStandardAbilitySummary}</span>
+              {classStarterSkills.map((skill) => (
+                <span
+                  key={`quick-start-class-skill-${skill}`}
+                  className="chip"
+                >
+                  {humanizeLabel(skill)}
+                </span>
+              ))}
+              {backgroundSuggestedSkills.map((skill) => (
+                <span
+                  key={`quick-start-skill-${skill}`}
+                  className="chip"
+                >
+                  {humanizeLabel(skill)}
+                </span>
+              ))}
+              {backgroundStartingInventory.length > 0 ? (
+                <span className="chip">{backgroundStartingInventory.length} gear item{backgroundStartingInventory.length === 1 ? "" : "s"}</span>
+              ) : null}
+              {classStarterSpellEntries.length > 0 ? (
+                <span className="chip">
+                  {classStarterCantripEntries.length} cantrips / {classStarterLeveledEntries.length} leveled starter spells
+                </span>
+              ) : null}
+            </div>
+            <div className="action-row">
+              <button
+                className="action-button action-button--secondary"
+                disabled={quickStartSetupApplied}
+                onClick={applyQuickStartSetup}
+                type="button"
+              >
+                Apply {selectedClass.name} + {selectedBackground.name} Quick Start
+              </button>
+            </div>
+          </div>
+
+          <div className="stack-sm">
             <h3 className="subheading">Ability Scores</h3>
+            <div className="action-row">
+              <button
+                className="action-button action-button--secondary"
+                disabled={classStandardArrayApplied}
+                onClick={applyClassStandardArray}
+                type="button"
+              >
+                Apply {selectedClass.name} Standard Array
+              </button>
+            </div>
+            <p className="muted-copy">
+              Quick-start class recommendation using the standard `15 / 14 / 13 / 12 / 10 / 8` spread: {classStandardAbilitySummary}.
+            </p>
             <div className="ability-editor">
               {ABILITY_NAMES.map((ability) => (
                 <label key={ability}>
@@ -1133,6 +1614,19 @@ export function CharactersPage() {
 
           <div>
             <h3 className="subheading">Skill Proficiencies</h3>
+            <div className="action-row">
+              <button
+                className="action-button action-button--secondary"
+                disabled={classStarterSkillsApplied}
+                onClick={applyClassStarterSkills}
+                type="button"
+              >
+                Apply {selectedClass.name} Starter Skills
+              </button>
+            </div>
+            <p className="muted-copy">
+              App-authored class skill recommendation: {classStarterSkills.map((skill) => humanizeLabel(skill)).join(", ")}.
+            </p>
             <div className="skill-editor">
               {SKILL_NAMES.map((skill) => (
                 <label key={skill}>
@@ -1397,53 +1891,15 @@ export function CharactersPage() {
                   <strong>Add Equipment</strong>
                   <span>{inventoryEntries.length} tracked</span>
                 </div>
-                <div className="stack-sm">
-                  <div>
-                    <h3 className="subheading">Armor</h3>
-                    <div className="filter-row">
-                      {availableArmor.map((armor) => (
-                        <button
-                          key={armor.id}
-                          className="chip"
-                          onClick={() => addInventoryItem("armor", armor.id)}
-                          type="button"
-                        >
-                          {armor.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="subheading">Weapons</h3>
-                    <div className="filter-row">
-                      {availableWeapons.map((weapon) => (
-                        <button
-                          key={weapon.id}
-                          className="chip"
-                          onClick={() => addInventoryItem("weapon", weapon.id)}
-                          type="button"
-                        >
-                          {weapon.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="subheading">Gear</h3>
-                    <div className="filter-row">
-                      {availableGear.map((gear) => (
-                        <button
-                          key={gear.id}
-                          className="chip"
-                          onClick={() => addInventoryItem("gear", gear.id)}
-                          type="button"
-                        >
-                          {gear.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <EquipmentSelectionBrowser
+                  emptyMessage="No equipment is available in the current source set."
+                  entries={equipmentBrowseEntries}
+                  onAddItem={addInventoryItem}
+                  onOpenReference={openReferenceSafe}
+                  scopeKey={`equipment:${draft.enabledSourceIds.join("|")}`}
+                  title="Available Equipment"
+                  trackedStateByKey={trackedEquipmentStateByKey}
+                />
               </div>
 
               <div className="detail-card">
@@ -1458,67 +1914,28 @@ export function CharactersPage() {
                   <span className="chip">{inventoryLoadout.shieldEquipped ? "Shield ready" : "No shield"}</span>
                   <span className="chip">{inventoryLoadout.weaponIds.length} equipped weapons</span>
                 </div>
-                <div className="inventory-list">
-                  {inventoryEntries.length === 0 ? <p className="muted-copy">No tracked inventory yet.</p> : null}
-                  {inventoryEntries.map((entry) => {
-                    const rawInventoryEntry = draftInventoryById.get(entry.id);
-
-                    return (
-                      <div
-                        key={entry.id}
-                        className="inventory-item"
-                      >
-                        <div>
-                          <strong>{entry.name}</strong>
-                          {entry.notes ? <p className="muted-copy">{entry.notes}</p> : null}
-                        </div>
-                        <div className="inventory-actions">
-                          <input
-                            className="inventory-qty-input"
-                            min={1}
-                            onChange={(event) => updateInventoryQuantity(entry.id, Number(event.target.value))}
-                            type="number"
-                            value={entry.quantity}
-                          />
-                          {rawInventoryEntry && isInventoryItemEquipable(rawInventoryEntry) ? (
-                            <button
-                              className="inline-link-button"
-                              onClick={() => toggleInventoryEquipped(entry.id)}
-                              type="button"
-                            >
-                              {entry.equipped ? "Unequip" : "Equip"}
-                            </button>
-                          ) : null}
-                          {entry.referenceSlug ? (
-                            <button
-                              className="inline-link-button"
-                              onClick={() => {
-                                if (entry.referenceSlug) {
-                                  openReferenceSafe(entry.referenceSlug);
-                                }
-                              }}
-                              type="button"
-                            >
-                              Ref
-                            </button>
-                          ) : null}
-                          <button
-                            className="inline-link-button"
-                            onClick={() => removeInventoryItem(entry.id)}
-                            type="button"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                <LoadoutManagerCard
+                  armorEntries={loadoutArmorEntries}
+                  onOpenReference={openReferenceSafe}
+                  onSetEquipped={setInventoryEquipped}
+                  onUseUnarmored={useUnarmoredLoadout}
+                  shieldEntries={loadoutShieldEntries}
+                  weaponEntries={loadoutWeaponEntries}
+                />
+                <InventoryManagerBrowser
+                  emptyMessage="No tracked inventory yet."
+                  entries={inventoryBrowseEntries}
+                  onOpenReference={openReferenceSafe}
+                  onRemoveItem={removeInventoryItem}
+                  onToggleEquipped={toggleInventoryEquipped}
+                  onUpdateQuantity={updateInventoryQuantity}
+                  scopeKey={`inventory:${selectedCharacter?.id ?? "new"}:${draft.enabledSourceIds.join("|")}`}
+                />
               </div>
             </div>
 
             <div className="checkbox-grid">
-              <div>
+              <div className="checkbox-grid__panel checkbox-grid__panel--wide">
                 <h3 className="subheading">Spells</h3>
                 <div className="detail-card">
                   <div className="detail-card__header">
@@ -1537,6 +1954,37 @@ export function CharactersPage() {
                     <span className="chip">{derived.spellcasting.preparedSpells.length} ready</span>
                   </div>
                 </div>
+                {classStarterSpellEntries.length > 0 ? (
+                  <div className="detail-card">
+                    <div className="detail-card__header">
+                      <strong>Starter Spell Recommendation</strong>
+                      <span>{classStarterSpellEntries.length} seeded picks</span>
+                    </div>
+                    <p className="muted-copy">
+                      App-authored quick-start picks for the seeded {selectedClass.name.toLowerCase()} list. Apply them as a bounded starting point, then adjust the spellbook manually.
+                    </p>
+                    <div className="filter-row">
+                      {classStarterSpellEntries.map((spell) => (
+                        <span
+                          key={`starter-spell-${spell.slug}`}
+                          className={`chip ${draft.spellIds.includes(spell.slug) ? "chip--active" : ""}`}
+                        >
+                          {spell.name}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="action-row">
+                      <button
+                        className="action-button action-button--secondary"
+                        disabled={classStarterSpellsApplied}
+                        onClick={applyClassStarterSpells}
+                        type="button"
+                      >
+                        Apply {selectedClass.name} Starter Spells
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
                 {derived.spellcasting.slotMode !== "none" ? (
                   <div className="detail-card">
                     <div className="detail-card__header">
@@ -1622,102 +2070,28 @@ export function CharactersPage() {
                     </div>
                   </div>
                 ) : null}
-                {classSpellOptions.filter((spell) => readSpellLevel(spell) === 0).map((spell) => (
-                  <div
-                    key={spell.slug}
-                    className="choice-row"
-                  >
-                    <label className="checkbox-field">
-                      <input
-                        checked={draft.spellIds.includes(spell.slug)}
-                        onChange={() => toggleSpell(spell.slug)}
-                        type="checkbox"
-                      />
-                      <span>{spell.name}</span>
-                    </label>
-                    <button
-                      className="inline-link-button"
-                      onClick={() => openReferenceSafe(spell.slug)}
-                      type="button"
-                    >
-                      Ref
-                    </button>
-                  </div>
-                ))}
-                {magicInitiateSelected && draft.bonusSpellClassId
-                  ? magicInitiateSpellOptions
-                      .filter((spell) => readSpellLevel(spell) === 0)
-                      .map((spell) => (
-                        <div
-                          key={`magic-initiate-${spell.slug}`}
-                          className="choice-row"
-                        >
-                          <label className="checkbox-field">
-                            <input
-                              checked={draft.bonusSpellIds.includes(spell.slug)}
-                              onChange={() => toggleMagicInitiateSpell(spell.slug)}
-                              type="checkbox"
-                            />
-                            <span>{spell.name} (Magic Initiate)</span>
-                          </label>
-                          <button
-                            className="inline-link-button"
-                            onClick={() => openReferenceSafe(spell.slug)}
-                            type="button"
-                          >
-                            Ref
-                          </button>
-                        </div>
-                      ))
-                  : null}
-                {classSpellOptions.filter((spell) => readSpellLevel(spell) > 0).map((spell) => (
-                  <div
-                    key={spell.slug}
-                    className="choice-row"
-                  >
-                    <label className="checkbox-field">
-                      <input
-                        checked={draft.spellIds.includes(spell.slug)}
-                        onChange={() => toggleSpell(spell.slug)}
-                        type="checkbox"
-                      />
-                      <span>{spell.name}</span>
-                    </label>
-                    <button
-                      className="inline-link-button"
-                      onClick={() => openReferenceSafe(spell.slug)}
-                      type="button"
-                    >
-                      Ref
-                    </button>
-                  </div>
-                ))}
-                {magicInitiateSelected && draft.bonusSpellClassId
-                  ? magicInitiateSpellOptions
-                      .filter((spell) => readSpellLevel(spell) > 0)
-                      .map((spell) => (
-                        <div
-                          key={`magic-initiate-${spell.slug}`}
-                          className="choice-row"
-                        >
-                          <label className="checkbox-field">
-                            <input
-                              checked={draft.bonusSpellIds.includes(spell.slug)}
-                              onChange={() => toggleMagicInitiateSpell(spell.slug)}
-                              type="checkbox"
-                            />
-                            <span>{spell.name} (Magic Initiate)</span>
-                          </label>
-                          <button
-                            className="inline-link-button"
-                            onClick={() => openReferenceSafe(spell.slug)}
-                            type="button"
-                          >
-                            Ref
-                          </button>
-                        </div>
-                      ))
-                  : null}
+                <SpellSelectionBrowser
+                  emptyMessage={spellbookMessage}
+                  entries={classSpellOptions}
+                  onOpenReference={openReferenceSafe}
+                  onTogglePreparedSpell={togglePreparedSpell}
+                  onToggleSpell={toggleSpell}
+                  preparedSpellIds={draft.preparedSpellIds}
+                  scopeKey={`${draft.classId}:${draft.enabledSourceIds.join("|")}`}
+                  selectedSpellIds={draft.spellIds}
+                  title={`${selectedClass.name} Spell List`}
+                />
+                {magicInitiateSelected && draft.bonusSpellClassId ? (
+                  <SpellSelectionBrowser
+                    emptyMessage={magicInitiateMessage}
+                    entries={magicInitiateSpellOptions}
+                    onOpenReference={openReferenceSafe}
+                    onToggleSpell={toggleMagicInitiateSpell}
+                    scopeKey={`magic-initiate:${draft.bonusSpellClassId}:${draft.enabledSourceIds.join("|")}`}
+                    selectedSpellIds={draft.bonusSpellIds}
+                    title={`${selectedMagicInitiateClass?.name ?? "Magic Initiate"} Spell List`}
+                  />
+                ) : null}
               </div>
               <div>
                 <h3 className="subheading">Feats</h3>
@@ -1749,123 +2123,30 @@ export function CharactersPage() {
                 {selectedConfigurableFeats.map((feat) => {
                   const selectedChoices = draftFeatState.featSelections[feat.id] ?? [];
 
-                  if (!feat.choiceGroups || feat.choiceGroups.length === 0) {
-                    return null;
-                  }
-
                   return (
-                    <div
+                    <FeatChoiceBrowser
+                      classId={draft.classId}
+                      feat={feat}
+                      featSelections={draftFeatState.featSelections}
                       key={`${feat.id}-choices`}
-                      className="detail-card"
-                    >
-                      <div className="detail-card__header">
-                        <div>
-                          <strong>{feat.name} Choices</strong>
-                          <span className="muted-copy">
-                            {getFeatSupportLabel(feat.supportLevel)} support
-                          </span>
-                        </div>
-                        <span>{selectedChoices.length} chosen</span>
-                      </div>
-                      {feat.automationStatus ? <p className="muted-copy">{feat.automationStatus}</p> : null}
-                      <div className="stack-sm">
-                        {feat.choiceGroups.map((choiceGroup) => {
-                          const groupChoices = selectedChoices.filter((optionId) => choiceGroup.options.includes(optionId));
-                          const availableOptions = new Set(
-                            listAvailableFeatChoiceOptions(feat.id, choiceGroup.id, {
-                              classId: draft.classId,
-                              skillProficiencies: draft.skillProficiencies,
-                              featSelections: draftFeatState.featSelections,
-                            }),
-                          );
-                          const visibleOptions = choiceGroup.options.filter(
-                            (optionId) => groupChoices.includes(optionId) || availableOptions.has(optionId),
-                          );
-
-                          return (
-                            <div
-                              key={`${feat.id}-${choiceGroup.id}`}
-                              className="stack-sm"
-                            >
-                              <p className="muted-copy">
-                                {choiceGroup.label}: {choiceGroup.description}
-                              </p>
-                              <div className="filter-row">
-                                {groupChoices.length > 0 ? (
-                                  groupChoices.map((optionId) => (
-                                    <span
-                                      key={`${feat.id}-${choiceGroup.id}-${optionId}`}
-                                      className="chip chip--active"
-                                    >
-                                      {getFeatChoiceLabel(feat.id, optionId)}
-                                    </span>
-                                  ))
-                                ) : (
-                                  <span className="chip">No choices selected</span>
-                                )}
-                              </div>
-                              {visibleOptions.length === 0 ? (
-                                <p className="muted-copy">No eligible options right now.</p>
-                              ) : null}
-                              <div className="stack-sm">
-                                {visibleOptions.map((optionId) => (
-                                  <div
-                                    key={`${feat.id}-${choiceGroup.id}-${optionId}-toggle`}
-                                    className="choice-row"
-                                  >
-                                    <label className="checkbox-field">
-                                      <input
-                                        checked={selectedChoices.includes(optionId)}
-                                        disabled={!selectedChoices.includes(optionId) && !availableOptions.has(optionId)}
-                                        onChange={() => toggleFeatSelection(feat.id, optionId)}
-                                        type="checkbox"
-                                      />
-                                      <span>{getFeatChoiceLabel(feat.id, optionId)}</span>
-                                    </label>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
+                      onOpenReference={openReferenceSafe}
+                      onToggleChoice={toggleFeatSelection}
+                      scopeKey={`feat-choice:${feat.id}:${featBrowseScopeKey}`}
+                      selectedChoices={selectedChoices}
+                      skillProficiencies={draft.skillProficiencies}
+                    />
                   );
                 })}
-                {availableFeats.map((feat) => (
-                  <div
-                    key={feat.slug}
-                    className="stack-sm"
-                  >
-                    <div className="choice-row">
-                      <label className="checkbox-field">
-                        <input
-                          checked={draft.featIds.includes(feat.slug)}
-                          disabled={!draft.featIds.includes(feat.slug) && !featAvailabilityById.get(feat.slug)?.selectable}
-                          onChange={() => toggleArrayEntry("featIds", feat.slug)}
-                          type="checkbox"
-                        />
-                        <span>{feat.name}</span>
-                      </label>
-                      <button
-                        className="inline-link-button"
-                        onClick={() => openReferenceSafe(feat.slug)}
-                        type="button"
-                      >
-                        Ref
-                      </button>
-                    </div>
-                    {getFeatTemplate(feat.slug)?.automationStatus ? (
-                      <p className="muted-copy">
-                        {getFeatSupportLabel(getFeatTemplate(feat.slug)?.supportLevel ?? "reference")} support:{" "}
-                        {getFeatTemplate(feat.slug)?.automationStatus}
-                      </p>
-                    ) : null}
-                    {featAvailabilityById.get(feat.slug)?.constraintMessage && !draft.featIds.includes(feat.slug) ? (
-                      <p className="muted-copy">{featAvailabilityById.get(feat.slug)?.constraintMessage}</p>
-                    ) : null}
-                  </div>
-                ))}
+                <FeatSelectionBrowser
+                  availabilityById={featAvailabilityById}
+                  emptyMessage="No feats are available in the current source set."
+                  entries={availableFeats}
+                  onOpenReference={openReferenceSafe}
+                  onToggleFeat={(featId) => toggleArrayEntry("featIds", featId)}
+                  scopeKey={featBrowseScopeKey}
+                  selectedFeatIds={draft.featIds}
+                  title="Available Feats"
+                />
               </div>
               <div>
                 <h3 className="subheading">Applied Homebrew</h3>
@@ -1887,7 +2168,9 @@ export function CharactersPage() {
               <div>
                 <h3 className="subheading">Prepared / Ready Spells</h3>
                 <div className="detail-card">
-                  <p className="muted-copy">Cantrips are always available. Mark leveled spells you want surfaced as ready.</p>
+                  <p className="muted-copy">
+                    Cantrips are always available. Mark leveled spells you want surfaced as ready here or directly from the spell browser.
+                  </p>
                 </div>
                 {selectedLeveledEntries.length === 0 && selectedMagicInitiateLeveled.length === 0 ? (
                   <p className="muted-copy">Select at least one leveled spell first.</p>
@@ -2059,7 +2342,7 @@ export function CharactersPage() {
             referenceEntry ? (
               <button
                 className="action-button action-button--secondary"
-                onClick={() => navigate(`/compendium?slug=${referenceEntry.slug}`)}
+                onClick={openFullCompendiumView}
                 type="button"
               >
                 Open Full Compendium View

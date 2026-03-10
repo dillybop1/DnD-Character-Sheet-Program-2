@@ -50,7 +50,7 @@ export type FeatChoiceKind = "skill" | "ability" | "expertise";
 export type FeatSupportLevel = "derived" | "partial" | "reference";
 export type SpellAttackType = "spellAttack" | "save";
 export type TrackedResourceDisplay = "checkboxes" | "counter";
-export type TrackedResourceRecovery = "manual" | "shortRest" | "longRest";
+export type TrackedResourceRecovery = "manual" | "shortRest" | "longRest" | "shortRestOne";
 export type ContentSourceId = string;
 export type ContentSourceKind = "core" | "sourcebook" | "setting" | "campaign";
 export type ContentSourceAvailability = "installed" | "planned";
@@ -143,6 +143,9 @@ export interface ClassTemplate {
   saveProficiencies: AbilityName[];
   spellcastingAbility: AbilityName | null;
   casterType: CasterType;
+  standardAbilityOrder: AbilityName[];
+  starterSkillIds: SkillName[];
+  starterSpellIds: string[];
   featureSummary: string[];
 }
 

@@ -1,11 +1,155 @@
 import { calculateDerivedState } from "../../shared/calculations";
+import { listCompendiumSpells } from "../../shared/data/compendiumSeed";
 import { DEFAULT_ENABLED_SOURCE_IDS, resolveEnabledSourceIds } from "../../shared/data/contentSources";
-import { sanitizeFeatState } from "../../shared/data/reference";
+import { getClassTemplate, sanitizeFeatState } from "../../shared/data/reference";
 import { buildCharacterFromInput } from "../../shared/factories";
 import { createInventoryItem, deriveLegacyLoadout, normalizeInventory } from "../../shared/inventory";
 import { createDefaultSheetProfile, normalizeSheetProfile, normalizeTrackedResources } from "../../shared/sheetTracking";
 import { normalizePactSlotsRemaining, normalizeSpellSlotsRemaining } from "../../shared/spellSlots";
-import type { BuilderInput, CharacterRecord, HomebrewEntry } from "../../shared/types";
+import { ABILITY_NAMES } from "../../shared/types";
+import type {
+  AbilityName,
+  AbilityScores,
+  BuilderInput,
+  CharacterRecord,
+  ContentSourceId,
+  HomebrewEntry,
+  ProficiencyLevel,
+  SkillName,
+} from "../../shared/types";
+
+export const STANDARD_ABILITY_ARRAY = [15, 14, 13, 12, 10, 8] as const;
+export interface ClassStarterSpellSelection {
+  spellIds: string[];
+  preparedSpellIds: string[];
+}
+
+function createEmptyAbilityScores(): AbilityScores {
+  return {
+    strength: 0,
+    dexterity: 0,
+    constitution: 0,
+    intelligence: 0,
+    wisdom: 0,
+    charisma: 0,
+  };
+}
+
+export function areSameAbilityScores(left: AbilityScores, right: AbilityScores) {
+  return ABILITY_NAMES.every((ability) => left[ability] === right[ability]);
+}
+
+export function buildStandardAbilityScores(order: AbilityName[]): AbilityScores {
+  const normalizedOrder = Array.from(new Set([...order, ...ABILITY_NAMES])).slice(0, ABILITY_NAMES.length);
+  const abilityScores = createEmptyAbilityScores();
+
+  normalizedOrder.forEach((ability, index) => {
+    abilityScores[ability] = STANDARD_ABILITY_ARRAY[index] ?? STANDARD_ABILITY_ARRAY[STANDARD_ABILITY_ARRAY.length - 1];
+  });
+
+  return abilityScores;
+}
+
+export function buildClassStandardAbilityScores(classId: string) {
+  return buildStandardAbilityScores(getClassTemplate(classId).standardAbilityOrder);
+}
+
+function readSpellLevel(payload: Record<string, unknown>) {
+  return typeof payload.level === "number" ? payload.level : 0;
+}
+
+function normalizeUniqueStringSet(values: string[]) {
+  return Array.from(new Set(values)).sort();
+}
+
+function normalizeSkillProficiencyEntries(
+  values: Partial<Record<SkillName, ProficiencyLevel>>,
+) {
+  return Object.entries(values)
+    .filter(([, level]) => level && level !== "none")
+    .sort(([leftSkill], [rightSkill]) => leftSkill.localeCompare(rightSkill));
+}
+
+export function areSameSkillProficiencies(
+  left: Partial<Record<SkillName, ProficiencyLevel>>,
+  right: Partial<Record<SkillName, ProficiencyLevel>>,
+) {
+  const normalizedLeft = normalizeSkillProficiencyEntries(left);
+  const normalizedRight = normalizeSkillProficiencyEntries(right);
+
+  return (
+    normalizedLeft.length === normalizedRight.length &&
+    normalizedLeft.every(
+      ([leftSkill, leftLevel], index) =>
+        leftSkill === normalizedRight[index]?.[0] && leftLevel === normalizedRight[index]?.[1],
+    )
+  );
+}
+
+export function mergeSuggestedSkillProficiencies(
+  current: Partial<Record<SkillName, ProficiencyLevel>>,
+  suggestedSkills: SkillName[],
+) {
+  return {
+    ...current,
+    ...Object.fromEntries(
+      suggestedSkills.map((skill) => [skill, current[skill] === "expertise" ? "expertise" : "proficient"]),
+    ),
+  } as Partial<Record<SkillName, ProficiencyLevel>>;
+}
+
+export function areSameSpellSelections(
+  leftSpellIds: string[],
+  leftPreparedSpellIds: string[],
+  rightSpellIds: string[],
+  rightPreparedSpellIds: string[],
+) {
+  const normalizedLeftSpellIds = normalizeUniqueStringSet(leftSpellIds);
+  const normalizedRightSpellIds = normalizeUniqueStringSet(rightSpellIds);
+  const normalizedLeftPreparedSpellIds = normalizeUniqueStringSet(leftPreparedSpellIds);
+  const normalizedRightPreparedSpellIds = normalizeUniqueStringSet(rightPreparedSpellIds);
+
+  return (
+    normalizedLeftSpellIds.length === normalizedRightSpellIds.length &&
+    normalizedLeftSpellIds.every((spellId, index) => spellId === normalizedRightSpellIds[index]) &&
+    normalizedLeftPreparedSpellIds.length === normalizedRightPreparedSpellIds.length &&
+    normalizedLeftPreparedSpellIds.every((spellId, index) => spellId === normalizedRightPreparedSpellIds[index])
+  );
+}
+
+export function buildClassStarterSpellSelection(
+  classId: string,
+  enabledSourceIds: ContentSourceId[],
+): ClassStarterSpellSelection {
+  const classTemplate = getClassTemplate(classId);
+
+  if (classTemplate.spellcastingAbility === null || classTemplate.starterSpellIds.length === 0) {
+    return {
+      spellIds: [],
+      preparedSpellIds: [],
+    };
+  }
+
+  const availableSpellsById = new Map(
+    listCompendiumSpells(enabledSourceIds, classTemplate.name).map((entry) => [entry.slug, entry] as const),
+  );
+  const spellIds = classTemplate.starterSpellIds.filter((spellId) => availableSpellsById.has(spellId));
+  const preparedSpellIds = spellIds.filter((spellId) => {
+    const entry = availableSpellsById.get(spellId);
+    return entry ? readSpellLevel(entry.payload) > 0 : false;
+  });
+
+  return {
+    spellIds,
+    preparedSpellIds,
+  };
+}
+
+export function buildClassStarterSkillProficiencies(classId: string) {
+  return Object.fromEntries(
+    getClassTemplate(classId).starterSkillIds.map((skill) => [skill, "proficient"]),
+  ) as Partial<Record<SkillName, ProficiencyLevel>>;
+}
 
 function clampNonNegative(value: number) {
   return Math.max(0, Math.floor(Number.isFinite(value) ? value : 0));
@@ -43,18 +187,8 @@ export function createDefaultBuilderInput(): BuilderInput {
     speciesId: "human",
     backgroundId: "soldier",
     level: 1,
-    abilities: {
-      strength: 15,
-      dexterity: 12,
-      constitution: 14,
-      intelligence: 10,
-      wisdom: 10,
-      charisma: 8,
-    },
-    skillProficiencies: {
-      athletics: "proficient",
-      perception: "proficient",
-    },
+    abilities: buildClassStandardAbilityScores("fighter"),
+    skillProficiencies: buildClassStarterSkillProficiencies("fighter"),
     inventory,
     armorId: legacyLoadout.armorId,
     shieldEquipped: legacyLoadout.shieldEquipped,

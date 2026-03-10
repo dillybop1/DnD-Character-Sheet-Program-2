@@ -27,7 +27,7 @@ This repo treats user-facing rules/reference prose as one of two things:
 ## Current State
 
 - Compact browse summaries remain allowed to be non-verbatim, but they must stay documented.
-- The current SRD 5.2.1 joined creature descriptions and `107` current spell-pack description files now use exact open official wording and are marked `verbatim` in the pack audit.
+- The current SRD 5.2.1 joined creature descriptions and `216` current spell-pack description files now use exact open official wording and are marked `verbatim` in the pack audit.
 - `thorn-whip` remains a documented spell-pack exception as of `2026-03-09` because the verified official D&D Beyond Free Rules spell-description page did not expose a matching open description block for that spell.
 - A bounded starter set of seeded `armor`, `weapon`, and `gear` entries now also carries exact open SRD wording through separate `officialText` payload fields instead of replacing the existing browse summaries.
 - A bounded seeded `rule` glossary slice now also carries exact open SRD wording through separate `officialText` payload fields, again without replacing the current browse-summary layer.

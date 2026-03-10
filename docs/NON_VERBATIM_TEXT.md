@@ -4,9 +4,9 @@ This file records shipped user-facing rules/reference prose that is not exact so
 
 ## Repo-Managed Pack Content
 
-- [content/packs/srd-5.2.1/spells.json](../content/packs/srd-5.2.1/spells.json): `summary` and short `effect` prose are app-authored browse copy and are not exact SRD quotations. `107` current spell-pack entries now have joined `descriptionKey` files marked `verbatim`, but `thorn-whip` still has no verified joined exact-description source in the open D&D Beyond Free Rules spell page and therefore still falls back to this non-verbatim browse/support copy.
+- [content/packs/srd-5.2.1/spells.json](../content/packs/srd-5.2.1/spells.json): `summary` and short `effect` prose are app-authored browse copy and are not exact SRD quotations. `216` current spell-pack entries now have joined `descriptionKey` files marked `verbatim`, but `thorn-whip` still has no verified joined exact-description source in the open D&D Beyond Free Rules spell page and therefore still falls back to this non-verbatim browse/support copy.
 - [content/packs/srd-5.2.1/creatures.json](../content/packs/srd-5.2.1/creatures.json): `summary`, `features`, and `actions` prose are app-authored browse copy and are not exact SRD/stat-block quotations.
-- [content/packs/srd-5.2.1/textAudit.json](../content/packs/srd-5.2.1/textAudit.json): the field defaults above remain marked `non-verbatim`, while the current `107` spell and `6` creature joined `descriptionKey` files are marked `verbatim` and therefore are not part of this inventory.
+- [content/packs/srd-5.2.1/textAudit.json](../content/packs/srd-5.2.1/textAudit.json): the field defaults above remain marked `non-verbatim`, while the current `216` spell and `6` creature joined `descriptionKey` files are marked `verbatim` and therefore are not part of this inventory.
 
 ## Shared Seeded Reference Text
 

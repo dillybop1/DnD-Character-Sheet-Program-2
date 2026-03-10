@@ -566,6 +566,551 @@
         "mode": "verbatim",
         "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
         "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "commune": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "commune-with-nature": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "contact-other-plane": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "dispel-evil-and-good": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "dominate-person": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "geas": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "legend-lore": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "planar-binding": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "rarys-telepathic-bond": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "tree-stride": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "animate-objects": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "cloudkill": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "conjure-elemental": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "contagion": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "dream": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "flame-strike": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "insect-plague": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "mislead": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "seeming": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "telekinesis": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "antilife-shell": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "awaken": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "creation": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "hallow": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "modify-memory": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "passwall": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "reincarnate": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "summon-dragon": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "blade-barrier": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "chain-lightning": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "disintegrate": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "globe-of-invulnerability": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "heal": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "heroes-feast": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "mass-suggestion": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "sunbeam": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "true-seeing": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "wall-of-ice": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "eyebite": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "find-the-path": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "flesh-to-stone": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "forbiddance": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "harm": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "move-earth": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "transport-via-plants": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "wall-of-thorns": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "wind-walk": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "word-of-recall": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "circle-of-death": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "conjure-fey": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "contingency": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "create-undead": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "guards-and-wards": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "magic-jar": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "planar-ally": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "programmed-illusion": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "delayed-blast-fireball": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "etherealness": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "finger-of-death": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "fire-storm": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "forcecage": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "plane-shift": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "regenerate": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "resurrection": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "reverse-gravity": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "teleport": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "conjure-celestial": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "divine-word": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "mirage-arcane": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "mordenkainens-magnificent-mansion": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "mordenkainens-sword": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "prismatic-spray": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "project-image": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "sequester": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "simulacrum": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "symbol": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "animal-shapes": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "antimagic-field": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "control-weather": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "dominate-monster": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "earthquake": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "holy-aura": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "incendiary-cloud": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "maze": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "power-word-stun": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "sunburst": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "antipathy-sympathy": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "befuddlement": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "clone": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "demiplane": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "glibness": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "mind-blank": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "tsunami": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "astral-projection": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "foresight": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "gate": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "imprisonment": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "mass-heal": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "meteor-swarm": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "power-word-heal": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "power-word-kill": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "prismatic-wall": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "shapechange": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "storm-of-vengeance": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "time-stop": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "true-polymorph": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "true-resurrection": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "weird": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
+      },
+      "wish": {
+        "mode": "verbatim",
+        "source": "Official D&D Beyond Basic Rules spell descriptions / open rules text",
+        "notes": "Joined spell text matches the official D&D Beyond Basic Rules spell description wording for this open spell entry."
       }
     },
     "creatures": {

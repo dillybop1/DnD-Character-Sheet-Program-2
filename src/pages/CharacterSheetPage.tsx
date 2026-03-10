@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { calculateDerivedState } from "../../shared/calculations";
 import {
   getBackgroundTemplate,
@@ -14,6 +14,7 @@ import { LockedSheetViewport } from "../components/LockedSheetViewport";
 import { SavedSheetBook } from "../components/SavedSheetBook";
 import { SectionCard } from "../components/SectionCard";
 import { dndApi } from "../lib/api";
+import { buildCompendiumEntryPath, type CompendiumHandoffState } from "../lib/compendiumNavigation";
 import { formatSavedSheetSpellSlotSummary } from "../lib/savedSheetBook";
 
 function formatTimestamp(value: string) {
@@ -27,6 +28,7 @@ function formatTimestamp(value: string) {
 }
 
 export function CharacterSheetPage() {
+  const location = useLocation();
   const navigate = useNavigate();
   const { characterId } = useParams();
   const [character, setCharacter] = useState<CharacterRecord | null>(null);
@@ -100,6 +102,20 @@ export function CharacterSheetPage() {
     void openReference(slug).catch((error: unknown) => {
       setReferenceStatus(error instanceof Error ? error.message : "Failed to open reference.");
     });
+  }
+
+  function openFullCompendiumView() {
+    if (!referenceEntry) {
+      return;
+    }
+
+    const handoffState: CompendiumHandoffState = {
+      returnTo: `${location.pathname}${location.search}`,
+      returnLabel: "Back to Sheet",
+      originLabel: character ? `${character.name} Sheet` : "Saved Sheet",
+    };
+
+    navigate(buildCompendiumEntryPath(referenceEntry), { state: handoffState });
   }
 
   async function handleExport(kind: "exportJson" | "exportPdf") {
@@ -454,7 +470,7 @@ export function CharacterSheetPage() {
             referenceEntry ? (
               <button
                 className="action-button action-button--secondary"
-                onClick={() => navigate(`/compendium?slug=${referenceEntry.slug}`)}
+                onClick={openFullCompendiumView}
                 type="button"
               >
                 Open Full Compendium View

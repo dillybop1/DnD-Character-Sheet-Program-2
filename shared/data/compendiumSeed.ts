@@ -1012,15 +1012,17 @@ export function searchCompendiumSeed(input: SearchInput) {
     .filter(Boolean);
 
   if (terms.length === 0) {
-    return filteredEntries.slice(0, 50);
+    return input.type ? filteredEntries : filteredEntries.slice(0, 50);
   }
 
-  return filteredEntries
+  const matchingEntries = filteredEntries
     .filter((entry) => {
       const haystack = `${entry.name} ${entry.summary} ${entry.searchText}`.toLowerCase();
       return terms.every((term) => haystack.includes(term));
     })
-    .slice(0, 50);
+    ;
+
+  return input.type ? matchingEntries : matchingEntries.slice(0, 50);
 }
 
 export function spellRecordFromCompendium(slug: string): SpellRecord | null {

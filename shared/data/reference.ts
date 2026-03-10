@@ -47,6 +47,9 @@ export const CLASSES: ClassTemplate[] = [
     saveProficiencies: ["strength", "constitution"],
     spellcastingAbility: null,
     casterType: "none",
+    standardAbilityOrder: ["strength", "constitution", "dexterity", "wisdom", "intelligence", "charisma"],
+    starterSkillIds: ["athletics", "perception"],
+    starterSpellIds: [],
     featureSummary: ["Second Wind", "Fighting Style", "Weapon Mastery"],
   },
   {
@@ -57,6 +60,9 @@ export const CLASSES: ClassTemplate[] = [
     saveProficiencies: ["dexterity", "charisma"],
     spellcastingAbility: "charisma",
     casterType: "full",
+    standardAbilityOrder: ["charisma", "dexterity", "constitution", "wisdom", "intelligence", "strength"],
+    starterSkillIds: ["performance", "persuasion"],
+    starterSpellIds: ["vicious-mockery", "mage-hand", "healing-word", "cure-wounds", "faerie-fire", "heroism"],
     featureSummary: ["Bardic Inspiration", "Spellcasting", "Expertise"],
   },
   {
@@ -67,6 +73,9 @@ export const CLASSES: ClassTemplate[] = [
     saveProficiencies: ["intelligence", "wisdom"],
     spellcastingAbility: "intelligence",
     casterType: "full",
+    standardAbilityOrder: ["intelligence", "constitution", "dexterity", "wisdom", "charisma", "strength"],
+    starterSkillIds: ["arcana", "investigation"],
+    starterSpellIds: ["fire-bolt", "mage-hand", "magic-missile", "sleep", "mage-armor", "detect-magic"],
     featureSummary: ["Arcane Recovery", "Spellcasting", "Ritual Casting"],
   },
   {
@@ -77,6 +86,9 @@ export const CLASSES: ClassTemplate[] = [
     saveProficiencies: ["wisdom", "charisma"],
     spellcastingAbility: "wisdom",
     casterType: "full",
+    standardAbilityOrder: ["wisdom", "constitution", "dexterity", "charisma", "strength", "intelligence"],
+    starterSkillIds: ["insight", "religion"],
+    starterSpellIds: ["guidance", "sacred-flame", "bless", "cure-wounds", "guiding-bolt", "healing-word", "shield-of-faith"],
     featureSummary: ["Divine Order", "Channel Divinity", "Spellcasting"],
   },
   {
@@ -87,6 +99,9 @@ export const CLASSES: ClassTemplate[] = [
     saveProficiencies: ["intelligence", "wisdom"],
     spellcastingAbility: "wisdom",
     casterType: "full",
+    standardAbilityOrder: ["wisdom", "constitution", "dexterity", "intelligence", "charisma", "strength"],
+    starterSkillIds: ["nature", "survival"],
+    starterSpellIds: ["guidance", "shillelagh", "cure-wounds", "entangle", "faerie-fire", "goodberry"],
     featureSummary: ["Primal Order", "Spellcasting", "Wild Shape"],
   },
   {
@@ -97,6 +112,9 @@ export const CLASSES: ClassTemplate[] = [
     saveProficiencies: ["wisdom", "charisma"],
     spellcastingAbility: "charisma",
     casterType: "half",
+    standardAbilityOrder: ["strength", "charisma", "constitution", "wisdom", "dexterity", "intelligence"],
+    starterSkillIds: ["athletics", "persuasion"],
+    starterSpellIds: ["bless", "cure-wounds", "heroism", "shield-of-faith"],
     featureSummary: ["Lay on Hands", "Spellcasting", "Weapon Mastery"],
   },
   {
@@ -107,6 +125,9 @@ export const CLASSES: ClassTemplate[] = [
     saveProficiencies: ["strength", "dexterity"],
     spellcastingAbility: "wisdom",
     casterType: "half",
+    standardAbilityOrder: ["dexterity", "wisdom", "constitution", "strength", "intelligence", "charisma"],
+    starterSkillIds: ["perception", "survival"],
+    starterSpellIds: ["hunters-mark", "goodberry", "cure-wounds", "entangle", "fog-cloud"],
     featureSummary: ["Favored Enemy", "Spellcasting", "Weapon Mastery"],
   },
   {
@@ -117,6 +138,9 @@ export const CLASSES: ClassTemplate[] = [
     saveProficiencies: ["dexterity", "intelligence"],
     spellcastingAbility: null,
     casterType: "none",
+    standardAbilityOrder: ["dexterity", "constitution", "wisdom", "intelligence", "charisma", "strength"],
+    starterSkillIds: ["perception", "stealth"],
+    starterSpellIds: [],
     featureSummary: ["Sneak Attack", "Expertise", "Cunning Action"],
   },
   {
@@ -127,6 +151,9 @@ export const CLASSES: ClassTemplate[] = [
     saveProficiencies: ["constitution", "charisma"],
     spellcastingAbility: "charisma",
     casterType: "full",
+    standardAbilityOrder: ["charisma", "constitution", "dexterity", "wisdom", "intelligence", "strength"],
+    starterSkillIds: ["arcana", "persuasion"],
+    starterSpellIds: ["fire-bolt", "ray-of-frost", "magic-missile", "sleep", "mage-armor", "burning-hands"],
     featureSummary: ["Innate Sorcery", "Spellcasting", "Sorcery Points"],
   },
   {
@@ -137,6 +164,9 @@ export const CLASSES: ClassTemplate[] = [
     saveProficiencies: ["wisdom", "charisma"],
     spellcastingAbility: "charisma",
     casterType: "pact",
+    standardAbilityOrder: ["charisma", "constitution", "dexterity", "wisdom", "intelligence", "strength"],
+    starterSkillIds: ["arcana", "deception"],
+    starterSpellIds: ["eldritch-blast", "minor-illusion", "hex", "charm-person", "detect-magic"],
     featureSummary: ["Pact Magic", "Eldritch Invocations", "Magical Cunning"],
   },
 ];
