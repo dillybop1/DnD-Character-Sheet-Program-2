@@ -73,6 +73,16 @@ Create a downloadable `Mac + Windows` app that lets players build, store, and ex
 - `M12`: saved-sheet visual parity pass focused on a lighter worksheet-like on-screen presentation while keeping the reference-style page-one sheet as the main core body and removing the extra top-of-page overview layer
 - `M13`: non-print content/product expansion while further print/PDF-system work is deferred until the final-release gate
 
+## Current M13 Focus
+
+- The next saved-sheet pass is a worksheet-first simplification rather than another dashboard or roster slice.
+- Implementation steps for that pass:
+  - Strip the non-parchment saved-sheet route chrome so `/characters/:id` shows only the parchment Character Worksheet and Spell Worksheet pages.
+  - Remove the current saved-sheet support cards that sit outside the worksheet body, especially the route-level quick references, sheet snapshot, and spell-slot tracking header area.
+  - Move page-one play-state mutations onto the Character Worksheet itself: current HP, temp HP, death saves, inspiration, hit dice actions, rests, and class-feature charge usage such as Rage and Wild Shape.
+  - Keep spell-slot and recovery actions on the Spell Worksheet, but remove the extra page-two profile and tracked-resource side panels so page two stays focused on spell use.
+  - Update the saved-sheet smoke coverage after the route and worksheet controls move so the worksheet-first flow is the new tested baseline.
+
 ## Acceptance Criteria
 
 - A fresh clone on another machine can identify the current branch, milestone, task, and first command in under five minutes.

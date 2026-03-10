@@ -1,16 +1,16 @@
 # Status Snapshot
 
-- Last updated: `2026-03-10 13:36 America/New_York`
+- Last updated: `2026-03-10 14:10 America/New_York`
 - Active branch: `main` (tracking `origin/main` at `https://github.com/dillybop1/DnD-Character-Sheet-Program-2.git`)
 - Current milestone: `M13`
-- Current task ID: `M13-127`
-- Last completed task: `M13-126`
+- Current task ID: `M13-128`
+- Last completed task: `M13-127`
 
 ## Next 3 Actions
 
-1. Decide whether to keep deepening roster usability after the launch-page management pass or pivot to another non-print surface.
-2. Keep the exact-text work additive and bounded, and leave any remaining exceptions explicit/documented unless a verified open source is available.
-3. Keep PDF/print work deferred unless a future final-release pass explicitly reopens it.
+1. Rework the saved-sheet route into a worksheet-only surface so `/characters/:id` shows only the parchment Character Worksheet and Spell Worksheet pages.
+2. Move page-one HP, temp HP, death saves, inspiration, hit dice actions, rest buttons, and class-feature charge controls onto the Character Worksheet while leaving spell slots and recovery on the Spell Worksheet.
+3. Update the saved-sheet smoke coverage plus the handoff docs once the worksheet-first route is implemented.
 
 ## Blockers / Open Questions
 
@@ -119,6 +119,8 @@
 - `M13-121` is now complete: after the starter-spell pass landed, the roadmap explicitly stays on builder onboarding for one more bounded starter-skill slice because fresh class changes and quick-start setup still left stale fighter-oriented skill defaults in place unless the player fixed them manually.
 - `M13-122` is now complete: the builder now exposes app-authored class starter skill packages for all current classes, auto-carries those packages across fresh class changes only while the draft still matches the prior starter skill package, and folds the same recommendations into the broader quick-start setup action without silently overwriting later manual skill edits.
 - `M13-123` is now complete: after the starter-skill pass landed, the roadmap explicitly pivots from builder onboarding to roster usability because the creation flow now has class-ready ability, gear, spell, and skill presets while the launch roster was still only a flat recent-first list.
+- `M13-127` is now complete: after the roster-management pass landed, the roadmap explicitly pivots away from more roster work and back to the saved-sheet route because the next user-facing gap is no longer launch-page management, but the fact that `/characters/:id` still behaves like a dashboard wrapped around the parchment pages instead of a worksheet-first play surface.
+- Implementation handoff for `M13-128`: the next code pass should remove the route-level shell in [src/pages/CharacterSheetPage.tsx](../src/pages/CharacterSheetPage.tsx), move live page-one HP/rest/resource controls into [src/components/SheetPreview.tsx](../src/components/SheetPreview.tsx), slim [src/components/SavedSheetBook.tsx](../src/components/SavedSheetBook.tsx) down to worksheet pages plus page-two spellbook controls, and then update [tests/savedSheetRoute.smoke.test.tsx](../tests/savedSheetRoute.smoke.test.tsx) to assert the worksheet-only route instead of the old quick-reference/support-card layout.
 - `M13-124` is now complete: the character roster now supports local search, class/species filters, sort controls, resettable browse state, and a filtered empty state, so larger local libraries are easier to scan without changing persistence, route structure, or introducing another URL-state system.
 - `M13-125` is now complete: after the first roster browse/filter/sort pass landed, the roadmap explicitly stays on roster usability for one more bounded launch-page management slice because export and delete still required leaving the roster and opening another route first.
 - `M13-126` is now complete: the character roster now supports per-card JSON export and delete actions with inline pending state plus shared message feedback, so launch-page management no longer requires a detour into the saved-sheet or builder route for those common tasks.

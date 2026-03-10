@@ -1176,3 +1176,10 @@
 - Decision: Add per-character JSON export and delete actions to the roster cards, with inline pending-action state and top-level message feedback, while keeping PDF export and deeper management flows on the dedicated sheet/editor routes.
 - Consequences: The roster is now a more complete launch and management surface, common character-library tasks no longer require a detour into the sheet or builder, and the app still avoids expanding the roster into a heavier multi-step management workflow.
 
+## DEC-169
+
+- Date: `2026-03-10`
+- Context: After the roster-management pass landed, the user explicitly redirected the next slice back to the saved-sheet route and asked for `/characters/:id` to behave like the worksheet itself rather than a dashboard wrapped around it.
+- Decision: Pivot the next bounded slice away from further roster work and reopen the saved-sheet route as a worksheet-first simplification pass instead.
+- Consequences: The roadmap now treats the saved-sheet route as the highest-value non-print surface again, the roster remains at its current browse-plus-management baseline, and the next implementation should strip route chrome and relocate live page-one interactions onto the worksheet rather than adding more launch-page management features.
+
